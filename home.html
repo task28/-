@@ -7,50 +7,45 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            font-family: 'Poppins', sans-serif; color: white; margin: 0; padding: 20px;
-        }
-        .header {
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
-            padding: 25px; border-radius: 20px; text-align: center;
-            border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px;
-        }
-        .balance-title { font-size: 14px; color: #ccc; }
+        body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); font-family: 'Poppins', sans-serif; color: white; margin: 0; padding: 20px; }
+        .header { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 25px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px; }
         .balance { font-size: 36px; font-weight: bold; margin: 5px 0; text-shadow: 0 0 10px rgba(0,198,255,0.5); }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .card {
-            background: rgba(0, 0, 0, 0.3); padding: 25px; border-radius: 15px;
-            text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.05);
-            transition: 0.3s;
-        }
+        .card { background: rgba(0, 0, 0, 0.3); padding: 25px; border-radius: 15px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
         .card:hover { background: rgba(0, 198, 255, 0.2); transform: translateY(-5px); }
         .card i { font-size: 30px; margin-bottom: 10px; color: #00c6ff; }
-        .card h3 { font-size: 16px; font-weight: 500; }
+        
+        /* Notification Toast */
+        #toast { visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #333; color: #fff; text-align: center; border-radius: 2px; padding: 16px; position: fixed; z-index: 1; left: 50%; bottom: 30px; font-size: 17px; border-left: 5px solid #00c6ff; }
+        #toast.show { visibility: visible; -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @-webkit-keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @-webkit-keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="balance-title">Available Balance</div>
-        <div class="balance">৳ <span id="balanceDisplay">0</span></div>
-        <p style="font-size: 12px; color: #aaa;">Hello, <span id="uName">User</span></p>
+        <div class="balance">৳ <span id="balanceDisplay">...</span></div>
+        <p style="font-size: 12px; color: #aaa;">Welcome, <span id="uName">User</span></p>
     </div>
 
     <div class="grid">
         <div class="card" onclick="window.location.href='task.html'">
-            <i class="fas fa-tasks"></i>
-            <h3>Start Task</h3>
+            <i class="fas fa-tasks"></i><h3>Start Task</h3>
         </div>
         <div class="card" onclick="window.location.href='withdraw.html'">
-            <i class="fas fa-wallet"></i>
-            <h3>Withdraw</h3>
+            <i class="fas fa-wallet"></i><h3>Withdraw</h3>
         </div>
     </div>
+    
+    <div id="toast"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+        import { getDatabase, ref, onValue, get, update, child } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
         const firebaseConfig = { apiKey: "AIzaSyAvTnq3h4SAsgOZcKg58TioELMZWr-Jp4c", authDomain: "task-d0f72.firebaseapp.com", databaseURL: "https://task-d0f72-default-rtdb.firebaseio.com", projectId: "task-d0f72", storageBucket: "task-d0f72.firebasestorage.app", messagingSenderId: "376760667912", appId: "1:376760667912:web:056595289880d291d5a6bd" };
         const app = initializeApp(firebaseConfig);
@@ -59,15 +54,70 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                onValue(ref(db, 'users/' + user.uid), (snapshot) => {
+                // 1. Show User Data
+                const userRef = ref(db, 'users/' + user.uid);
+                onValue(userRef, (snapshot) => {
                     const data = snapshot.val();
                     document.getElementById('balanceDisplay').innerText = data.balance || 0;
                     document.getElementById('uName').innerText = data.username || "User";
                 });
+
+                // 2. CHECK FOR PENDING PAYMENTS (24H Logic)
+                checkPayments(user.uid);
             } else {
                 window.location.href = "register_login.html";
             }
         });
+
+        function checkPayments(uid) {
+            get(ref(db, 'tasks')).then((snapshot) => {
+                if(snapshot.exists()) {
+                    snapshot.forEach((childSnap) => {
+                        const t = childSnap.val();
+                        const key = childSnap.key;
+
+                        // Check if: 
+                        // 1. Task belongs to user
+                        // 2. Status is 'approved' (Approved by admin)
+                        // 3. Not yet paid (isPaid == false)
+                        // 4. Current Time >= Payment Due Time
+                        
+                        if(t.uid === uid && t.status === 'approved' && t.isPaid === false) {
+                            if(Date.now() >= t.paymentDue) {
+                                // TIME IS UP! ADD MONEY
+                                processPayment(uid, key, t.reward);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        function processPayment(uid, taskKey, amount) {
+            get(child(ref(db), `users/${uid}/balance`)).then((snap) => {
+                const currentBal = snap.val() || 0;
+                const newBal = currentBal + amount;
+
+                // Update User Balance
+                update(ref(db, `users/${uid}`), { balance: newBal });
+
+                // Mark Task as Paid & Completed
+                update(ref(db, `tasks/${taskKey}`), { 
+                    status: 'paid', 
+                    isPaid: true 
+                });
+
+                // Show Notification
+                showToast(`Payment Received: ৳${amount}`);
+            });
+        }
+
+        function showToast(msg) {
+            const x = document.getElementById("toast");
+            x.innerText = msg;
+            x.className = "show";
+            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        }
     </script>
 </body>
 </html>
