@@ -8,39 +8,59 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); font-family: 'Poppins', sans-serif; color: white; margin: 0; padding: 20px; }
-        .header { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 25px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px; }
-        .balance { font-size: 36px; font-weight: bold; margin: 5px 0; text-shadow: 0 0 10px rgba(0,198,255,0.5); }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .card { background: rgba(0, 0, 0, 0.3); padding: 25px; border-radius: 15px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
-        .card:hover { background: rgba(0, 198, 255, 0.2); transform: translateY(-5px); }
-        .card i { font-size: 30px; margin-bottom: 10px; color: #00c6ff; }
         
-        /* Notification Toast */
-        #toast { visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #333; color: #fff; text-align: center; border-radius: 2px; padding: 16px; position: fixed; z-index: 1; left: 50%; bottom: 30px; font-size: 17px; border-left: 5px solid #00c6ff; }
-        #toast.show { visibility: visible; -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        @-webkit-keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        .header { 
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); 
+            padding: 30px; border-radius: 20px; text-align: center; 
+            border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .balance { font-size: 42px; font-weight: 700; margin: 10px 0; color: #fff; text-shadow: 0 0 15px rgba(0,198,255,0.6); }
+        .currency { color: #00c6ff; font-size: 30px; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { 
+            background: rgba(0, 0, 0, 0.3); padding: 25px; border-radius: 15px; 
+            text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); 
+            transition: 0.3s; 
+        }
+        .card:hover { background: rgba(0, 198, 255, 0.1); border-color: #00c6ff; transform: translateY(-5px); }
+        .card i { font-size: 35px; margin-bottom: 15px; background: linear-gradient(to right, #00c6ff, #0072ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .card h3 { font-size: 16px; font-weight: 500; margin: 0; }
+
+        /* Toast Notification */
+        #toast {
+            visibility: hidden; min-width: 280px; background-color: #28a745; color: #fff;
+            text-align: center; border-radius: 8px; padding: 16px; position: fixed;
+            z-index: 99; left: 50%; transform: translateX(-50%); bottom: 30px;
+            font-size: 16px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 3.5s; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @-webkit-keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     </style>
 </head>
 <body>
+    
     <div class="header">
-        <div class="balance-title">Available Balance</div>
-        <div class="balance">৳ <span id="balanceDisplay">...</span></div>
-        <p style="font-size: 12px; color: #aaa;">Welcome, <span id="uName">User</span></p>
+        <p style="margin:0; color:#aaa; font-size:14px;">Total Balance</p>
+        <div class="balance"><span class="currency">৳</span> <span id="balanceDisplay">...</span></div>
+        <div style="font-size: 13px; color: #888;">Welcome back, <span id="uName" style="color:#fff;">User</span></div>
     </div>
 
     <div class="grid">
         <div class="card" onclick="window.location.href='task.html'">
-            <i class="fas fa-tasks"></i><h3>Start Task</h3>
+            <i class="fas fa-briefcase"></i>
+            <h3>Start Task</h3>
         </div>
         <div class="card" onclick="window.location.href='withdraw.html'">
-            <i class="fas fa-wallet"></i><h3>Withdraw</h3>
+            <i class="fas fa-wallet"></i>
+            <h3>Withdraw</h3>
         </div>
     </div>
-    
-    <div id="toast"></div>
+
+    <div id="toast"><i class="fas fa-check-circle"></i> <span id="toastMsg">Payment Received!</span></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
@@ -54,7 +74,7 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // 1. Show User Data
+                // Fetch User Data
                 const userRef = ref(db, 'users/' + user.uid);
                 onValue(userRef, (snapshot) => {
                     const data = snapshot.val();
@@ -62,29 +82,27 @@
                     document.getElementById('uName').innerText = data.username || "User";
                 });
 
-                // 2. CHECK FOR PENDING PAYMENTS (24H Logic)
-                checkPayments(user.uid);
+                // AUTOMATIC PAYMENT CHECKER (Logic for 24H)
+                checkPendingPayments(user.uid);
             } else {
                 window.location.href = "register_login.html";
             }
         });
 
-        function checkPayments(uid) {
+        function checkPendingPayments(uid) {
             get(ref(db, 'tasks')).then((snapshot) => {
                 if(snapshot.exists()) {
                     snapshot.forEach((childSnap) => {
                         const t = childSnap.val();
                         const key = childSnap.key;
 
-                        // Check if: 
-                        // 1. Task belongs to user
-                        // 2. Status is 'approved' (Approved by admin)
-                        // 3. Not yet paid (isPaid == false)
-                        // 4. Current Time >= Payment Due Time
-                        
+                        // Check Conditions:
+                        // 1. User matches
+                        // 2. Status is 'approved'
+                        // 3. Not Paid yet
+                        // 4. Current time > Payment Due time
                         if(t.uid === uid && t.status === 'approved' && t.isPaid === false) {
                             if(Date.now() >= t.paymentDue) {
-                                // TIME IS UP! ADD MONEY
                                 processPayment(uid, key, t.reward);
                             }
                         }
@@ -94,29 +112,30 @@
         }
 
         function processPayment(uid, taskKey, amount) {
+            // Transaction to ensure balance safety
             get(child(ref(db), `users/${uid}/balance`)).then((snap) => {
                 const currentBal = snap.val() || 0;
                 const newBal = currentBal + amount;
 
-                // Update User Balance
+                // 1. Add Money
                 update(ref(db, `users/${uid}`), { balance: newBal });
 
-                // Mark Task as Paid & Completed
+                // 2. Mark as Paid (so it doesn't pay again)
                 update(ref(db, `tasks/${taskKey}`), { 
                     status: 'paid', 
                     isPaid: true 
                 });
 
-                // Show Notification
-                showToast(`Payment Received: ৳${amount}`);
+                // 3. Notify User
+                showToast(`Congratulations! ৳${amount} added from task.`);
             });
         }
 
-        function showToast(msg) {
-            const x = document.getElementById("toast");
-            x.innerText = msg;
-            x.className = "show";
-            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            document.getElementById("toastMsg").innerText = message;
+            toast.className = "show";
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 4000);
         }
     </script>
 </body>
