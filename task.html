@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Daily Task</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); font-family: 'Poppins', sans-serif; color: white; padding: 20px; }
+        .glass-box {
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px);
+            padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;
+        }
+        h2 { text-align: center; margin-bottom: 20px; }
+        .details p { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin: 5px 0; font-size: 14px; word-break: break-all; }
+        .details strong { color: #00c6ff; }
+        button {
+            width: 100%; padding: 12px; border-radius: 30px; border: none;
+            background: linear-gradient(to right, #00c6ff, #0072ff);
+            color: white; font-weight: bold; cursor: pointer; margin-top: 15px;
+        }
+        button:disabled { background: #555; cursor: not-allowed; }
+        
+        /* Custom File Input */
+        .file-upload { display: block; margin-top: 10px; }
+        .file-upload label {
+            display: block; padding: 10px; background: rgba(0,198,255,0.1);
+            border: 1px dashed #00c6ff; text-align: center; border-radius: 10px; cursor: pointer;
+        }
+        input[type="file"] { display: none; }
+    </style>
+</head>
+<body>
+    <h2>Premium Task</h2>
+    
+    <div id="applySection" class="glass-box">
+        <h3><i class="fas fa-briefcase"></i> Apply for Task</h3>
+        <p>Apply to get new credentials. Cooldown: 1 Hour.</p>
+        <button id="applyBtn" onclick="applyTask()">APPLY NOW</button>
+        <p id="cooldownMsg" style="color:#ff4b5c; display:none; margin-top:10px;">Wait: <span id="timeLeft"></span></p>
+    </div>
+
+    <div id="taskSection" class="glass-box" style="display:none;">
+        <h3><i class="fas fa-spinner fa-spin"></i> Current Task Status</h3>
+        <div id="statusMsg" style="color: #f0ad4e; margin: 10px 0;">Loading...</div>
+        
+        <div id="adminDetails" class="details" style="display:none;">
+            <p><strong>First Name:</strong> <span id="t_fname"></span></p>
+            <p><strong>Last Name:</strong> <span id="t_lname"></span></p>
+            <p><strong>Gmail:</strong> <span id="t_gmail"></span></p>
+            <p><strong>Password:</strong> <span id="t_pass"></span></p>
+            <p><strong>Recovery:</strong> <span id="t_rec"></span></p>
+            <p style="color:#ff4b5c;"><strong>Time Limit:</strong> <span id="t_time"></span></p>
+            
+            <div class="file-upload">
+                <label for="ss1"><i class="fas fa-camera"></i> Upload Screenshot 1</label>
+                <input type="file" id="ss1" accept="image/*">
+            </div>
+            <div class="file-upload">
+                <label for="ss2"><i class="fas fa-camera"></i> Upload Screenshot 2</label>
+                <input type="file" id="ss2" accept="image/*">
+            </div>
+
+            <button onclick="submitTask()">SUBMIT PROOF</button>
+        </div>
+    </div>
+    
+    <button onclick="window.location.href='home.html'" style="background: #333;">BACK HOME</button>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+        import { getDatabase, ref, push, onValue, update, get, child } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyAvTnq3h4SAsgOZcKg58TioELMZWr-Jp4c", authDomain: "task-d0f72.firebaseapp.com", databaseURL: "https://task-d0f72-default-rtdb.firebaseio.com", projectId: "task-d0f72", storageBucket: "task-d0f72.firebasestorage.app", messagingSenderId: "376760667912", appId: "1:376760667912:web:056595289880d291d5a6bd" };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        let currentTaskId = null;
+
+        onAuthStateChanged(auth, (user) => {
+            if(user) checkActiveTask(user.uid);
+        });
+
+        function checkActiveTask(uid) {
+            onValue(ref(db, 'tasks'), (snapshot) => {
+                let hasActive = false;
+                snapshot.forEach(child => {
+                    const t = child.val();
+                    if(t.uid === uid && (t.status === 'pending' || t.status === 'assigned' || t.status === 'submitted')) {
+                        hasActive = true;
+                        currentTaskId = child.key;
+                        showTaskUI(t);
+                    }
+                });
+                if(!hasActive) {
+                    document.getElementById('applySection').style.display = 'block';
+                    document.getElementById('taskSection').style.display = 'none';
+                    checkCooldown(uid);
+                }
+            });
+        }
+
+        function checkCooldown(uid) {
+            get(child(ref(db), `users/${uid}/lastTaskTime`)).then((snap) => {
+                if(snap.exists()){
+                    const diff = Date.now() - snap.val();
+                    if(diff < 3600000) {
+                        document.getElementById('applyBtn').disabled = true;
+                        document.getElementById('cooldownMsg').style.display = 'block';
+                        document.getElementById('timeLeft').innerText = Math.ceil((3600000 - diff)/60000) + " mins";
+                    }
+                }
+            });
+        }
+
+        window.applyTask = () => {
+            const user = auth.currentUser;
+            push(ref(db, 'tasks'), { uid: user.uid, status: 'pending', timestamp: Date.now() });
+            update(ref(db, `users/${user.uid}`), { lastTaskTime: Date.now() });
+        }
+
+        function showTaskUI(task) {
+            document.getElementById('applySection').style.display = 'none';
+            document.getElementById('taskSection').style.display = 'block';
+            const msg = document.getElementById('statusMsg');
+            
+            if(task.status === 'pending') {
+                msg.innerText = "Request Sent. Waiting for Admin...";
+                document.getElementById('adminDetails').style.display = 'none';
+            } else if (task.status === 'assigned') {
+                msg.innerText = "Task Assigned! Complete Details:";
+                document.getElementById('adminDetails').style.display = 'block';
+                document.getElementById('t_fname').innerText = task.data.fname;
+                document.getElementById('t_lname').innerText = task.data.lname;
+                document.getElementById('t_gmail').innerText = task.data.gmail;
+                document.getElementById('t_pass').innerText = task.data.password;
+                document.getElementById('t_rec').innerText = task.data.recovery;
+                document.getElementById('t_time').innerText = task.data.timeLimit;
+            } else if (task.status === 'submitted') {
+                msg.innerText = "Under Review. Payment in 24h.";
+                document.getElementById('adminDetails').style.display = 'none';
+            }
+        }
+
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+
+        window.submitTask = async () => {
+            const f1 = document.getElementById('ss1').files[0];
+            const f2 = document.getElementById('ss2').files[0];
+            if(!f1 || !f2) return alert("Upload both screenshots!");
+            
+            const img1 = await toBase64(f1);
+            const img2 = await toBase64(f2);
+            update(ref(db, `tasks/${currentTaskId}`), { status: 'submitted', ss1: img1, ss2: img2 });
+            alert("Submitted!");
+        }
+    </script>
+</body>
+</html>
