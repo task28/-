@@ -7,8 +7,44 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); font-family: 'Poppins', sans-serif; color: white; margin: 0; padding: 20px; }
+        body { 
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); 
+            font-family: 'Poppins', sans-serif; color: white; margin: 0; padding: 20px; 
+        }
+
+        /* --- LOADING SCREEN CSS --- */
+        #loading-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #0f0c29;
+            z-index: 99999; /* সবার উপরে থাকবে */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
         
+        .loader-ring {
+            width: 60px; height: 60px;
+            border: 5px solid rgba(255,255,255,0.1);
+            border-top: 5px solid #00c6ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #00c6ff; font-weight: bold; letter-spacing: 1px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        /* -------------------------- */
+
         .header { 
             background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); 
             padding: 30px; border-radius: 20px; text-align: center; 
@@ -28,25 +64,34 @@
         .card i { font-size: 35px; margin-bottom: 15px; background: linear-gradient(to right, #00c6ff, #0072ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .card h3 { font-size: 16px; font-weight: 500; margin: 0; }
 
-        /* Toast Notification */
-        #toast {
-            visibility: hidden; min-width: 280px; background-color: #28a745; color: #fff;
-            text-align: center; border-radius: 8px; padding: 16px; position: fixed;
-            z-index: 99; left: 50%; transform: translateX(-50%); bottom: 30px;
-            font-size: 16px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            display: flex; align-items: center; justify-content: center; gap: 10px;
+        /* Notification Toast */
+        #notification-container {
+            position: fixed; top: 20px; right: 20px; z-index: 1000;
+            display: flex; flex-direction: column; gap: 10px;
         }
-        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 3.5s; }
-        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+        .toast {
+            background: #222; border-left: 4px solid #00c6ff; color: #fff;
+            padding: 15px; width: 250px; border-radius: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            font-size: 14px; animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     </style>
 </head>
 <body>
-    
+
+    <!-- LOADING SCREEN -->
+    <div id="loading-screen">
+        <div class="loader-ring"></div>
+        <div class="loading-text">LOADING DATA...</div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div id="notification-container"></div>
+
     <div class="header">
         <p style="margin:0; color:#aaa; font-size:14px;">Total Balance</p>
-        <div class="balance"><span class="currency">৳</span> <span id="balanceDisplay">...</span></div>
-        <div style="font-size: 13px; color: #888;">Welcome back, <span id="uName" style="color:#fff;">User</span></div>
+        <div class="balance"><span class="currency">৳</span> <span id="balanceDisplay">--</span></div>
+        <div style="font-size: 13px; color: #888;">Welcome, <span id="uName" style="color:#fff;">...</span></div>
     </div>
 
     <div class="grid">
@@ -60,12 +105,10 @@
         </div>
     </div>
 
-    <div id="toast"><i class="fas fa-check-circle"></i> <span id="toastMsg">Payment Received!</span></div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-        import { getDatabase, ref, onValue, get, update, child } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+        import { getDatabase, ref, onValue, get, update, child, onChildAdded, remove } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
         const firebaseConfig = { apiKey: "AIzaSyAvTnq3h4SAsgOZcKg58TioELMZWr-Jp4c", authDomain: "task-d0f72.firebaseapp.com", databaseURL: "https://task-d0f72-default-rtdb.firebaseio.com", projectId: "task-d0f72", storageBucket: "task-d0f72.firebasestorage.app", messagingSenderId: "376760667912", appId: "1:376760667912:web:056595289880d291d5a6bd" };
         const app = initializeApp(firebaseConfig);
@@ -74,68 +117,74 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // Fetch User Data
+                // 1. DATA LOAD LOGIC
                 const userRef = ref(db, 'users/' + user.uid);
+                
+                // Realtime Listener for Balance & Name
                 onValue(userRef, (snapshot) => {
                     const data = snapshot.val();
-                    document.getElementById('balanceDisplay').innerText = data.balance || 0;
-                    document.getElementById('uName').innerText = data.username || "User";
+                    if(data) {
+                        document.getElementById('balanceDisplay').innerText = data.balance || 0;
+                        document.getElementById('uName').innerText = data.username || "User";
+                        
+                        // ✅ DATA LOADED: REMOVE LOADING SCREEN
+                        const loader = document.getElementById('loading-screen');
+                        if(loader) {
+                            loader.style.opacity = '0';
+                            setTimeout(() => loader.style.display = 'none', 500); // Smooth Fade Out
+                        }
+                    }
                 });
 
-                // AUTOMATIC PAYMENT CHECKER (Logic for 24H)
+                // 2. CHECK ADMIN MESSAGES
+                const notifRef = ref(db, `users/${user.uid}/notifications`);
+                onChildAdded(notifRef, (snapshot) => {
+                    const msgData = snapshot.val();
+                    if(msgData) {
+                        showToast(msgData.message);
+                        remove(ref(db, `users/${user.uid}/notifications/${snapshot.key}`));
+                    }
+                });
+
+                // 3. BACKGROUND PAYMENT CHECK
                 checkPendingPayments(user.uid);
+
             } else {
+                // Not logged in -> Redirect to Login
                 window.location.href = "register_login.html";
             }
         });
 
+        // Helper: Show Toast
+        function showToast(msg) {
+            const container = document.getElementById('notification-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<i class="fas fa-bell"></i> ${msg}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 10000);
+        }
+
+        // Helper: Check Payments
         function checkPendingPayments(uid) {
             get(ref(db, 'tasks')).then((snapshot) => {
                 if(snapshot.exists()) {
                     snapshot.forEach((childSnap) => {
                         const t = childSnap.val();
-                        const key = childSnap.key;
-
-                        // Check Conditions:
-                        // 1. User matches
-                        // 2. Status is 'approved'
-                        // 3. Not Paid yet
-                        // 4. Current time > Payment Due time
                         if(t.uid === uid && t.status === 'approved' && t.isPaid === false) {
                             if(Date.now() >= t.paymentDue) {
-                                processPayment(uid, key, t.reward);
+                                // Add Money
+                                get(child(ref(db), `users/${uid}/balance`)).then((balSnap) => {
+                                    const newBal = (balSnap.val() || 0) + t.reward;
+                                    update(ref(db, `users/${uid}`), { balance: newBal });
+                                    update(ref(db, `tasks/${childSnap.key}`), { status: 'paid', isPaid: true });
+                                    showToast(`Received ৳${t.reward} from task!`);
+                                });
                             }
                         }
                     });
                 }
             });
-        }
-
-        function processPayment(uid, taskKey, amount) {
-            // Transaction to ensure balance safety
-            get(child(ref(db), `users/${uid}/balance`)).then((snap) => {
-                const currentBal = snap.val() || 0;
-                const newBal = currentBal + amount;
-
-                // 1. Add Money
-                update(ref(db, `users/${uid}`), { balance: newBal });
-
-                // 2. Mark as Paid (so it doesn't pay again)
-                update(ref(db, `tasks/${taskKey}`), { 
-                    status: 'paid', 
-                    isPaid: true 
-                });
-
-                // 3. Notify User
-                showToast(`Congratulations! ৳${amount} added from task.`);
-            });
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById("toast");
-            document.getElementById("toastMsg").innerText = message;
-            toast.className = "show";
-            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 4000);
         }
     </script>
 </body>
