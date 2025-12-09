@@ -6,93 +6,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Style same as before -->
     <style>
         body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); font-family: 'Poppins', sans-serif; color: white; padding: 20px; }
-        .glass-box {
-            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px);
-            padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;
-        }
-        h2 { text-align: center; margin-bottom: 20px; }
-        
-        /* Data Row */
-        .data-row {
-            background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin: 8px 0;
-            display: flex; justify-content: space-between; align-items: center;
-            font-size: 13px; border: 1px solid rgba(255,255,255,0.05);
-        }
-        .data-row strong { color: #00c6ff; margin-right: 5px; }
-        .copy-btn {
-            background: rgba(0, 198, 255, 0.2); color: #00c6ff; padding: 5px 10px;
-            border-radius: 5px; cursor: pointer; font-size: 12px; transition: 0.2s;
-        }
-        .copy-btn:active { background: #00c6ff; color: white; }
-
-        /* Buttons */
-        button {
-            width: 100%; padding: 12px; border-radius: 30px; border: none;
-            background: linear-gradient(to right, #00c6ff, #0072ff);
-            color: white; font-weight: bold; cursor: pointer; margin-top: 15px;
-            transition: 0.3s;
-        }
-        button:disabled { 
-            background: #555; 
-            cursor: not-allowed; 
-            opacity: 0.7;
-        }
-        
-        /* File Input */
-        .file-upload { display: block; margin-top: 15px; }
-        .file-upload label {
-            display: flex; justify-content: center; align-items: center; gap: 10px;
-            padding: 15px; background: rgba(0,198,255,0.1);
-            border: 1px dashed #00c6ff; border-radius: 10px; cursor: pointer; transition: 0.3s;
-        }
-        .file-upload label.uploaded {
-            background: rgba(40, 167, 69, 0.2); border: 1px solid #28a745; color: #28a745; pointer-events: none;
-        }
+        .glass-box { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); padding: 25px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
+        h2 { text-align: center; margin-bottom: 20px; font-weight: 600; }
+        button { width: 100%; padding: 14px; border-radius: 30px; border: none; background: linear-gradient(to right, #00c6ff, #0072ff); color: white; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 16px; }
+        button:disabled { background: #555; opacity: 0.7; cursor: not-allowed; }
+        .file-upload { margin-top: 15px; }
+        .file-upload label { display: flex; justify-content: center; align-items: center; gap: 10px; padding: 15px; background: rgba(0,198,255,0.1); border: 1px dashed #00c6ff; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+        .file-upload label.uploaded { background: rgba(40, 167, 69, 0.2); border-color: #28a745; color: #28a745; }
         input[type="file"] { display: none; }
+        
+        /* Offline Message Box */
+        #offlineMsg {
+            text-align: center; padding: 30px; border: 2px solid #ff416c;
+            background: rgba(255, 65, 108, 0.1); border-radius: 15px; display: none;
+        }
+        .data-row { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+        .data-row strong { color: #00c6ff; }
+        .copy-btn { color: #00c6ff; cursor: pointer; padding: 5px; }
     </style>
 </head>
 <body>
-    <h2>Premium Task</h2>
+    <h2>Premium Task Zone</h2>
     
+    <!-- SYSTEM OFFLINE MESSAGE -->
+    <div id="offlineMsg">
+        <i class="fas fa-ban" style="font-size: 50px; color: #ff416c; margin-bottom: 15px;"></i>
+        <h3>Tasks Are Currently Closed</h3>
+        <p>Admin has disabled new tasks. Please try again later.</p>
+    </div>
+
     <!-- APPLY SECTION -->
-    <div id="applySection" class="glass-box">
-        <h3><i class="fas fa-briefcase"></i> Apply for Task</h3>
-        <p>You can apply once every <strong>2 Hours</strong>.</p>
-        
+    <div id="applySection" class="glass-box" style="display:none;">
+        <h3 style="margin-top:0;"><i class="fas fa-briefcase"></i> Apply for Task</h3>
+        <p>You can perform one task every <strong>2 Hours</strong>.</p>
         <button id="applyBtn" onclick="applyTask()">APPLY NOW</button>
-        
-        <!-- Error/Cooldown Message -->
-        <div id="cooldownMsg" style="background: rgba(255, 0, 0, 0.2); padding: 10px; border-radius: 5px; margin-top: 10px; border: 1px solid red; display: none;">
-            <i class="fas fa-clock"></i> Please wait <span id="timeLeft" style="font-weight:bold;"></span> before next task.
+        <div id="cooldownMsg" style="display:none; margin-top:15px; color:#ff4b5c; text-align:center;">
+            <i class="fas fa-clock"></i> Wait <span id="timeLeft"></span> for next task.
         </div>
     </div>
 
-    <!-- TASK SECTION (Hidden initially) -->
+    <!-- TASK WORK SECTION -->
     <div id="taskSection" class="glass-box" style="display:none;">
-        <h3><i class="fas fa-spinner fa-spin"></i> Task In Progress</h3>
-        <div id="statusMsg" style="color: #f0ad4e; margin: 10px 0;">Wait for Admin to assign details...</div>
+        <h3 id="statusTitle"><i class="fas fa-spinner fa-spin"></i> Processing...</h3>
+        <div id="statusMsg" style="color: #f0ad4e; margin-bottom: 15px;"></div>
         
-        <div id="adminDetails" class="details" style="display:none;">
-            <!-- Copy Data Rows -->
+        <div id="adminDetails" style="display:none;">
             <div class="data-row"><span><strong>F.Name:</strong> <span id="t_fname"></span></span> <i class="fas fa-copy copy-btn" onclick="copyText('t_fname')"></i></div>
             <div class="data-row"><span><strong>L.Name:</strong> <span id="t_lname"></span></span> <i class="fas fa-copy copy-btn" onclick="copyText('t_lname')"></i></div>
             <div class="data-row"><span><strong>Gmail:</strong> <span id="t_gmail"></span></span> <i class="fas fa-copy copy-btn" onclick="copyText('t_gmail')"></i></div>
             <div class="data-row"><span><strong>Pass:</strong> <span id="t_pass"></span></span> <i class="fas fa-copy copy-btn" onclick="copyText('t_pass')"></i></div>
             <div class="data-row"><span><strong>Rec:</strong> <span id="t_rec"></span></span> <i class="fas fa-copy copy-btn" onclick="copyText('t_rec')"></i></div>
-            
-            <p style="color:#ff4b5c; text-align:center; margin-top:10px;"><strong>Time Limit:</strong> <span id="t_time"></span></p>
-            
-            <!-- Uploads -->
-            <div class="file-upload"><input type="file" id="ss1" accept="image/*" onchange="handleFileSelect('ss1', 'lbl_ss1')"><label for="ss1" id="lbl_ss1"><i class="fas fa-camera"></i> Screenshot 1</label></div>
-            <div class="file-upload"><input type="file" id="ss2" accept="image/*" onchange="handleFileSelect('ss2', 'lbl_ss2')"><label for="ss2" id="lbl_ss2"><i class="fas fa-camera"></i> Screenshot 2</label></div>
-
+            <p style="text-align:center; color:#ff4b5c; font-weight:bold;">Limit: <span id="t_time"></span></p>
+            <div class="file-upload"><input type="file" id="ss1" accept="image/*" onchange="fileCheck('ss1','l1')"><label id="l1" for="ss1"><i class="fas fa-camera"></i> Screenshot 1</label></div>
+            <div class="file-upload"><input type="file" id="ss2" accept="image/*" onchange="fileCheck('ss2','l2')"><label id="l2" for="ss2"><i class="fas fa-camera"></i> Screenshot 2</label></div>
             <button id="submitBtn" onclick="submitTask()">SUBMIT PROOF</button>
+        </div>
+        
+        <div id="approvedDetails" style="text-align: center; padding: 20px; border: 1px solid #28a745; background: rgba(40, 167, 69, 0.1); border-radius: 10px; color: #28a745; display:none;">
+            <i class="fas fa-check-circle" style="font-size: 40px; margin-bottom: 10px;"></i>
+            <h3>Task Approved!</h3>
+            <p>Reward is scheduled. Balance will update automatically after <strong>24 Hours</strong>.</p>
         </div>
     </div>
     
-    <button onclick="window.location.href='home.html'" style="background: #333;">BACK HOME</button>
+    <button onclick="window.location.href='home.html'" style="background: transparent; border: 1px solid #444; color: #aaa;">Back to Dashboard</button>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
@@ -105,25 +85,37 @@
         const db = getDatabase(app);
         let currentTaskId = null;
 
-        onAuthStateChanged(auth, (user) => {
-            if(user) checkActiveTask(user.uid);
-        });
+        onAuthStateChanged(auth, (user) => { if(user) checkSystemStatus(user.uid); });
 
-        // 1. MAIN CHECK LOGIC
+        // 1. CHECK GLOBAL SYSTEM STATUS FIRST
+        function checkSystemStatus(uid) {
+            onValue(ref(db, 'settings/task_status'), (snap) => {
+                const isOnline = snap.val(); // true or false
+                
+                if(isOnline === false) {
+                    // System is OFF
+                    document.getElementById('offlineMsg').style.display = 'block';
+                    document.getElementById('applySection').style.display = 'none';
+                    document.getElementById('taskSection').style.display = 'none';
+                } else {
+                    // System is ON -> Check User's Personal Task Status
+                    document.getElementById('offlineMsg').style.display = 'none';
+                    checkActiveTask(uid);
+                }
+            });
+        }
+
         function checkActiveTask(uid) {
             onValue(ref(db, 'tasks'), (snapshot) => {
                 let hasActive = false;
                 snapshot.forEach(child => {
                     const t = child.val();
-                    // Check if user has ANY pending or ongoing task
-                    if(t.uid === uid && (t.status === 'pending' || t.status === 'assigned' || t.status === 'submitted')) {
+                    if(t.uid === uid && (t.status === 'pending' || t.status === 'assigned' || t.status === 'submitted' || t.status === 'approved')) {
                         hasActive = true;
                         currentTaskId = child.key;
                         showTaskUI(t);
                     }
                 });
-                
-                // If no active task, check for Cooldown
                 if(!hasActive) {
                     document.getElementById('applySection').style.display = 'block';
                     document.getElementById('taskSection').style.display = 'none';
@@ -132,93 +124,48 @@
             });
         }
 
-        // 2. COOLDOWN CHECKER (Visual)
+        // ... (বাকি ফাংশনগুলো আগের মতোই থাকবে: checkCooldown, applyTask, submitTask, etc.) ...
+        
         function checkCooldown(uid) {
             get(child(ref(db), `users/${uid}/lastTaskTime`)).then((snap) => {
                 if(snap.exists()){
                     const diff = Date.now() - snap.val();
-                    const waitTime = 7200000; // 2 Hours in Milliseconds
-                    
-                    if(diff < waitTime) {
-                        // Disable Apply Button
-                        const btn = document.getElementById('applyBtn');
-                        btn.disabled = true;
-                        btn.innerText = "Cooldown Active";
-                        
-                        // Show Error Box
+                    if(diff < 7200000) {
+                        document.getElementById('applyBtn').disabled = true;
                         document.getElementById('cooldownMsg').style.display = 'block';
-                        document.getElementById('timeLeft').innerText = Math.ceil((waitTime - diff)/60000) + " minutes";
+                        document.getElementById('timeLeft').innerText = Math.ceil((7200000 - diff)/60000) + " mins";
                     }
                 }
             });
         }
 
-        // 3. SECURE APPLY FUNCTION (With Delay & Re-check)
         window.applyTask = () => {
             const btn = document.getElementById('applyBtn');
-            const user = auth.currentUser;
-
-            // A. Visual Feedback (Loading...)
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking Eligibility...';
-
-            // B. Artificial Delay (3 Seconds) to prevent spam
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
             setTimeout(() => {
-                
-                // C. Final Database Check before pushing
+                const user = auth.currentUser;
                 get(child(ref(db), `users/${user.uid}/lastTaskTime`)).then((snap) => {
-                    const lastTime = snap.val() || 0;
-                    const diff = Date.now() - lastTime;
-                    const waitTime = 7200000; // 2 Hours
-
-                    if (diff >= waitTime) {
-                        // Success: Create Task
-                        push(ref(db, 'tasks'), { 
-                            uid: user.uid, 
-                            status: 'pending', 
-                            timestamp: Date.now() 
-                        });
-                        
-                        // Update User's Last Task Time
+                    if ((Date.now() - (snap.val() || 0)) >= 7200000) {
+                        push(ref(db, 'tasks'), { uid: user.uid, status: 'pending', timestamp: Date.now() });
                         update(ref(db, `users/${user.uid}`), { lastTaskTime: Date.now() });
-                        
-                        // Note: UI will auto-update via onValue listener
-                    } else {
-                        // Failed: Show Alert
-                        alert("You cannot apply yet! Please wait for the cooldown.");
-                        window.location.reload(); // Refresh to show timer
-                    }
+                    } else { alert("Cooldown active!"); window.location.reload(); }
                 });
-
-            }, 3000); // 3000ms = 3 Seconds Delay
-        }
-
-        // --- Helper Functions Below ---
-
-        window.copyText = (id) => {
-            const text = document.getElementById(id).innerText;
-            if(text) { navigator.clipboard.writeText(text); alert("Copied!"); }
-        }
-
-        window.handleFileSelect = (inputId, labelId) => {
-            const input = document.getElementById(inputId);
-            if(input.files && input.files[0]) {
-                const label = document.getElementById(labelId);
-                label.innerHTML = '<i class="fas fa-check-circle"></i> File Selected ✅';
-                label.classList.add('uploaded');
-            }
+            }, 2000);
         }
 
         function showTaskUI(task) {
             document.getElementById('applySection').style.display = 'none';
             document.getElementById('taskSection').style.display = 'block';
+            const title = document.getElementById('statusTitle');
             const msg = document.getElementById('statusMsg');
-            
+
             if(task.status === 'pending') {
-                msg.innerText = "Request Sent! Please wait for Admin...";
+                title.innerHTML = 'Pending Request';
+                msg.innerText = "Waiting for Admin to send details...";
                 document.getElementById('adminDetails').style.display = 'none';
             } else if (task.status === 'assigned') {
-                msg.innerText = "Task Details Received. Complete it now!";
+                title.innerHTML = 'Task Assigned';
+                msg.innerText = "Complete task within time.";
                 document.getElementById('adminDetails').style.display = 'block';
                 document.getElementById('t_fname').innerText = task.data.fname;
                 document.getElementById('t_lname').innerText = task.data.lname;
@@ -227,41 +174,28 @@
                 document.getElementById('t_rec').innerText = task.data.recovery;
                 document.getElementById('t_time').innerText = task.data.timeLimit;
             } else if (task.status === 'submitted') {
-                msg.innerText = "Proof Submitted! Review in progress (24h).";
+                title.innerHTML = 'Under Review';
+                msg.innerText = "Admin is checking your proofs.";
                 document.getElementById('adminDetails').style.display = 'none';
+            } else if (task.status === 'approved') {
+                title.innerHTML = '';
+                msg.innerText = '';
+                document.getElementById('adminDetails').style.display = 'none';
+                document.getElementById('approvedDetails').style.display = 'block';
             }
         }
 
-        const toBase64 = file => new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
-        });
-
+        window.copyText = (id) => { navigator.clipboard.writeText(document.getElementById(id).innerText); alert("Copied"); }
+        window.fileCheck = (id, lbl) => { if(document.getElementById(id).files[0]) document.getElementById(lbl).classList.add('uploaded'); }
+        
         window.submitTask = async () => {
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true; 
-            btn.innerText = "Uploading...";
-            
+            document.getElementById('submitBtn').innerText = "Uploading...";
             const f1 = document.getElementById('ss1').files[0];
             const f2 = document.getElementById('ss2').files[0];
-
-            if(!f1 || !f2) {
-                alert("Please upload BOTH screenshots!");
-                btn.disabled = false; btn.innerText = "SUBMIT PROOF";
-                return;
-            }
-            
-            try {
-                const img1 = await toBase64(f1);
-                const img2 = await toBase64(f2);
-                update(ref(db, `tasks/${currentTaskId}`), { status: 'submitted', ss1: img1, ss2: img2 });
-                alert("Submission Successful!");
-            } catch(e) {
-                alert("Error uploading images. Try again.");
-                btn.disabled = false; btn.innerText = "SUBMIT PROOF";
-            }
+            if(!f1 || !f2) return alert("Upload both!");
+            const toBase64 = file => new Promise((r,j) => { const re=new FileReader(); re.readAsDataURL(file); re.onload=()=>r(re.result); re.onerror=e=>j(e); });
+            const i1 = await toBase64(f1); const i2 = await toBase64(f2);
+            update(ref(db, `tasks/${currentTaskId}`), { status: 'submitted', ss1: i1, ss2: i2 });
         }
     </script>
 </body>
