@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <!-- Style same as before -->
     <style>
         body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); font-family: 'Poppins', sans-serif; color: white; padding: 20px; }
         .glass-box { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); padding: 25px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
@@ -18,37 +17,41 @@
         .file-upload label.uploaded { background: rgba(40, 167, 69, 0.2); border-color: #28a745; color: #28a745; }
         input[type="file"] { display: none; }
         
-        /* Offline Message Box */
-        #offlineMsg {
-            text-align: center; padding: 30px; border: 2px solid #ff416c;
-            background: rgba(255, 65, 108, 0.1); border-radius: 15px; display: none;
-        }
+        #offlineMsg { text-align: center; padding: 30px; border: 2px solid #ff416c; background: rgba(255, 65, 108, 0.1); border-radius: 15px; display: none; }
         .data-row { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
         .data-row strong { color: #00c6ff; }
         .copy-btn { color: #00c6ff; cursor: pointer; padding: 5px; }
+        
+        /* Last Status Box */
+        .last-status { margin-bottom: 20px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; text-align: center; font-size: 12px; color: #aaa; border: 1px solid #333; }
+        .last-status span { color: #28a745; font-weight: bold; }
     </style>
 </head>
 <body>
     <h2>Premium Task Zone</h2>
     
-    <!-- SYSTEM OFFLINE MESSAGE -->
     <div id="offlineMsg">
         <i class="fas fa-ban" style="font-size: 50px; color: #ff416c; margin-bottom: 15px;"></i>
         <h3>Tasks Are Currently Closed</h3>
-        <p>Admin has disabled new tasks. Please try again later.</p>
     </div>
 
     <!-- APPLY SECTION -->
     <div id="applySection" class="glass-box" style="display:none;">
-        <h3 style="margin-top:0;"><i class="fas fa-briefcase"></i> Apply for Task</h3>
-        <p>You can perform one task every <strong>2 Hours</strong>.</p>
+        <div id="lastTaskInfo" class="last-status" style="display:none;">
+            Last Task: <span id="lastStatusText">Approved</span> (Reward pending)
+        </div>
+
+        <h3 style="margin-top:0;"><i class="fas fa-briefcase"></i> Apply for New Task</h3>
+        <p>Wait time: <strong id="adminTime">Loading...</strong> Minutes</p>
+        
         <button id="applyBtn" onclick="applyTask()">APPLY NOW</button>
+        
         <div id="cooldownMsg" style="display:none; margin-top:15px; color:#ff4b5c; text-align:center;">
-            <i class="fas fa-clock"></i> Wait <span id="timeLeft"></span> for next task.
+            <i class="fas fa-clock"></i> Please wait <span id="timeLeft"></span> for next task.
         </div>
     </div>
 
-    <!-- TASK WORK SECTION -->
+    <!-- ACTIVE TASK WORK SECTION -->
     <div id="taskSection" class="glass-box" style="display:none;">
         <h3 id="statusTitle"><i class="fas fa-spinner fa-spin"></i> Processing...</h3>
         <div id="statusMsg" style="color: #f0ad4e; margin-bottom: 15px;"></div>
@@ -64,12 +67,6 @@
             <div class="file-upload"><input type="file" id="ss2" accept="image/*" onchange="fileCheck('ss2','l2')"><label id="l2" for="ss2"><i class="fas fa-camera"></i> Screenshot 2</label></div>
             <button id="submitBtn" onclick="submitTask()">SUBMIT PROOF</button>
         </div>
-        
-        <div id="approvedDetails" style="text-align: center; padding: 20px; border: 1px solid #28a745; background: rgba(40, 167, 69, 0.1); border-radius: 10px; color: #28a745; display:none;">
-            <i class="fas fa-check-circle" style="font-size: 40px; margin-bottom: 10px;"></i>
-            <h3>Task Approved!</h3>
-            <p>Reward is scheduled. Balance will update automatically after <strong>24 Hours</strong>.</p>
-        </div>
     </div>
     
     <button onclick="window.location.href='home.html'" style="background: transparent; border: 1px solid #444; color: #aaa;">Back to Dashboard</button>
@@ -83,22 +80,26 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
+        
         let currentTaskId = null;
+        let adminCooldown = 120; // Default 2 Hours (120 Mins)
 
-        onAuthStateChanged(auth, (user) => { if(user) checkSystemStatus(user.uid); });
+        onAuthStateChanged(auth, (user) => { if(user) initPage(user.uid); });
 
-        // 1. CHECK GLOBAL SYSTEM STATUS FIRST
-        function checkSystemStatus(uid) {
-            onValue(ref(db, 'settings/task_status'), (snap) => {
-                const isOnline = snap.val(); // true or false
+        function initPage(uid) {
+            // 1. Get Admin Settings (Time & Status)
+            onValue(ref(db, 'settings'), (snap) => {
+                const settings = snap.val() || {};
+                const isOnline = settings.task_status;
+                adminCooldown = settings.cooldown_minutes || 120; // Update cooldown dynamically
                 
+                document.getElementById('adminTime').innerText = adminCooldown;
+
                 if(isOnline === false) {
-                    // System is OFF
                     document.getElementById('offlineMsg').style.display = 'block';
                     document.getElementById('applySection').style.display = 'none';
                     document.getElementById('taskSection').style.display = 'none';
                 } else {
-                    // System is ON -> Check User's Personal Task Status
                     document.getElementById('offlineMsg').style.display = 'none';
                     checkActiveTask(uid);
                 }
@@ -107,33 +108,52 @@
 
         function checkActiveTask(uid) {
             onValue(ref(db, 'tasks'), (snapshot) => {
-                let hasActive = false;
+                let activeTaskFound = false;
+                let lastApprovedTask = false;
+
                 snapshot.forEach(child => {
                     const t = child.val();
-                    if(t.uid === uid && (t.status === 'pending' || t.status === 'assigned' || t.status === 'submitted' || t.status === 'approved')) {
-                        hasActive = true;
-                        currentTaskId = child.key;
-                        showTaskUI(t);
+                    if(t.uid === uid) {
+                        // If task is working (pending/assigned/submitted) -> BLOCK APPLY
+                        if (t.status === 'pending' || t.status === 'assigned' || t.status === 'submitted') {
+                            activeTaskFound = true;
+                            currentTaskId = child.key;
+                            showTaskUI(t);
+                        } 
+                        // If task is approved, just mark it (Don't block apply yet)
+                        else if (t.status === 'approved') {
+                            lastApprovedTask = true;
+                        }
                     }
                 });
-                if(!hasActive) {
+
+                if(!activeTaskFound) {
+                    // Show Apply Section
                     document.getElementById('applySection').style.display = 'block';
                     document.getElementById('taskSection').style.display = 'none';
-                    checkCooldown(uid);
+                    
+                    if(lastApprovedTask) {
+                        document.getElementById('lastTaskInfo').style.display = 'block';
+                    }
+
+                    checkTimer(uid);
                 }
             });
         }
 
-        // ... (বাকি ফাংশনগুলো আগের মতোই থাকবে: checkCooldown, applyTask, submitTask, etc.) ...
-        
-        function checkCooldown(uid) {
+        function checkTimer(uid) {
             get(child(ref(db), `users/${uid}/lastTaskTime`)).then((snap) => {
                 if(snap.exists()){
                     const diff = Date.now() - snap.val();
-                    if(diff < 7200000) {
+                    const waitTime = adminCooldown * 60000; // Minutes to Milliseconds
+
+                    if(diff < waitTime) {
                         document.getElementById('applyBtn').disabled = true;
                         document.getElementById('cooldownMsg').style.display = 'block';
-                        document.getElementById('timeLeft').innerText = Math.ceil((7200000 - diff)/60000) + " mins";
+                        document.getElementById('timeLeft').innerText = Math.ceil((waitTime - diff)/60000) + " mins";
+                    } else {
+                        document.getElementById('applyBtn').disabled = false;
+                        document.getElementById('cooldownMsg').style.display = 'none';
                     }
                 }
             });
@@ -142,13 +162,18 @@
         window.applyTask = () => {
             const btn = document.getElementById('applyBtn');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+            
             setTimeout(() => {
                 const user = auth.currentUser;
                 get(child(ref(db), `users/${user.uid}/lastTaskTime`)).then((snap) => {
-                    if ((Date.now() - (snap.val() || 0)) >= 7200000) {
+                    const waitTime = adminCooldown * 60000;
+                    if ((Date.now() - (snap.val() || 0)) >= waitTime) {
                         push(ref(db, 'tasks'), { uid: user.uid, status: 'pending', timestamp: Date.now() });
                         update(ref(db, `users/${user.uid}`), { lastTaskTime: Date.now() });
-                    } else { alert("Cooldown active!"); window.location.reload(); }
+                    } else { 
+                        alert("Cooldown active! Please wait."); 
+                        window.location.reload(); 
+                    }
                 });
             }, 2000);
         }
@@ -177,11 +202,6 @@
                 title.innerHTML = 'Under Review';
                 msg.innerText = "Admin is checking your proofs.";
                 document.getElementById('adminDetails').style.display = 'none';
-            } else if (task.status === 'approved') {
-                title.innerHTML = '';
-                msg.innerText = '';
-                document.getElementById('adminDetails').style.display = 'none';
-                document.getElementById('approvedDetails').style.display = 'block';
             }
         }
 
