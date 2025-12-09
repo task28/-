@@ -13,8 +13,20 @@
             padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;
         }
         h2 { text-align: center; margin-bottom: 20px; }
-        .details p { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin: 5px 0; font-size: 14px; word-break: break-all; }
-        .details strong { color: #00c6ff; }
+        
+        /* Data Row with Copy Button */
+        .data-row {
+            background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin: 8px 0;
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 14px; border: 1px solid rgba(255,255,255,0.05);
+        }
+        .data-row strong { color: #00c6ff; margin-right: 5px; }
+        .copy-btn {
+            background: rgba(0, 198, 255, 0.2); color: #00c6ff; padding: 5px 10px;
+            border-radius: 5px; cursor: pointer; font-size: 14px; transition: 0.2s;
+        }
+        .copy-btn:active { background: #00c6ff; color: white; }
+
         button {
             width: 100%; padding: 12px; border-radius: 30px; border: none;
             background: linear-gradient(to right, #00c6ff, #0072ff);
@@ -22,11 +34,19 @@
         }
         button:disabled { background: #555; cursor: not-allowed; }
         
-        /* Custom File Input */
-        .file-upload { display: block; margin-top: 10px; }
+        /* Custom File Input Styles */
+        .file-upload { display: block; margin-top: 15px; }
         .file-upload label {
-            display: block; padding: 10px; background: rgba(0,198,255,0.1);
-            border: 1px dashed #00c6ff; text-align: center; border-radius: 10px; cursor: pointer;
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+            padding: 15px; background: rgba(0,198,255,0.1);
+            border: 1px dashed #00c6ff; border-radius: 10px; cursor: pointer; transition: 0.3s;
+        }
+        /* Style when file is uploaded */
+        .file-upload label.uploaded {
+            background: rgba(40, 167, 69, 0.2);
+            border: 1px solid #28a745;
+            color: #28a745;
+            pointer-events: none; /* Disables clicking again */
         }
         input[type="file"] { display: none; }
     </style>
@@ -36,7 +56,7 @@
     
     <div id="applySection" class="glass-box">
         <h3><i class="fas fa-briefcase"></i> Apply for Task</h3>
-        <p>Apply to get new credentials. Cooldown: 1 Hour.</p>
+        <p>Apply to get new credentials. Cooldown: 2 Hours.</p>
         <button id="applyBtn" onclick="applyTask()">APPLY NOW</button>
         <p id="cooldownMsg" style="color:#ff4b5c; display:none; margin-top:10px;">Wait: <span id="timeLeft"></span></p>
     </div>
@@ -46,20 +66,44 @@
         <div id="statusMsg" style="color: #f0ad4e; margin: 10px 0;">Loading...</div>
         
         <div id="adminDetails" class="details" style="display:none;">
-            <p><strong>First Name:</strong> <span id="t_fname"></span></p>
-            <p><strong>Last Name:</strong> <span id="t_lname"></span></p>
-            <p><strong>Gmail:</strong> <span id="t_gmail"></span></p>
-            <p><strong>Password:</strong> <span id="t_pass"></span></p>
-            <p><strong>Recovery:</strong> <span id="t_rec"></span></p>
-            <p style="color:#ff4b5c;"><strong>Time Limit:</strong> <span id="t_time"></span></p>
-            
-            <div class="file-upload">
-                <label for="ss1"><i class="fas fa-camera"></i> Upload Screenshot 1</label>
-                <input type="file" id="ss1" accept="image/*">
+            <!-- Details with Copy Buttons -->
+            <div class="data-row">
+                <span><strong>First Name:</strong> <span id="t_fname"></span></span>
+                <i class="fas fa-copy copy-btn" onclick="copyText('t_fname')"></i>
             </div>
+            <div class="data-row">
+                <span><strong>Last Name:</strong> <span id="t_lname"></span></span>
+                <i class="fas fa-copy copy-btn" onclick="copyText('t_lname')"></i>
+            </div>
+            <div class="data-row">
+                <span><strong>Gmail:</strong> <span id="t_gmail"></span></span>
+                <i class="fas fa-copy copy-btn" onclick="copyText('t_gmail')"></i>
+            </div>
+            <div class="data-row">
+                <span><strong>Password:</strong> <span id="t_pass"></span></span>
+                <i class="fas fa-copy copy-btn" onclick="copyText('t_pass')"></i>
+            </div>
+            <div class="data-row">
+                <span><strong>Recovery:</strong> <span id="t_rec"></span></span>
+                <i class="fas fa-copy copy-btn" onclick="copyText('t_rec')"></i>
+            </div>
+            
+            <p style="color:#ff4b5c; text-align:center; margin-top:10px;"><strong>Time Limit:</strong> <span id="t_time"></span></p>
+            
+            <!-- Screenshot 1 -->
             <div class="file-upload">
-                <label for="ss2"><i class="fas fa-camera"></i> Upload Screenshot 2</label>
-                <input type="file" id="ss2" accept="image/*">
+                <input type="file" id="ss1" accept="image/*" onchange="handleFileSelect('ss1', 'lbl_ss1')">
+                <label for="ss1" id="lbl_ss1">
+                    <i class="fas fa-camera"></i> Upload Screenshot 1
+                </label>
+            </div>
+
+            <!-- Screenshot 2 -->
+            <div class="file-upload">
+                <input type="file" id="ss2" accept="image/*" onchange="handleFileSelect('ss2', 'lbl_ss2')">
+                <label for="ss2" id="lbl_ss2">
+                    <i class="fas fa-camera"></i> Upload Screenshot 2
+                </label>
             </div>
 
             <button onclick="submitTask()">SUBMIT PROOF</button>
@@ -82,6 +126,25 @@
         onAuthStateChanged(auth, (user) => {
             if(user) checkActiveTask(user.uid);
         });
+
+        // Copy Function
+        window.copyText = (elementId) => {
+            const text = document.getElementById(elementId).innerText;
+            if(text) {
+                navigator.clipboard.writeText(text);
+                alert("Copied: " + text);
+            }
+        }
+
+        // File Selection Feedback (Makes label green and disables it)
+        window.handleFileSelect = (inputId, labelId) => {
+            const input = document.getElementById(inputId);
+            const label = document.getElementById(labelId);
+            if(input.files && input.files[0]) {
+                label.innerHTML = '<i class="fas fa-check-circle"></i> Uploaded ✅';
+                label.classList.add('uploaded');
+            }
+        }
 
         function checkActiveTask(uid) {
             onValue(ref(db, 'tasks'), (snapshot) => {
@@ -106,10 +169,11 @@
             get(child(ref(db), `users/${uid}/lastTaskTime`)).then((snap) => {
                 if(snap.exists()){
                     const diff = Date.now() - snap.val();
-                    if(diff < 3600000) {
+                    const waitTime = 7200000; // 2 Hours in milliseconds
+                    if(diff < waitTime) {
                         document.getElementById('applyBtn').disabled = true;
                         document.getElementById('cooldownMsg').style.display = 'block';
-                        document.getElementById('timeLeft').innerText = Math.ceil((3600000 - diff)/60000) + " mins";
+                        document.getElementById('timeLeft').innerText = Math.ceil((waitTime - diff)/60000) + " mins";
                     }
                 }
             });
