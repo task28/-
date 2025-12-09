@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0; padding: 0;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            overflow: hidden;
+        }
+        .loader-box {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 0 20px rgba(0,198,255,0.2);
+        }
+        .ring {
+            width: 60px; height: 60px;
+            border: 4px solid transparent;
+            border-top: 4px solid #00c6ff;
+            border-right: 4px solid #0072ff;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            animation: spin 1s linear infinite;
+            box-shadow: 0 0 15px #0072ff;
+        }
+        h2 { letter-spacing: 2px; text-transform: uppercase; font-size: 18px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="loader-box">
+        <div class="ring"></div>
+        <h2>Loading Task web...</h2>
+    </div>
+    <script>
+        setTimeout(() => { window.location.href = "register_login.html"; }, 3000);
+    </script>
+</body>
+</html>
