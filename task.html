@@ -40,6 +40,21 @@
         .data-row { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
         .data-row strong { color: #00c6ff; }
         .copy-btn { color: #00c6ff; cursor: pointer; padding: 5px; }
+
+        /* ACTIVE TASK TIMER STYLE */
+        .urgent-timer {
+            background: rgba(255, 65, 108, 0.2);
+            border: 1px solid #ff416c;
+            color: #ff416c;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            font-size: 18px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -57,7 +72,7 @@
         </div>
     </div>
 
-    <!-- PENDING PAYOUTS LIST (Unlock Times) -->
+    <!-- PENDING PAYOUTS LIST -->
     <div id="payoutSection" class="glass-box" style="display:none;">
         <h3 style="margin-top:0; font-size:16px; color:#28a745;"><i class="fas fa-clock"></i> Incoming Rewards</h3>
         <div id="payoutList"></div>
@@ -75,7 +90,7 @@
         <p>Wait time: <strong id="adminTime">Loading...</strong> Minutes</p>
         <button id="applyBtn" onclick="applyTask()">APPLY NOW</button>
         <div id="cooldownMsg" style="display:none; margin-top:15px; color:#ff4b5c; text-align:center;">
-            <i class="fas fa-clock"></i> Please wait <span id="timeLeft"></span> for next task.
+            <i class="fas fa-clock"></i> Next task available in: <br> <span id="timeLeft" style="font-size:18px; font-weight:bold;"></span>
         </div>
     </div>
 
@@ -85,12 +100,15 @@
         <div id="statusMsg" style="color: #f0ad4e; margin-bottom: 15px;"></div>
         
         <div id="adminDetails" style="display:none;">
+            <!-- NEW: Countdown Timer for Active Task -->
+            <div id="activeTaskTimer" class="urgent-timer">Time Left: <span id="taskCountdown">00:00</span></div>
+
             <div class="data-row"><span><strong>F.Name:</strong> <span id="t_fname"></span></span> <i class="fas fa-copy copy-btn" onclick="copyText('t_fname')"></i></div>
             <div class="data-row"><span><strong>L.Name:</strong> <span id="t_lname"></span></span> <i class="fas fa-copy copy-btn" onclick="copyText('t_lname')"></i></div>
             <div class="data-row"><span><strong>Gmail:</strong> <span id="t_gmail"></span></span> <i class="fas fa-copy copy-btn" onclick="copyText('t_gmail')"></i></div>
             <div class="data-row"><span><strong>Pass:</strong> <span id="t_pass"></span></span> <i class="fas fa-copy copy-btn" onclick="copyText('t_pass')"></i></div>
             <div class="data-row"><span><strong>Rec:</strong> <span id="t_rec"></span></span> <i class="fas fa-copy copy-btn" onclick="copyText('t_rec')"></i></div>
-            <p style="text-align:center; color:#ff4b5c; font-weight:bold;">Limit: <span id="t_time"></span></p>
+            
             <div class="file-upload"><input type="file" id="ss1" accept="image/*" onchange="fileCheck('ss1','l1')"><label id="l1" for="ss1"><i class="fas fa-camera"></i> Screenshot 1</label></div>
             <div class="file-upload"><input type="file" id="ss2" accept="image/*" onchange="fileCheck('ss2','l2')"><label id="l2" for="ss2"><i class="fas fa-camera"></i> Screenshot 2</label></div>
             <button id="submitBtn" onclick="submitTask()">SUBMIT PROOF</button>
@@ -111,11 +129,11 @@
         
         let currentTaskId = null;
         let adminCooldown = 120; 
+        let taskInterval = null; // Variable for Active Task Timer
 
         onAuthStateChanged(auth, (user) => { if(user) initPage(user.uid); });
 
         function initPage(uid) {
-            // Get Admin Settings
             onValue(ref(db, 'settings'), (snap) => {
                 const settings = snap.val() || {};
                 const isOnline = settings.task_status;
@@ -144,49 +162,27 @@
                 snapshot.forEach(child => {
                     const t = child.val();
                     if(t.uid === uid) {
-                        // 1. COUNT COMPLETED (PAID)
-                        if(t.status === 'paid') {
-                            completed++;
-                        }
-
-                        // 2. COUNT & LIST PENDING REWARDS (Approved but not Paid)
+                        // Count Stats
+                        if(t.status === 'paid') completed++;
                         if(t.status === 'approved' && t.isPaid === false) {
                             pendingPay++;
-                            
-                            // Calculate Time Left
                             const timeLeft = t.paymentDue - Date.now();
-                            let timeStr = "Processing...";
-                            
-                            if(timeLeft > 0) {
-                                const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-                                const mins = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                                timeStr = `${hours}h ${mins}m left`;
-                            } else {
-                                timeStr = "Ready (Check Home)";
-                            }
-
-                            payoutHTML += `
-                                <div class="payout-item">
-                                    <span>Reward: ৳${t.reward}</span>
-                                    <span class="timer-badge">${timeStr}</span>
-                                </div>
-                            `;
+                            let timeStr = timeLeft > 0 ? "Processing..." : "Ready";
+                            payoutHTML += `<div class="payout-item"><span>Reward: ৳${t.reward}</span><span class="timer-badge">${timeStr}</span></div>`;
                         }
 
-                        // 3. CHECK ACTIVE TASK
+                        // Check Active Task
                         if (t.status === 'pending' || t.status === 'assigned' || t.status === 'submitted') {
                             activeTaskFound = true;
                             currentTaskId = child.key;
-                            showTaskUI(t);
+                            showTaskUI(t, child.key, uid);
                         }
                     }
                 });
 
-                // Update UI Counters
                 document.getElementById('completedCount').innerText = completed;
                 document.getElementById('pendingCount').innerText = pendingPay;
-
-                // Show Payout List if exists
+                
                 if(pendingPay > 0) {
                     document.getElementById('payoutSection').style.display = 'block';
                     document.getElementById('payoutList').innerHTML = payoutHTML;
@@ -194,29 +190,44 @@
                     document.getElementById('payoutSection').style.display = 'none';
                 }
 
-                // Show Apply Section if no active task
                 if(!activeTaskFound) {
+                    clearInterval(taskInterval); // Stop any running task timer
                     document.getElementById('applySection').style.display = 'block';
                     document.getElementById('taskSection').style.display = 'none';
-                    checkTimer(uid);
+                    checkCooldownTimer(uid);
                 }
             });
         }
 
-        function checkTimer(uid) {
+        // --- COOLDOWN TIMER LOGIC (BEFORE APPLY) ---
+        function checkCooldownTimer(uid) {
             get(child(ref(db), `users/${uid}/lastTaskTime`)).then((snap) => {
                 if(snap.exists()){
-                    const diff = Date.now() - snap.val();
-                    const waitTime = adminCooldown * 60000;
+                    const lastTime = snap.val();
+                    const waitTime = adminCooldown * 60000; // minutes to ms
+                    
+                    // Update UI every second
+                    const updateTimer = () => {
+                        const now = Date.now();
+                        const diff = now - lastTime;
+                        const remaining = waitTime - diff;
 
-                    if(diff < waitTime) {
-                        document.getElementById('applyBtn').disabled = true;
-                        document.getElementById('cooldownMsg').style.display = 'block';
-                        document.getElementById('timeLeft').innerText = Math.ceil((waitTime - diff)/60000) + " mins";
-                    } else {
-                        document.getElementById('applyBtn').disabled = false;
-                        document.getElementById('cooldownMsg').style.display = 'none';
-                    }
+                        if (remaining > 0) {
+                            document.getElementById('applyBtn').disabled = true;
+                            document.getElementById('cooldownMsg').style.display = 'block';
+                            
+                            const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                            const secs = Math.floor((remaining % (1000 * 60)) / 1000);
+                            document.getElementById('timeLeft').innerText = `${mins}m ${secs}s`;
+                        } else {
+                            document.getElementById('applyBtn').disabled = false;
+                            document.getElementById('cooldownMsg').style.display = 'none';
+                            document.getElementById('applyBtn').innerText = "APPLY NOW";
+                        }
+                    };
+
+                    updateTimer(); // run once immediately
+                    setInterval(updateTimer, 1000);
                 }
             });
         }
@@ -224,21 +235,22 @@
         window.applyTask = () => {
             const btn = document.getElementById('applyBtn');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
-            setTimeout(() => {
-                const user = auth.currentUser;
-                get(child(ref(db), `users/${user.uid}/lastTaskTime`)).then((snap) => {
-                    const waitTime = adminCooldown * 60000;
-                    if ((Date.now() - (snap.val() || 0)) >= waitTime) {
-                        push(ref(db, 'tasks'), { uid: user.uid, status: 'pending', timestamp: Date.now() });
-                        update(ref(db, `users/${user.uid}`), { lastTaskTime: Date.now() });
-                    } else { 
-                        alert("Cooldown active!"); window.location.reload(); 
-                    }
-                });
-            }, 2000);
-        }
+            const user = auth.currentUser;
+            
+            get(child(ref(db), `users/${user.uid}/lastTaskTime`)).then((snap) => {
+                const waitTime = adminCooldown * 60000;
+                if (!snap.exists() || (Date.now() - snap.val()) >= waitTime) {
+                    push(ref(db, 'tasks'), { uid: user.uid, status: 'pending', timestamp: Date.now() });
+                    // NOTE: We do NOT update 'lastTaskTime' here anymore. 
+                    // It is updated only when task is SUBMITTED or EXPIRED.
+                } else { 
+                    alert("Cooldown active!"); window.location.reload(); 
+                }
+            });
+        };
 
-        function showTaskUI(task) {
+        // --- ACTIVE TASK UI ---
+        function showTaskUI(task, key, uid) {
             document.getElementById('applySection').style.display = 'none';
             document.getElementById('taskSection').style.display = 'block';
             const title = document.getElementById('statusTitle');
@@ -248,21 +260,65 @@
                 title.innerHTML = 'Pending Request';
                 msg.innerText = "Waiting for Admin to send details...";
                 document.getElementById('adminDetails').style.display = 'none';
+            
             } else if (task.status === 'assigned') {
                 title.innerHTML = 'Task Assigned';
-                msg.innerText = "Complete task within time.";
+                msg.innerText = "Complete task before time runs out!";
                 document.getElementById('adminDetails').style.display = 'block';
+                
+                // Show Data
                 document.getElementById('t_fname').innerText = task.data.fname;
                 document.getElementById('t_lname').innerText = task.data.lname;
                 document.getElementById('t_gmail').innerText = task.data.gmail;
                 document.getElementById('t_pass').innerText = task.data.password;
                 document.getElementById('t_rec').innerText = task.data.recovery;
-                document.getElementById('t_time').innerText = task.data.timeLimit;
+                
+                // --- START TASK TIMER LOGIC ---
+                if(task.assignedTime && task.data.timeLimit) {
+                    runTaskTimer(task.assignedTime, task.data.timeLimit, key, uid);
+                }
+
             } else if (task.status === 'submitted') {
+                clearInterval(taskInterval);
                 title.innerHTML = 'Under Review';
                 msg.innerText = "Admin is checking your proofs.";
                 document.getElementById('adminDetails').style.display = 'none';
             }
+        }
+
+        // --- TASK EXPIRATION LOGIC ---
+        function runTaskTimer(assignedTime, limitMins, taskKey, uid) {
+            clearInterval(taskInterval); // Clear any existing
+            
+            const limitMs = parseInt(limitMins) * 60 * 1000;
+            const deadline = assignedTime + limitMs;
+            const timerDisplay = document.getElementById('taskCountdown');
+
+            taskInterval = setInterval(() => {
+                const now = Date.now();
+                const diff = deadline - now;
+
+                if (diff <= 0) {
+                    // TIME OVER: EXPIRE THE TASK
+                    clearInterval(taskInterval);
+                    expireTask(taskKey, uid);
+                } else {
+                    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+                    timerDisplay.innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                }
+            }, 1000);
+        }
+
+        function expireTask(taskKey, uid) {
+            // 1. Mark task as expired in DB
+            update(ref(db, `tasks/${taskKey}`), { status: 'expired' });
+            
+            // 2. Punishment: Reset User Timer so they have to wait cooldown again
+            update(ref(db, `users/${uid}`), { lastTaskTime: Date.now() });
+
+            alert("Time Over! Task Expired. You have to wait for cooldown.");
+            window.location.reload();
         }
 
         window.copyText = (id) => { navigator.clipboard.writeText(document.getElementById(id).innerText); alert("Copied"); }
@@ -270,12 +326,25 @@
         
         window.submitTask = async () => {
             document.getElementById('submitBtn').innerText = "Uploading...";
+            document.getElementById('submitBtn').disabled = true;
+            
             const f1 = document.getElementById('ss1').files[0];
             const f2 = document.getElementById('ss2').files[0];
-            if(!f1 || !f2) return alert("Upload both!");
+            
+            if(!f1 || !f2) {
+                alert("Upload both screenshots!");
+                document.getElementById('submitBtn').innerText = "SUBMIT PROOF";
+                document.getElementById('submitBtn').disabled = false;
+                return;
+            }
+
             const toBase64 = file => new Promise((r,j) => { const re=new FileReader(); re.readAsDataURL(file); re.onload=()=>r(re.result); re.onerror=e=>j(e); });
             const i1 = await toBase64(f1); const i2 = await toBase64(f2);
+            
+            // On Submit, update status and also SET lastTaskTime (so cooldown starts after submission)
+            const user = auth.currentUser;
             update(ref(db, `tasks/${currentTaskId}`), { status: 'submitted', ss1: i1, ss2: i2 });
+            update(ref(db, `users/${user.uid}`), { lastTaskTime: Date.now() });
         }
     </script>
 </body>
