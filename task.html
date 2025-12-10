@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Daily Task</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); font-family: 'Poppins', sans-serif; color: white; padding: 20px; }
+        
+        .glass-box { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); padding: 25px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
+        
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-card {
+            background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.05);
+        }
+        .stat-count { font-size: 24px; font-weight: bold; color: #00c6ff; display: block; }
+        .stat-label { font-size: 12px; color: #aaa; }
+
+        /* Payout List */
+        .payout-item {
+            background: rgba(40, 167, 69, 0.1); border-left: 4px solid #28a745;
+            padding: 10px; margin-bottom: 10px; border-radius: 5px; font-size: 13px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .timer-badge { background: #222; padding: 5px 10px; border-radius: 20px; color: #f0ad4e; font-size: 11px; }
+
+        h2 { text-align: center; margin-bottom: 20px; font-weight: 600; }
+        button { width: 100%; padding: 14px; border-radius: 30px; border: none; background: linear-gradient(to right, #00c6ff, #0072ff); color: white; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 16px; }
+        button:disabled { background: #555; opacity: 0.7; cursor: not-allowed; }
+        
+        .file-upload { margin-top: 15px; }
+        .file-upload label { display: flex; justify-content: center; align-items: center; gap: 10px; padding: 15px; background: rgba(0,198,255,0.1); border: 1px dashed #00c6ff; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+        .file-upload label.uploaded { background: rgba(40, 167, 69, 0.2); border-color: #28a745; color: #28a745; }
+        input[type="file"] { display: none; }
+        
+        #offlineMsg { text-align: center; padding: 30px; border: 2px solid #ff416c; background: rgba(255, 65, 108, 0.1); border-radius: 15px; display: none; }
+        .data-row { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+        .data-row strong { color: #00c6ff; }
+        .copy-btn { color: #00c6ff; cursor: pointer; padding: 5px; }
+
+        /* ACTIVE TASK TIMER STYLE */
+        .urgent-timer {
+            background: rgba(255, 65, 108, 0.2);
+            border: 1px solid #ff416c;
+            color: #ff416c;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            font-size: 18px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+    <h2>Premium Task Zone</h2>
+    
+    <!-- STATS COUNTER -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span id="completedCount" class="stat-count">0</span>
+            <span class="stat-label">Total Completed</span>
+        </div>
+        <div class="stat-card">
+            <span id="pendingCount" class="stat-count" style="color: #f0ad4e;">0</span>
+            <span class="stat-label">Pending Payments</span>
+        </div>
+    </div>
+
+    <!-- PENDING PAYOUTS LIST -->
+    <div id="payoutSection" class="glass-box" style="display:none;">
+        <h3 style="margin-top:0; font-size:16px; color:#28a745;"><i class="fas fa-clock"></i> Incoming Rewards</h3>
+        <div id="payoutList"></div>
+    </div>
+    
+    <!-- OFFLINE MSG -->
+    <div id="offlineMsg">
+        <i class="fas fa-ban" style="font-size: 50px; color: #ff416c; margin-bottom: 15px;"></i>
+        <h3>Tasks Are Currently Closed</h3>
+    </div>
+
+    <!-- APPLY SECTION -->
+    <div id="applySection" class="glass-box" style="display:none;">
+        <h3 style="margin-top:0;"><i class="fas fa-briefcase"></i> Apply for New Task</h3>
+        <p>Wait time: <strong id="adminTime">Loading...</strong> Minutes</p>
+        <button id="applyBtn" onclick="applyTask()">APPLY NOW</button>
+        <div id="cooldownMsg" style="display:none; margin-top:15px; color:#ff4b5c; text-align:center;">
+            <i class="fas fa-clock"></i> Next task available in: <br> <span id="timeLeft" style="font-size:18px; font-weight:bold;"></span>
+        </div>
+    </div>
+
+    <!-- ACTIVE TASK SECTION -->
+    <div id="taskSection" class="glass-box" style="display:none;">
+        <h3 id="statusTitle"><i class="fas fa-spinner fa-spin"></i> Processing...</h3>
+        <div id="statusMsg" style="color: #f0ad4e; margin-bottom: 15px;"></div>
+        
+        <div id="adminDetails" style="display:none;">
+            <!-- NEW: Countdown Timer for Active Task -->
+            <div id="activeTaskTimer" class="urgent-timer">Time Left: <span id="taskCountdown">00:00</span></div>
+
+            <div class="data-row"><span><strong>F.Name:</strong> <span id="t_fname"></span></span> <i class="fas fa-copy copy-btn" onclick="copyText('t_fname')"></i></div>
+            <div class="data-row"><span><strong>L.Name:</strong> <span id="t_lname"></span></span> <i class="fas fa-copy copy-btn" onclick="copyText('t_lname')"></i></div>
+            <div class="data-row"><span><strong>Gmail:</strong> <span id="t_gmail"></span></span> <i class="fas fa-copy copy-btn" onclick="copyText('t_gmail')"></i></div>
+            <div class="data-row"><span><strong>Pass:</strong> <span id="t_pass"></span></span> <i class="fas fa-copy copy-btn" onclick="copyText('t_pass')"></i></div>
+            <div class="data-row"><span><strong>Rec:</strong> <span id="t_rec"></span></span> <i class="fas fa-copy copy-btn" onclick="copyText('t_rec')"></i></div>
+            
+            <div class="file-upload"><input type="file" id="ss1" accept="image/*" onchange="fileCheck('ss1','l1')"><label id="l1" for="ss1"><i class="fas fa-camera"></i> Screenshot 1</label></div>
+            <div class="file-upload"><input type="file" id="ss2" accept="image/*" onchange="fileCheck('ss2','l2')"><label id="l2" for="ss2"><i class="fas fa-camera"></i> Screenshot 2</label></div>
+            <button id="submitBtn" onclick="submitTask()">SUBMIT PROOF</button>
+        </div>
+    </div>
+    
+    <button onclick="window.location.href='home.html'" style="background: transparent; border: 1px solid #444; color: #aaa;">Back to Dashboard</button>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+        import { getDatabase, ref, push, onValue, update, get, child } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyAvTnq3h4SAsgOZcKg58TioELMZWr-Jp4c", authDomain: "task-d0f72.firebaseapp.com", databaseURL: "https://task-d0f72-default-rtdb.firebaseio.com", projectId: "task-d0f72", storageBucket: "task-d0f72.firebasestorage.app", messagingSenderId: "376760667912", appId: "1:376760667912:web:056595289880d291d5a6bd" };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        
+        let currentTaskId = null;
+        let adminCooldown = 120; 
+        let taskInterval = null; // Variable for Active Task Timer
+
+        onAuthStateChanged(auth, (user) => { if(user) initPage(user.uid); });
+
+        function initPage(uid) {
+            onValue(ref(db, 'settings'), (snap) => {
+                const settings = snap.val() || {};
+                const isOnline = settings.task_status;
+                adminCooldown = settings.cooldown_minutes || 120;
+                
+                document.getElementById('adminTime').innerText = adminCooldown;
+
+                if(isOnline === false) {
+                    document.getElementById('offlineMsg').style.display = 'block';
+                    document.getElementById('applySection').style.display = 'none';
+                    document.getElementById('taskSection').style.display = 'none';
+                } else {
+                    document.getElementById('offlineMsg').style.display = 'none';
+                    loadUserStatsAndTask(uid);
+                }
+            });
+        }
+
+        function loadUserStatsAndTask(uid) {
+            onValue(ref(db, 'tasks'), (snapshot) => {
+                let activeTaskFound = false;
+                let completed = 0;
+                let pendingPay = 0;
+                let payoutHTML = '';
+
+                snapshot.forEach(child => {
+                    const t = child.val();
+                    if(t.uid === uid) {
+                        // Count Stats
+                        if(t.status === 'paid') completed++;
+                        if(t.status === 'approved' && t.isPaid === false) {
+                            pendingPay++;
+                            const timeLeft = t.paymentDue - Date.now();
+                            let timeStr = timeLeft > 0 ? "Processing..." : "Ready";
+                            payoutHTML += `<div class="payout-item"><span>Reward: ৳${t.reward}</span><span class="timer-badge">${timeStr}</span></div>`;
+                        }
+
+                        // Check Active Task
+                        if (t.status === 'pending' || t.status === 'assigned' || t.status === 'submitted') {
+                            activeTaskFound = true;
+                            currentTaskId = child.key;
+                            showTaskUI(t, child.key, uid);
+                        }
+                    }
+                });
+
+                document.getElementById('completedCount').innerText = completed;
+                document.getElementById('pendingCount').innerText = pendingPay;
+                
+                if(pendingPay > 0) {
+                    document.getElementById('payoutSection').style.display = 'block';
+                    document.getElementById('payoutList').innerHTML = payoutHTML;
+                } else {
+                    document.getElementById('payoutSection').style.display = 'none';
+                }
+
+                if(!activeTaskFound) {
+                    clearInterval(taskInterval); // Stop any running task timer
+                    document.getElementById('applySection').style.display = 'block';
+                    document.getElementById('taskSection').style.display = 'none';
+                    checkCooldownTimer(uid);
+                }
+            });
+        }
+
+        // --- COOLDOWN TIMER LOGIC (BEFORE APPLY) ---
+        function checkCooldownTimer(uid) {
+            get(child(ref(db), `users/${uid}/lastTaskTime`)).then((snap) => {
+                if(snap.exists()){
+                    const lastTime = snap.val();
+                    const waitTime = adminCooldown * 60000; // minutes to ms
+                    
+                    // Update UI every second
+                    const updateTimer = () => {
+                        const now = Date.now();
+                        const diff = now - lastTime;
+                        const remaining = waitTime - diff;
+
+                        if (remaining > 0) {
+                            document.getElementById('applyBtn').disabled = true;
+                            document.getElementById('cooldownMsg').style.display = 'block';
+                            
+                            const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                            const secs = Math.floor((remaining % (1000 * 60)) / 1000);
+                            document.getElementById('timeLeft').innerText = `${mins}m ${secs}s`;
+                        } else {
+                            document.getElementById('applyBtn').disabled = false;
+                            document.getElementById('cooldownMsg').style.display = 'none';
+                            document.getElementById('applyBtn').innerText = "APPLY NOW";
+                        }
+                    };
+
+                    updateTimer(); // run once immediately
+                    setInterval(updateTimer, 1000);
+                }
+            });
+        }
+
+        window.applyTask = () => {
+            const btn = document.getElementById('applyBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+            const user = auth.currentUser;
+            
+            get(child(ref(db), `users/${user.uid}/lastTaskTime`)).then((snap) => {
+                const waitTime = adminCooldown * 60000;
+                if (!snap.exists() || (Date.now() - snap.val()) >= waitTime) {
+                    push(ref(db, 'tasks'), { uid: user.uid, status: 'pending', timestamp: Date.now() });
+                    // NOTE: We do NOT update 'lastTaskTime' here anymore. 
+                    // It is updated only when task is SUBMITTED or EXPIRED.
+                } else { 
+                    alert("Cooldown active!"); window.location.reload(); 
+                }
+            });
+        };
+
+        // --- ACTIVE TASK UI ---
+        function showTaskUI(task, key, uid) {
+            document.getElementById('applySection').style.display = 'none';
+            document.getElementById('taskSection').style.display = 'block';
+            const title = document.getElementById('statusTitle');
+            const msg = document.getElementById('statusMsg');
+
+            if(task.status === 'pending') {
+                title.innerHTML = 'Pending Request';
+                msg.innerText = "Waiting for Admin to send details...";
+                document.getElementById('adminDetails').style.display = 'none';
+            
+            } else if (task.status === 'assigned') {
+                title.innerHTML = 'Task Assigned';
+                msg.innerText = "Complete task before time runs out!";
+                document.getElementById('adminDetails').style.display = 'block';
+                
+                // Show Data
+                document.getElementById('t_fname').innerText = task.data.fname;
+                document.getElementById('t_lname').innerText = task.data.lname;
+                document.getElementById('t_gmail').innerText = task.data.gmail;
+                document.getElementById('t_pass').innerText = task.data.password;
+                document.getElementById('t_rec').innerText = task.data.recovery;
+                
+                // --- START TASK TIMER LOGIC ---
+                if(task.assignedTime && task.data.timeLimit) {
+                    runTaskTimer(task.assignedTime, task.data.timeLimit, key, uid);
+                }
+
+            } else if (task.status === 'submitted') {
+                clearInterval(taskInterval);
+                title.innerHTML = 'Under Review';
+                msg.innerText = "Admin is checking your proofs.";
+                document.getElementById('adminDetails').style.display = 'none';
+            }
+        }
+
+        // --- TASK EXPIRATION LOGIC ---
+        function runTaskTimer(assignedTime, limitMins, taskKey, uid) {
+            clearInterval(taskInterval); // Clear any existing
+            
+            const limitMs = parseInt(limitMins) * 60 * 1000;
+            const deadline = assignedTime + limitMs;
+            const timerDisplay = document.getElementById('taskCountdown');
+
+            taskInterval = setInterval(() => {
+                const now = Date.now();
+                const diff = deadline - now;
+
+                if (diff <= 0) {
+                    // TIME OVER: EXPIRE THE TASK
+                    clearInterval(taskInterval);
+                    expireTask(taskKey, uid);
+                } else {
+                    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+                    timerDisplay.innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                }
+            }, 1000);
+        }
+
+        function expireTask(taskKey, uid) {
+            // 1. Mark task as expired in DB
+            update(ref(db, `tasks/${taskKey}`), { status: 'expired' });
+            
+            // 2. Punishment: Reset User Timer so they have to wait cooldown again
+            update(ref(db, `users/${uid}`), { lastTaskTime: Date.now() });
+
+            alert("Time Over! Task Expired. You have to wait for cooldown.");
+            window.location.reload();
+        }
+
+        window.copyText = (id) => { navigator.clipboard.writeText(document.getElementById(id).innerText); alert("Copied"); }
+        window.fileCheck = (id, lbl) => { if(document.getElementById(id).files[0]) document.getElementById(lbl).classList.add('uploaded'); }
+        
+        window.submitTask = async () => {
+            document.getElementById('submitBtn').innerText = "Uploading...";
+            document.getElementById('submitBtn').disabled = true;
+            
+            const f1 = document.getElementById('ss1').files[0];
+            const f2 = document.getElementById('ss2').files[0];
+            
+            if(!f1 || !f2) {
+                alert("Upload both screenshots!");
+                document.getElementById('submitBtn').innerText = "SUBMIT PROOF";
+                document.getElementById('submitBtn').disabled = false;
+                return;
+            }
+
+            const toBase64 = file => new Promise((r,j) => { const re=new FileReader(); re.readAsDataURL(file); re.onload=()=>r(re.result); re.onerror=e=>j(e); });
+            const i1 = await toBase64(f1); const i2 = await toBase64(f2);
+            
+            // On Submit, update status and also SET lastTaskTime (so cooldown starts after submission)
+            const user = auth.currentUser;
+            update(ref(db, `tasks/${currentTaskId}`), { status: 'submitted', ss1: i1, ss2: i2 });
+            update(ref(db, `users/${user.uid}`), { lastTaskTime: Date.now() });
+        }
+    </script>
+</body>
+</html>
