@@ -36,7 +36,7 @@
         <select id="method" onchange="updatePlaceholder()">
             <option value="bkash">Bkash</option>
             <option value="nagad">Nagad</option>
-            <option value="usdt">USDT (TRC20)</option>
+            <option value="usdt">USDT (BEP20)</option>
             <option value="shopping28">Shopping28 ID</option>
         </select>
         <input type="number" id="amount" placeholder="Amount (TK)">
@@ -69,7 +69,7 @@
             if(method === 'shopping28') {
                 input.placeholder = "Enter Shopping28 User ID";
             } else if (method === 'usdt') {
-                input.placeholder = "Enter TRC20 Address";
+                input.placeholder = "Enter BEP20 Address";
             } else {
                 input.placeholder = "Enter " + method.charAt(0).toUpperCase() + method.slice(1) + " Number";
             }
