@@ -2,150 +2,264 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Home - Dashboard</title>
+    <title>Premium Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* PREMIUM DESIGN CSS */
-        body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: white; font-family: 'Poppins', sans-serif; margin: 0; padding: 20px; min-height: 100vh; }
-        
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 0 10px; }
-        .logo { font-size: 1.5rem; font-weight: bold; color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
-        .user-info { font-size: 14px; opacity: 0.8; background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
-        
-        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        
-        .card { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-        .card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.1); border-color: #ffd700; }
-        
-        .card i { font-size: 2rem; margin-bottom: 10px; color: #ffd700; }
-        .card h3 { margin: 5px 0 0; font-size: 0.9rem; font-weight: normal; letter-spacing: 1px; }
+        /* PREMIUM DESIGN - Dark & Gold Theme */
+        :root {
+            --bg-dark: #0a0a0a;
+            --card-bg: rgba(20, 20, 20, 0.6);
+            --gold: #FFD700;
+            --gold-glow: rgba(255, 215, 0, 0.3);
+            --text-main: #ffffff;
+            --text-sec: #aaaaaa;
+        }
 
-        /* Balance Card Specifics */
-        .card.wide { grid-column: span 2; background: linear-gradient(45deg, #1e1e2f, #2a2a40); border: 1px solid #ffd700; }
-        .balance-amount { font-size: 2rem; font-weight: bold; color: #fff; margin: 10px 0; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
-        
-        /* Currency Toggle Switch */
-        .currency-switch { position: absolute; top: 15px; right: 15px; display: flex; align-items: center; background: rgba(0,0,0,0.4); border-radius: 20px; padding: 3px; border: 1px solid #555; cursor: pointer; z-index: 10; }
-        .currency-opt { padding: 5px 12px; font-size: 12px; border-radius: 15px; transition: 0.3s; color: #aaa; font-weight: bold; }
-        .currency-opt.active { background: #ffd700; color: #000; box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
-        
-        /* Logout Button */
-        .logout-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); color: #ff4444; text-decoration: none; border: 1px solid #ff4444; padding: 10px 30px; border-radius: 25px; transition: 0.3s; background: rgba(0,0,0,0.5); }
-        .logout-btn:hover { background: #ff4444; color: white; }
+        body {
+            margin: 0;
+            padding: 20px;
+            background: radial-gradient(circle at top right, #1a1a2e, #000000);
+            color: var(--text-main);
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px var(--gold-glow);
+        }
+        .user-badge {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* BALANCE CARD (Highlight) */
+        .balance-card {
+            background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(0,0,0,0.8));
+            border: 1px solid var(--gold);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px -10px var(--gold-glow);
+            backdrop-filter: blur(10px);
+        }
+
+        .balance-label {
+            font-size: 0.9rem;
+            color: var(--text-sec);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .balance-amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 10px 0;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255,255,255,0.1);
+        }
+
+        .currency-symbol {
+            color: var(--gold);
+            font-size: 1.5rem;
+        }
+
+        /* TOGGLE SWITCH DESIGN */
+        .toggle-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .switch-label {
+            font-size: 0.8rem;
+            margin: 0 10px;
+            color: var(--text-sec);
+            transition: 0.3s;
+        }
+        .switch-label.active {
+            color: var(--gold);
+            font-weight: bold;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border-radius: 34px;
+            border: 1px solid #555;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--gold); border-color: var(--gold); }
+        input:checked + .slider:before { transform: translateX(24px); background-color: #000; }
+
+        /* MENU GRID */
+        .grid-menu {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .menu-item {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .menu-item:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-5px);
+            border-color: var(--gold);
+        }
+        .menu-item i {
+            font-size: 1.8rem;
+            color: var(--gold);
+            margin-bottom: 10px;
+            display: block;
+        }
+        .menu-item span {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
     </style>
 </head>
 <body>
+
     <div class="header">
-        <div class="logo">TASK28</div>
-        <div class="user-info" id="userName">Loading...</div>
+        <div class="logo">TASK<span style="color:#fff">28</span></div>
+        <div class="user-badge" id="userName">User</div>
     </div>
 
-    <div class="grid-container">
-        <!-- 1. Balance with Toggle -->
-        <div class="card wide">
-            <!-- Toggle Button -->
-            <div class="currency-switch" onclick="toggleCurrency()">
-                <div class="currency-opt active" id="btnTk">BDT</div>
-                <div class="currency-opt" id="btnUsdt">USDT</div>
-            </div>
-            
-            <div style="text-align: left; padding-left: 10px;">
-                <span style="font-size: 12px; opacity: 0.7; color: #ffd700;">TOTAL BALANCE</span>
-                <div class="balance-amount" id="displayBalance">0.00 <span style="font-size:1rem">TK</span></div>
-                <div style="font-size: 10px; opacity: 0.5;">Rate: 1 USDT = 115 TK</div>
-            </div>
+    <!-- MAIN BALANCE CARD -->
+    <div class="balance-card">
+        <div class="balance-label">Total Balance</div>
+        
+        <!-- Amount updates via JS -->
+        <div class="balance-amount" id="displayBalance">
+            0 <span class="currency-symbol">TK</span>
         </div>
 
-        <!-- 2. Referral -->
-        <div class="card" onclick="window.location.href='referral.html'">
+        <!-- Toggle Switch -->
+        <div class="toggle-container">
+            <span class="switch-label active" id="lblTk">BDT</span>
+            <label class="switch">
+                <input type="checkbox" id="currencyToggle" onchange="toggleCurrency()">
+                <span class="slider"></span>
+            </label>
+            <span class="switch-label" id="lblUsdt">USDT</span>
+        </div>
+    </div>
+
+    <!-- MENU BUTTONS -->
+    <div class="grid-menu">
+        <div class="menu-item" onclick="window.location.href='balance.html'">
+            <i class="fas fa-wallet"></i>
+            <span>My Balance</span>
+        </div>
+        <div class="menu-item" onclick="window.location.href='referral.html'">
             <i class="fas fa-users"></i>
-            <h3>Referral</h3>
+            <span>Referral</span>
         </div>
-        <!-- 3. Withdraw -->
-        <div class="card" onclick="window.location.href='withdraw.html'">
+        <div class="menu-item" onclick="window.location.href='withdraw.html'">
             <i class="fas fa-hand-holding-usd"></i>
-            <h3>Withdraw</h3>
+            <span>Withdraw</span>
         </div>
-        <!-- 4. Task 1 -->
-        <div class="card" onclick="window.location.href='task_1.html'">
+        <div class="menu-item" onclick="window.location.href='task_1.html'">
             <i class="fas fa-check-circle"></i>
-            <h3>Task 1</h3>
+            <span>Task 1</span>
         </div>
-        <!-- 5. Task 2 -->
-        <div class="card" onclick="window.location.href='task_2.html'">
+        <div class="menu-item" onclick="window.location.href='task_2.html'">
             <i class="fas fa-clock"></i>
-            <h3>Task 2</h3>
+            <span>Task 2</span>
         </div>
     </div>
-
-    <a href="#" onclick="logout()" class="logout-btn">Logout</a>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
         const firebaseConfig = { apiKey: "AIzaSyB2YLhAvSF12ZZx7LSnbqcCjtS2_8QLt4o", authDomain: "task-f6078.firebaseapp.com", databaseURL: "https://task-f6078-default-rtdb.firebaseio.com", projectId: "task-f6078", storageBucket: "task-f6078.firebasestorage.app", messagingSenderId: "887907470692", appId: "1:887907470692:web:c4142ac9573e19d29d3e71" };
-
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        let currentBalance = 0;
-        let showInUsdt = false;
+        let userBalance = 0;
         const usdtRate = 115;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                const userRef = ref(db, 'users/' + user.uid);
-                onValue(userRef, (snapshot) => {
+                onValue(ref(db, 'users/' + user.uid), (snapshot) => {
                     const data = snapshot.val();
-                    if(data) {
-                        document.getElementById('userName').innerText = data.name;
-                        currentBalance = data.balance || 0;
-                        updateDisplay();
-                    }
+                    document.getElementById('userName').innerText = data.name || "User";
+                    userBalance = data.balance || 0;
+                    updateUI(); // Initial Load
                 });
             } else {
                 window.location.href = "register_login.html";
             }
         });
 
-        // Toggle Logic
         window.toggleCurrency = () => {
-            showInUsdt = !showInUsdt;
-            updateDisplay();
-        };
-
-        function updateDisplay() {
-            const displayEl = document.getElementById('displayBalance');
-            const btnTk = document.getElementById('btnTk');
-            const btnUsdt = document.getElementById('btnUsdt');
-
-            if (showInUsdt) {
-                // Show in USDT
-                let usdtAmount = (currentBalance / usdtRate).toFixed(2);
-                displayEl.innerHTML = `${usdtAmount} <span style="font-size:1rem">USDT</span>`;
-                
-                // Update Buttons
-                btnTk.classList.remove('active');
-                btnUsdt.classList.add('active');
-            } else {
-                // Show in TK
-                displayEl.innerHTML = `${currentBalance} <span style="font-size:1rem">TK</span>`;
-                
-                // Update Buttons
-                btnTk.classList.add('active');
-                btnUsdt.classList.remove('active');
-            }
+            updateUI();
         }
 
-        window.logout = () => {
-            signOut(auth).then(() => {
-                window.location.href = "register_login.html";
-            });
-        };
+        function updateUI() {
+            const isUsdt = document.getElementById('currencyToggle').checked;
+            const display = document.getElementById('displayBalance');
+            const lblTk = document.getElementById('lblTk');
+            const lblUsdt = document.getElementById('lblUsdt');
+
+            if(isUsdt) {
+                // Show USDT
+                let converted = (userBalance / usdtRate).toFixed(2);
+                display.innerHTML = `${converted} <span class="currency-symbol">USDT</span>`;
+                lblTk.classList.remove('active');
+                lblUsdt.classList.add('active');
+            } else {
+                // Show Taka
+                display.innerHTML = `${userBalance} <span class="currency-symbol">TK</span>`;
+                lblTk.classList.add('active');
+                lblUsdt.classList.remove('active');
+            }
+        }
     </script>
 </body>
 </html>
