@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Withdraw - Premium</title>
+    <title>Withdraw</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -27,7 +27,7 @@
     <div class="card" style="text-align: center;">
         <i class="fas fa-wallet" style="font-size: 2rem; color: #ffd700; margin-bottom: 10px;"></i>
         <div style="font-size: 0.9rem; opacity: 0.7;">Current Balance</div>
-        <h2 style="margin: 5px 0; color: #fff;" id="myCurrentBal">0 TK</h2>
+        <h2 style="margin: 5px 0; color: #fff;" id="myCurrentBal">Loading...</h2>
         <div style="font-size: 0.8rem; margin-top: 10px; color: #aaa;">Total Withdrawn: <span id="totalWith">0</span> TK</div>
     </div>
 
@@ -42,8 +42,13 @@
         </select>
         <input type="number" id="amount" placeholder="Amount (TK)">
         <input type="text" id="wallet" placeholder="Enter Wallet Number">
+        
         <button onclick="requestWithdraw()">CONFIRM WITHDRAW</button>
-        <p id="limitMsg" style="text-align:center; font-size: 0.8rem; color: #ffd700; margin-top: 10px;"></p>
+        
+        <!-- LIMIT MESSAGE (Dynamic) -->
+        <p id="limitMsg" style="text-align:center; font-size: 0.8rem; color: #ffd700; margin-top: 10px;">
+            Loading minimum limit...
+        </p>
     </div>
 
     <!-- History -->
@@ -57,7 +62,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
         import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-        // ADDED 'get' and 'update' here
+        // ADDED 'get' and 'update' to imports
         import { getDatabase, ref, push, onValue, serverTimestamp, get, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
         
         const firebaseConfig = { apiKey: "AIzaSyB2YLhAvSF12ZZx7LSnbqcCjtS2_8QLt4o", authDomain: "task-f6078.firebaseapp.com", databaseURL: "https://task-f6078-default-rtdb.firebaseio.com", projectId: "task-f6078", storageBucket: "task-f6078.firebasestorage.app", messagingSenderId: "887907470692", appId: "1:887907470692:web:c4142ac9573e19d29d3e71" };
@@ -66,7 +71,7 @@
         const db = getDatabase(app);
 
         let userBalance = 0;
-        let minWithdrawLimit = 50; // Default fallback
+        let minWithdrawLimit = 50; // Default fallback if DB fails
 
         // Update placeholder
         window.updatePlaceholder = () => {
@@ -79,18 +84,22 @@
 
         auth.onAuthStateChanged(user => {
             if(user) {
-                // 1. Listen to Balance
+                // 1. Check User Balance
                 onValue(ref(db, 'users/' + user.uid), snap => {
                     const data = snap.val();
-                    userBalance = data.balance || 0;
+                    userBalance = data ? (data.balance || 0) : 0;
                     document.getElementById('myCurrentBal').innerText = userBalance + " TK";
                 });
 
-                // 2. Get Admin Min Limit
-                get(ref(db, 'settings/min_withdrawal')).then(snap => {
+                // 2. CHECK ADMIN LIMIT (This connects to Admin Panel)
+                const limitRef = ref(db, 'settings/min_withdrawal');
+                onValue(limitRef, (snap) => {
                     if(snap.exists()) {
                         minWithdrawLimit = parseInt(snap.val());
-                        document.getElementById('limitMsg').innerText = `Minimum withdrawal limit: ${minWithdrawLimit} TK`;
+                        document.getElementById('limitMsg').innerText = `⚠️ Minimum Withdrawal Limit: ${minWithdrawLimit} TK`;
+                    } else {
+                        // If admin hasn't set anything yet
+                        document.getElementById('limitMsg').innerText = `⚠️ Minimum Withdrawal Limit: 50 TK`;
                     }
                 });
 
@@ -100,7 +109,6 @@
             }
         });
 
-        // --- MAIN FIX IS HERE ---
         window.requestWithdraw = async () => {
             const user = auth.currentUser;
             const amountInput = document.getElementById('amount');
@@ -110,17 +118,16 @@
             const amount = parseInt(amountInput.value);
             const wallet = walletInput.value;
 
-            // Validation 1: Empty Fields
             if(!amount || !wallet) return alert("Please fill all fields");
 
-            // Validation 2: Check Admin Limit
+            // --- THIS IS THE FIX (LIMIT CHECK) ---
             if(amount < minWithdrawLimit) {
-                return alert(`Minimum withdrawal amount is ${minWithdrawLimit} TK`);
+                return alert(`❌ You cannot withdraw less than ${minWithdrawLimit} TK.`);
             }
 
-            // Validation 3: Check User Balance (Fix for "Balance chara withdraw")
+            // CHECK BALANCE
             if(amount > userBalance) {
-                return alert("Insufficient Balance! You have only " + userBalance + " TK.");
+                return alert(`❌ Insufficient Balance! You have only ${userBalance} TK.`);
             }
 
             const btn = document.querySelector('button');
@@ -128,13 +135,13 @@
             btn.disabled = true;
 
             try {
-                // Step 1: Deduct Balance Immediately (To prevent double withdraw)
+                // Deduct Balance
                 const newBal = userBalance - amount;
                 await update(ref(db, 'users/' + user.uid), {
                     balance: newBal
                 });
 
-                // Step 2: Create Request
+                // Create Request
                 await push(ref(db, 'withdrawals'), {
                     uid: user.uid,
                     amount: amount,
@@ -144,7 +151,7 @@
                     timestamp: serverTimestamp()
                 });
 
-                alert("Withdrawal Request Sent Successfully!");
+                alert("✅ Withdrawal Request Sent Successfully!");
                 amountInput.value = "";
                 walletInput.value = "";
             } catch (error) {
