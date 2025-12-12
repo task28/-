@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Referral Program</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Premium CSS */
+        body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: white; font-family: 'Poppins', sans-serif; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+        .card { width: 100%; max-width: 400px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 25px; margin-bottom: 20px; text-align: center; backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); box-sizing: border-box; }
+        h2 { color: #ffd700; margin-top: 0; margin-bottom: 10px; }
+        .icon-top { font-size: 3rem; color: #ffd700; margin-bottom: 15px; }
+        .code-box { background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border: 1px dashed #ffd700; font-size: 1.5rem; letter-spacing: 2px; font-weight: bold; margin: 20px 0; color: #fff; word-break: break-all; }
+        .btn-copy { width: 100%; background: linear-gradient(45deg, #ffd700, #ff8c00); border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 16px; transition: 0.3s; color: #000; }
+        .btn-copy:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4); }
+        .btn-outline { background: transparent; border: 1px solid #ffd700; color: #ffd700; margin-top: 10px; }
+        .btn-outline:hover { background: rgba(255, 215, 0, 0.1); }
+        
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 400px; }
+        .stat-box { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+        .stat-num { font-size: 1.8rem; color: #ffd700; font-weight: bold; margin-bottom: 5px; }
+        .stat-label { font-size: 0.9rem; opacity: 0.8; }
+
+        .info-text { max-width: 400px; font-size: 0.9rem; opacity: 0.8; line-height: 1.6; text-align: left; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 10px; margin-top: 20px; border-left: 3px solid #ffd700; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <i class="fas fa-gift icon-top"></i>
+        <h2>Invite & Earn</h2>
+        <p style="opacity: 0.7;">Share your code and earn 20% commission from your friends' tasks.</p>
+        
+        <div class="code-box" id="myRefCode">...</div>
+        
+        <button class="btn-copy" onclick="copyCode()">
+            <i class="fas fa-copy"></i> Copy Code
+        </button>
+        <button class="btn-copy btn-outline" onclick="copyLink()">
+            <i class="fas fa-link"></i> Copy Link
+        </button>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-box">
+            <div class="stat-num" id="refCount">0</div>
+            <div class="stat-label">Total Referrals</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-num">20%</div>
+            <div class="stat-label">Commission</div>
+        </div>
+    </div>
+
+    <div class="info-text">
+        <i class="fas fa-info-circle" style="color:#ffd700; margin-right: 5px;"></i> 
+        <strong>How it works:</strong><br>
+        1. Share your specific link or code.<br>
+        2. Friends sign up using your code.<br>
+        3. When they complete a task (e.g., earn 100 TK), you instantly get <strong>20 TK</strong> bonus.
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a href="home.html" style="color: #ffd700; text-decoration: none;">Back to Home</a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyB2YLhAvSF12ZZx7LSnbqcCjtS2_8QLt4o", authDomain: "task-f6078.firebaseapp.com", databaseURL: "https://task-f6078-default-rtdb.firebaseio.com", projectId: "task-f6078", storageBucket: "task-f6078.firebasestorage.app", messagingSenderId: "887907470692", appId: "1:887907470692:web:c4142ac9573e19d29d3e71" };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const userRef = ref(db, 'users/' + user.uid);
+                onValue(userRef, (snapshot) => {
+                    const data = snapshot.val();
+                    const code = data.referralCode;
+                    document.getElementById('myRefCode').innerText = code;
+                    
+                    // Count Referrals
+                    countReferrals(code);
+                });
+            } else { window.location.href = "register_login.html"; }
+        });
+
+        function countReferrals(myCode) {
+            onValue(ref(db, 'users'), (snapshot) => {
+                let count = 0;
+                snapshot.forEach(child => {
+                    if (child.val().referredBy === myCode) {
+                        count++;
+                    }
+                });
+                document.getElementById('refCount').innerText = count;
+            });
+        }
+
+        window.copyCode = () => {
+            const text = document.getElementById('myRefCode').innerText;
+            if(text === "...") return;
+            navigator.clipboard.writeText(text);
+            alert("Referral Code Copied!");
+        };
+
+        window.copyLink = () => {
+            const code = document.getElementById('myRefCode').innerText;
+            if(code === "...") return;
+            
+            // YOUR CUSTOM URL LOGIC HERE
+            // This points to your GitHub Pages path and appends the referral code
+            const link = "https://task28.github.io/-/register_login.html?ref=" + code;
+            
+            navigator.clipboard.writeText(link);
+            alert("Referral Link Copied!\n" + link);
+        };
+    </script>
+</body>
+</html>
