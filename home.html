@@ -2,199 +2,150 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard</title>
+    <title>Home - Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { 
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); 
-            font-family: 'Poppins', sans-serif; color: white; margin: 0; padding: 20px; 
-        }
-
-        /* --- LOADING SCREEN CSS --- */
-        #loading-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #0f0c29;
-            z-index: 99999; /* সবার উপরে থাকবে */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
+        /* PREMIUM DESIGN CSS */
+        body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: white; font-family: 'Poppins', sans-serif; margin: 0; padding: 20px; min-height: 100vh; }
         
-        .loader-ring {
-            width: 60px; height: 60px;
-            border: 5px solid rgba(255,255,255,0.1);
-            border-top: 5px solid #00c6ff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 15px;
-        }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 0 10px; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        .user-info { font-size: 14px; opacity: 0.8; background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
         
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            color: #00c6ff; font-weight: bold; letter-spacing: 1px;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-        /* -------------------------- */
-
-        .header { 
-            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); 
-            padding: 30px; border-radius: 20px; text-align: center; 
-            border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        .balance { font-size: 42px; font-weight: 700; margin: 10px 0; color: #fff; text-shadow: 0 0 15px rgba(0,198,255,0.6); }
-        .currency { color: #00c6ff; font-size: 30px; }
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .card { 
-            background: rgba(0, 0, 0, 0.3); padding: 25px; border-radius: 15px; 
-            text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); 
-            transition: 0.3s; 
-        }
-        .card:hover { background: rgba(0, 198, 255, 0.1); border-color: #00c6ff; transform: translateY(-5px); }
-        .card i { font-size: 35px; margin-bottom: 15px; background: linear-gradient(to right, #00c6ff, #0072ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .card h3 { font-size: 16px; font-weight: 500; margin: 0; }
+        .card { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.1); border-color: #ffd700; }
+        
+        .card i { font-size: 2rem; margin-bottom: 10px; color: #ffd700; }
+        .card h3 { margin: 5px 0 0; font-size: 0.9rem; font-weight: normal; letter-spacing: 1px; }
 
-        /* Notification Toast */
-        #notification-container {
-            position: fixed; top: 20px; right: 20px; z-index: 1000;
-            display: flex; flex-direction: column; gap: 10px;
-        }
-        .toast {
-            background: #222; border-left: 4px solid #00c6ff; color: #fff;
-            padding: 15px; width: 250px; border-radius: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            font-size: 14px; animation: slideIn 0.5s ease-out;
-        }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        /* Balance Card Specifics */
+        .card.wide { grid-column: span 2; background: linear-gradient(45deg, #1e1e2f, #2a2a40); border: 1px solid #ffd700; }
+        .balance-amount { font-size: 2rem; font-weight: bold; color: #fff; margin: 10px 0; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        
+        /* Currency Toggle Switch */
+        .currency-switch { position: absolute; top: 15px; right: 15px; display: flex; align-items: center; background: rgba(0,0,0,0.4); border-radius: 20px; padding: 3px; border: 1px solid #555; cursor: pointer; z-index: 10; }
+        .currency-opt { padding: 5px 12px; font-size: 12px; border-radius: 15px; transition: 0.3s; color: #aaa; font-weight: bold; }
+        .currency-opt.active { background: #ffd700; color: #000; box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        
+        /* Logout Button */
+        .logout-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); color: #ff4444; text-decoration: none; border: 1px solid #ff4444; padding: 10px 30px; border-radius: 25px; transition: 0.3s; background: rgba(0,0,0,0.5); }
+        .logout-btn:hover { background: #ff4444; color: white; }
     </style>
 </head>
 <body>
-
-    <!-- LOADING SCREEN -->
-    <div id="loading-screen">
-        <div class="loader-ring"></div>
-        <div class="loading-text">LOADING DATA...</div>
-    </div>
-
-    <!-- NOTIFICATIONS -->
-    <div id="notification-container"></div>
-
     <div class="header">
-        <p style="margin:0; color:#aaa; font-size:14px;">Total Balance</p>
-        <div class="balance"><span class="currency">৳</span> <span id="balanceDisplay">--</span></div>
-        <div style="font-size: 13px; color: #888;">Welcome, <span id="uName" style="color:#fff;">...</span></div>
+        <div class="logo">TASK28</div>
+        <div class="user-info" id="userName">Loading...</div>
     </div>
 
-    <div class="grid">
-        <!-- Start Task Button -->
-        <div class="card" onclick="window.location.href='task.html'">
-            <i class="fas fa-briefcase"></i>
-            <h3>Start Task</h3>
+    <div class="grid-container">
+        <!-- 1. Balance with Toggle -->
+        <div class="card wide">
+            <!-- Toggle Button -->
+            <div class="currency-switch" onclick="toggleCurrency()">
+                <div class="currency-opt active" id="btnTk">BDT</div>
+                <div class="currency-opt" id="btnUsdt">USDT</div>
+            </div>
+            
+            <div style="text-align: left; padding-left: 10px;">
+                <span style="font-size: 12px; opacity: 0.7; color: #ffd700;">TOTAL BALANCE</span>
+                <div class="balance-amount" id="displayBalance">0.00 <span style="font-size:1rem">TK</span></div>
+                <div style="font-size: 10px; opacity: 0.5;">Rate: 1 USDT = 115 TK</div>
+            </div>
         </div>
-        
-        <!-- Withdraw Button -->
+
+        <!-- 2. Referral -->
+        <div class="card" onclick="window.location.href='referral.html'">
+            <i class="fas fa-users"></i>
+            <h3>Referral</h3>
+        </div>
+        <!-- 3. Withdraw -->
         <div class="card" onclick="window.location.href='withdraw.html'">
-            <i class="fas fa-wallet"></i>
+            <i class="fas fa-hand-holding-usd"></i>
             <h3>Withdraw</h3>
         </div>
-
-        <!-- NEW: Task Video Button -->
-        <div class="card" onclick="window.location.href='video.html'">
-            <i class="fas fa-play-circle"></i>
-            <h3>Task Video</h3>
+        <!-- 4. Task 1 -->
+        <div class="card" onclick="window.location.href='task_1.html'">
+            <i class="fas fa-check-circle"></i>
+            <h3>Task 1</h3>
+        </div>
+        <!-- 5. Task 2 -->
+        <div class="card" onclick="window.location.href='task_2.html'">
+            <i class="fas fa-clock"></i>
+            <h3>Task 2</h3>
         </div>
     </div>
+
+    <a href="#" onclick="logout()" class="logout-btn">Logout</a>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-        import { getDatabase, ref, onValue, get, update, child, onChildAdded, remove } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-        const firebaseConfig = { apiKey: "AIzaSyAvTnq3h4SAsgOZcKg58TioELMZWr-Jp4c", authDomain: "task-d0f72.firebaseapp.com", databaseURL: "https://task-d0f72-default-rtdb.firebaseio.com", projectId: "task-d0f72", storageBucket: "task-d0f72.firebasestorage.app", messagingSenderId: "376760667912", appId: "1:376760667912:web:056595289880d291d5a6bd" };
+        const firebaseConfig = { apiKey: "AIzaSyB2YLhAvSF12ZZx7LSnbqcCjtS2_8QLt4o", authDomain: "task-f6078.firebaseapp.com", databaseURL: "https://task-f6078-default-rtdb.firebaseio.com", projectId: "task-f6078", storageBucket: "task-f6078.firebasestorage.app", messagingSenderId: "887907470692", appId: "1:887907470692:web:c4142ac9573e19d29d3e71" };
+
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
 
+        let currentBalance = 0;
+        let showInUsdt = false;
+        const usdtRate = 115;
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // 1. DATA LOAD LOGIC
                 const userRef = ref(db, 'users/' + user.uid);
-                
-                // Realtime Listener for Balance & Name
                 onValue(userRef, (snapshot) => {
                     const data = snapshot.val();
                     if(data) {
-                        document.getElementById('balanceDisplay').innerText = data.balance || 0;
-                        document.getElementById('uName').innerText = data.username || "User";
-                        
-                        // ✅ DATA LOADED: REMOVE LOADING SCREEN
-                        const loader = document.getElementById('loading-screen');
-                        if(loader) {
-                            loader.style.opacity = '0';
-                            setTimeout(() => loader.style.display = 'none', 500); // Smooth Fade Out
-                        }
+                        document.getElementById('userName').innerText = data.name;
+                        currentBalance = data.balance || 0;
+                        updateDisplay();
                     }
                 });
-
-                // 2. CHECK ADMIN MESSAGES
-                const notifRef = ref(db, `users/${user.uid}/notifications`);
-                onChildAdded(notifRef, (snapshot) => {
-                    const msgData = snapshot.val();
-                    if(msgData) {
-                        showToast(msgData.message);
-                        remove(ref(db, `users/${user.uid}/notifications/${snapshot.key}`));
-                    }
-                });
-
-                // 3. BACKGROUND PAYMENT CHECK
-                checkPendingPayments(user.uid);
-
             } else {
-                // Not logged in -> Redirect to Login
                 window.location.href = "register_login.html";
             }
         });
 
-        // Helper: Show Toast
-        function showToast(msg) {
-            const container = document.getElementById('notification-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.innerHTML = `<i class="fas fa-bell"></i> ${msg}`;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 10000);
+        // Toggle Logic
+        window.toggleCurrency = () => {
+            showInUsdt = !showInUsdt;
+            updateDisplay();
+        };
+
+        function updateDisplay() {
+            const displayEl = document.getElementById('displayBalance');
+            const btnTk = document.getElementById('btnTk');
+            const btnUsdt = document.getElementById('btnUsdt');
+
+            if (showInUsdt) {
+                // Show in USDT
+                let usdtAmount = (currentBalance / usdtRate).toFixed(2);
+                displayEl.innerHTML = `${usdtAmount} <span style="font-size:1rem">USDT</span>`;
+                
+                // Update Buttons
+                btnTk.classList.remove('active');
+                btnUsdt.classList.add('active');
+            } else {
+                // Show in TK
+                displayEl.innerHTML = `${currentBalance} <span style="font-size:1rem">TK</span>`;
+                
+                // Update Buttons
+                btnTk.classList.add('active');
+                btnUsdt.classList.remove('active');
+            }
         }
 
-        // Helper: Check Payments
-        function checkPendingPayments(uid) {
-            get(ref(db, 'tasks')).then((snapshot) => {
-                if(snapshot.exists()) {
-                    snapshot.forEach((childSnap) => {
-                        const t = childSnap.val();
-                        if(t.uid === uid && t.status === 'approved' && t.isPaid === false) {
-                            if(Date.now() >= t.paymentDue) {
-                                // Add Money
-                                get(child(ref(db), `users/${uid}/balance`)).then((balSnap) => {
-                                    const newBal = (balSnap.val() || 0) + t.reward;
-                                    update(ref(db, `users/${uid}`), { balance: newBal });
-                                    update(ref(db, `tasks/${childSnap.key}`), { status: 'paid', isPaid: true });
-                                    showToast(`Received ৳${t.reward} from task!`);
-                                });
-                            }
-                        }
-                    });
-                }
+        window.logout = () => {
+            signOut(auth).then(() => {
+                window.location.href = "register_login.html";
             });
-        }
+        };
     </script>
 </body>
 </html>
