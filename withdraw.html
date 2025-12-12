@@ -2,263 +2,162 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Withdrawal</title>
+    <title>Withdraw</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); font-family: 'Poppins', sans-serif; color: white; padding: 20px; }
-        
-        .container {
-            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px);
-            padding: 30px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1);
-            max-width: 500px; margin: 0 auto 20px auto; text-align: center;
-        }
-
-        .stats-card {
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px;
-            margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.05);
-        }
-        .stat-item { flex: 1; text-align: center; }
-        .stat-title { font-size: 12px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
-        .stat-amount { font-size: 22px; font-weight: bold; margin-top: 5px; }
-        .divider { width: 1px; height: 40px; background: #444; }
-        .current-bal { color: #28a745; text-shadow: 0 0 10px rgba(40, 167, 69, 0.3); }
-        .total-with { color: #00c6ff; text-shadow: 0 0 10px rgba(0, 198, 255, 0.3); }
-
-        /* Input & Select Styles */
-        input, select {
-            width: 100%; padding: 14px; margin: 10px 0; background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white;
-            box-sizing: border-box; outline: none; text-align: center; font-size: 16px;
-        }
-        input:focus, select:focus { border-color: #00c6ff; background: rgba(0,0,0,0.5); }
-        option { background: #302b63; color: white; } /* Dropdown options color */
-        
-        button {
-            width: 100%; padding: 14px; background: linear-gradient(to right, #00c6ff, #0072ff);
-            border: none; border-radius: 10px; color: white; font-weight: bold; font-size: 16px;
-            margin-top: 15px; cursor: pointer; transition: 0.3s;
-        }
-        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,198,255,0.3); }
-
-        .history-section { max-width: 500px; margin: 0 auto; }
-        .history-item {
-            background: rgba(255,255,255,0.05); padding: 15px; margin-bottom: 10px;
-            border-radius: 10px; display: flex; justify-content: space-between; align-items: center;
-            border-left: 4px solid #555; transition: 0.3s;
-        }
-        .history-item:hover { background: rgba(255,255,255,0.1); }
-        
-        .h-left { font-size: 14px; text-align: left; }
-        .h-amount { font-weight: bold; font-size: 16px; }
-        .status-pending { border-color: orange; color: orange; }
-        .status-approved { border-color: #28a745; color: #28a745; }
-        .status-rejected { border-color: red; color: red; }
-        .date { font-size: 11px; color: #aaa; margin-top: 3px; display: block; }
-
-        /* Countdown Badge */
-        .special-offer-badge {
-            background: #ff4757; color: white; font-size: 11px; padding: 2px 8px;
-            border-radius: 4px; margin-bottom: 5px; display: none;
-        }
+        /* Premium CSS */
+        body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: white; font-family: 'Poppins', sans-serif; padding: 20px; min-height: 100vh; }
+        .card { background: rgba(255,255,255,0.05); padding: 25px; border-radius: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h3 { margin-top: 0; color: #ffd700; }
+        select, input, button { width: 100%; padding: 15px; margin-top: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; font-size: 16px; box-sizing: border-box; }
+        select:focus, input:focus { outline: none; border-color: #ffd700; }
+        button { background: linear-gradient(45deg, #ffd700, #ff8c00); color: black; font-weight: bold; cursor: pointer; border: none; transition: 0.3s; }
+        button:hover { transform: scale(1.02); box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+        .history-item { border-bottom: 1px solid rgba(255,255,255,0.1); padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
+        .history-item:last-child { border-bottom: none; }
+        .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .status-pending { background: rgba(255, 165, 0, 0.2); color: orange; }
+        .status-success { background: rgba(0, 255, 0, 0.2); color: lime; }
+        .status-rejected { background: rgba(255, 0, 0, 0.2); color: red; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        
-        <div class="stats-card">
-            <div class="stat-item">
-                <div class="stat-title">Current Balance</div>
-                <div class="stat-amount current-bal">৳ <span id="curBal">...</span></div>
-            </div>
-            <div class="divider"></div>
-            <div class="stat-item">
-                <div class="stat-title">Total Withdrawn</div>
-                <div class="stat-amount total-with">৳ <span id="totalW">0</span></div>
-            </div>
-        </div>
-
-        <h3><i class="fas fa-wallet"></i> Request Withdrawal</h3>
-        <p style="font-size:12px; color:#aaa; margin-top:-10px; margin-bottom:15px;">Minimum Limit: <span style="color:#fff;">৳<span id="minLimit">...</span></span></p>
-        
-        <!-- Badge for special methods -->
-        <div id="promoBadge" class="special-offer-badge">Special Methods Active!</div>
-
-        <!-- Selection Method -->
-        <select id="withdrawMethod" onchange="updatePlaceholder()">
-            <option value="Shopping28">Shopping28 ID</option>
-            <!-- Dynamic Options will be added here if active -->
-        </select>
-
-        <input type="text" id="shopId" placeholder="Enter Shopping28 ID">
-        <input type="number" id="amount" placeholder="Amount (৳)">
-        
-        <button onclick="requestWithdraw()">CONFIRM REQUEST</button>
-        <button onclick="window.location.href='home.html'" style="background: transparent; border: 1px solid #555; color: #ccc;">BACK TO HOME</button>
+    <!-- Balance Display -->
+    <div class="card" style="text-align: center;">
+        <i class="fas fa-wallet" style="font-size: 2rem; color: #ffd700; margin-bottom: 10px;"></i>
+        <h3>Total Withdrawn: <span id="totalWith">0</span> TK</h3>
     </div>
 
-    <div class="history-section">
-        <h4 style="margin-left: 5px; color:#ccc; margin-bottom: 15px;"><i class="fas fa-history"></i> Recent History (Last 5)</h4>
-        <div id="historyList">Loading...</div>
+    <!-- Request Form -->
+    <div class="card">
+        <h3>Request Withdrawal</h3>
+        <select id="method" onchange="updatePlaceholder()">
+            <option value="bkash">Bkash</option>
+            <option value="nagad">Nagad</option>
+            <option value="usdt">USDT (TRC20)</option>
+            <option value="shopping28">Shopping28 ID</option>
+        </select>
+        <input type="number" id="amount" placeholder="Amount (TK)">
+        <input type="text" id="wallet" placeholder="Enter Wallet Number">
+        <button onclick="requestWithdraw()">CONFIRM WITHDRAW</button>
+    </div>
+
+    <!-- History -->
+    <div class="card">
+        <h3><i class="fas fa-history"></i> Withdrawal History</h3>
+        <div id="historyList">
+            <div style="text-align:center; opacity:0.5;">Loading history...</div>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-        import { getDatabase, ref, push, get, child, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-
-        const firebaseConfig = { apiKey: "AIzaSyAvTnq3h4SAsgOZcKg58TioELMZWr-Jp4c", authDomain: "task-d0f72.firebaseapp.com", databaseURL: "https://task-d0f72-default-rtdb.firebaseio.com", projectId: "task-d0f72", storageBucket: "task-d0f72.firebasestorage.app", messagingSenderId: "376760667912", appId: "1:376760667912:web:056595289880d291d5a6bd" };
+        import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+        import { getDatabase, ref, push, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+        
+        const firebaseConfig = { apiKey: "AIzaSyB2YLhAvSF12ZZx7LSnbqcCjtS2_8QLt4o", authDomain: "task-f6078.firebaseapp.com", databaseURL: "https://task-f6078-default-rtdb.firebaseio.com", projectId: "task-f6078", storageBucket: "task-f6078.firebasestorage.app", messagingSenderId: "887907470692", appId: "1:887907470692:web:c4142ac9573e19d29d3e71" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        let minWithdrawLimit = 500;
+        // Update placeholder based on selection
+        window.updatePlaceholder = () => {
+            const method = document.getElementById('method').value;
+            const input = document.getElementById('wallet');
+            if(method === 'shopping28') {
+                input.placeholder = "Enter Shopping28 User ID";
+            } else if (method === 'usdt') {
+                input.placeholder = "Enter TRC20 Address";
+            } else {
+                input.placeholder = "Enter " + method.charAt(0).toUpperCase() + method.slice(1) + " Number";
+            }
+        }
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                loadSettings();
-                loadUserData(user.uid);
+        auth.onAuthStateChanged(user => {
+            if(user) {
                 loadHistory(user.uid);
             } else {
                 window.location.href = "register_login.html";
             }
         });
 
-        // 1. Load Settings & Check Time for Special Methods
-        function loadSettings() {
-            onValue(ref(db, 'settings'), (snap) => {
-                const data = snap.val() || {};
-                minWithdrawLimit = data.min_withdraw || 500;
-                document.getElementById('minLimit').innerText = minWithdrawLimit;
-
-                // Time Logic
-                const startTime = data.promo_start_time || 0;
-                const durationDays = 14; 
-                const now = Date.now();
-                const diffTime = now - startTime;
-                const daysPassed = diffTime / (1000 * 3600 * 24);
-
-                const selectBox = document.getElementById('withdrawMethod');
-                // Clear old special options first (keep only first child)
-                while (selectBox.children.length > 1) {
-                    selectBox.removeChild(selectBox.lastChild);
-                }
-
-                // If within 14 days, add the options
-                if (daysPassed < durationDays) {
-                    const methods = ["Bkash", "Nagad", "USDT (BEP20)"];
-                    methods.forEach(m => {
-                        let opt = document.createElement('option');
-                        opt.value = m;
-                        opt.innerHTML = m;
-                        selectBox.appendChild(opt);
-                    });
-                    
-                    document.getElementById('promoBadge').style.display = 'inline-block';
-                    document.getElementById('promoBadge').innerText = `Special Methods Active! (${Math.ceil(durationDays - daysPassed)} days left)`;
-                } else {
-                    document.getElementById('promoBadge').style.display = 'none';
-                }
-            });
-        }
-
-        // 2. Dynamic Placeholder
-        window.updatePlaceholder = () => {
-            const method = document.getElementById('withdrawMethod').value;
-            const input = document.getElementById('shopId');
-            
-            if(method === "Shopping28") input.placeholder = "Enter Shopping28 ID";
-            else if(method === "Bkash") input.placeholder = "Enter Bkash Number";
-            else if(method === "Nagad") input.placeholder = "Enter Nagad Number";
-            else if(method === "USDT (BEP20)") input.placeholder = "Enter Wallet Address";
-        }
-
-        // 3. Standard User Data Load
-        function loadUserData(uid) {
-            onValue(ref(db, `users/${uid}/balance`), (snap) => {
-                document.getElementById('curBal').innerText = snap.val() || 0;
-            });
-        }
-
-        // 4. Request Withdraw Logic
         window.requestWithdraw = () => {
             const user = auth.currentUser;
-            const method = document.getElementById('withdrawMethod').value;
-            const accountInfo = document.getElementById('shopId').value;
-            const amount = parseInt(document.getElementById('amount').value);
+            const amount = document.getElementById('amount').value;
+            const method = document.getElementById('method').value;
+            const wallet = document.getElementById('wallet').value;
 
-            if(!accountInfo || !amount) return alert("Please fill all fields!");
-            if(amount < minWithdrawLimit) return alert(`Minimum withdrawal amount is ৳${minWithdrawLimit}`);
+            if(!amount || !wallet) return alert("Please fill all fields");
+            if(amount < 50) return alert("Minimum withdrawal is 50 TK"); // Example limit
 
-            get(child(ref(db), `users/${user.uid}/balance`)).then((snapshot) => {
-                const currentBal = snapshot.val() || 0;
-                if (currentBal >= amount) {
-                    push(ref(db, 'withdrawals'), {
-                        uid: user.uid,
-                        method: method,       // Saved Method Name
-                        shopId: accountInfo,  // Saved Account/ID
-                        amount: amount,
-                        status: 'pending',
-                        timestamp: Date.now()
-                    });
-                    alert("Withdrawal Request Sent Successfully!");
-                    window.location.reload();
-                } else {
-                    alert("Insufficient Balance!");
-                }
+            const btn = document.querySelector('button');
+            btn.innerHTML = "Processing...";
+            btn.disabled = true;
+
+            push(ref(db, 'withdrawals'), {
+                uid: user.uid,
+                amount: amount,
+                method: method,
+                wallet: wallet,
+                status: 'pending',
+                timestamp: serverTimestamp()
+            }).then(() => {
+                alert("Withdrawal Request Sent Successfully!");
+                document.getElementById('amount').value = "";
+                document.getElementById('wallet').value = "";
+                btn.innerHTML = "CONFIRM WITHDRAW";
+                btn.disabled = false;
+            }).catch(e => {
+                alert("Error: " + e.message);
+                btn.disabled = false;
             });
-        }
+        };
 
-        // 5. History with Method Name
         function loadHistory(uid) {
-            onValue(ref(db, 'withdrawals'), (snap) => {
+            onValue(ref(db, 'withdrawals'), snapshot => {
                 const list = document.getElementById('historyList');
-                list.innerHTML = '';
-                let myWithdrawals = [];
-                let totalWithdrawn = 0;
-
-                snap.forEach(child => {
+                list.innerHTML = "";
+                let myWithdraws = [];
+                let total = 0;
+                
+                snapshot.forEach(child => {
                     const w = child.val();
                     if(w.uid === uid) {
-                        myWithdrawals.push(w);
-                        if(w.status === 'approved') totalWithdrawn += parseInt(w.amount);
+                        myWithdraws.push(w);
+                        if(w.status === 'success') total += parseInt(w.amount);
                     }
                 });
 
-                document.getElementById('totalW').innerText = totalWithdrawn;
-                myWithdrawals.sort((a, b) => b.timestamp - a.timestamp);
-                const last5 = myWithdrawals.slice(0, 5);
+                document.getElementById('totalWith').innerText = total;
 
-                if(last5.length === 0) {
-                    list.innerHTML = '<p style="text-align:center; color:#555; padding: 20px;">No history.</p>';
-                } else {
-                    last5.forEach(w => {
-                        const dateObj = new Date(w.timestamp);
-                        const dateStr = dateObj.toLocaleDateString();
-                        let statusClass = w.status === 'approved' ? 'status-approved' : (w.status === 'rejected' ? 'status-rejected' : 'status-pending');
-                        
-                        // Fallback for old data that might not have 'method'
-                        const methodDisplay = w.method ? w.method : "Shopping28"; 
-
-                        const item = `
-                            <div class="history-item ${statusClass}">
-                                <div class="h-left">
-                                    <div style="font-weight:600; color:#fff;">${methodDisplay}</div>
-                                    <div style="font-size:12px; color:#ccc;">${w.shopId}</div>
-                                    <span class="date">${dateStr}</span>
-                                </div>
-                                <div style="text-align:right;">
-                                    <div class="h-amount">৳${w.amount}</div>
-                                    <div style="font-size:11px; text-transform:uppercase;">${w.status}</div>
-                                </div>
-                            </div>
-                        `;
-                        list.innerHTML += item;
-                    });
+                if(myWithdraws.length === 0) {
+                    list.innerHTML = "<div style='text-align:center; opacity:0.5;'>No history found.</div>";
+                    return;
                 }
+
+                // Show last 5 (reversed)
+                myWithdraws.reverse().slice(0,5).forEach(w => {
+                    let badgeClass = 'status-pending';
+                    if(w.status === 'success') badgeClass = 'status-success';
+                    if(w.status === 'rejected') badgeClass = 'status-rejected';
+
+                    // Format Method Name
+                    let methodName = w.method === 'shopping28' ? 'Shopping28' : w.method.toUpperCase();
+
+                    list.innerHTML += `
+                    <div class="history-item">
+                        <div>
+                            <div style="font-weight:bold; color:#fff;">${methodName}</div>
+                            <div style="font-size:12px; opacity:0.6;">${w.wallet}</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="color:#ffd700; font-weight:bold;">${w.amount} TK</div>
+                            <span class="status-badge ${badgeClass}">${w.status.toUpperCase()}</span>
+                        </div>
+                    </div>`;
+                });
             });
         }
     </script>
