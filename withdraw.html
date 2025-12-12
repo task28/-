@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Withdraw</title>
+    <title>Withdraw - Premium</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Premium CSS */
+        /* CSS SAME AS BEFORE */
         body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: white; font-family: 'Poppins', sans-serif; padding: 20px; min-height: 100vh; }
         .card { background: rgba(255,255,255,0.05); padding: 25px; border-radius: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         h3 { margin-top: 0; color: #ffd700; }
@@ -15,7 +15,6 @@
         button { background: linear-gradient(45deg, #ffd700, #ff8c00); color: black; font-weight: bold; cursor: pointer; border: none; transition: 0.3s; }
         button:hover { transform: scale(1.02); box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
         .history-item { border-bottom: 1px solid rgba(255,255,255,0.1); padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
-        .history-item:last-child { border-bottom: none; }
         .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
         .status-pending { background: rgba(255, 165, 0, 0.2); color: orange; }
         .status-success { background: rgba(0, 255, 0, 0.2); color: lime; }
@@ -27,7 +26,9 @@
     <!-- Balance Display -->
     <div class="card" style="text-align: center;">
         <i class="fas fa-wallet" style="font-size: 2rem; color: #ffd700; margin-bottom: 10px;"></i>
-        <h3>Total Withdrawn: <span id="totalWith">0</span> TK</h3>
+        <div style="font-size: 0.9rem; opacity: 0.7;">Current Balance</div>
+        <h2 style="margin: 5px 0; color: #fff;" id="myCurrentBal">0 TK</h2>
+        <div style="font-size: 0.8rem; margin-top: 10px; color: #aaa;">Total Withdrawn: <span id="totalWith">0</span> TK</div>
     </div>
 
     <!-- Request Form -->
@@ -36,12 +37,13 @@
         <select id="method" onchange="updatePlaceholder()">
             <option value="bkash">Bkash</option>
             <option value="nagad">Nagad</option>
-            <option value="usdt">USDT (BEP20)</option>
+            <option value="usdt">USDT (TRC20)</option>
             <option value="shopping28">Shopping28 ID</option>
         </select>
         <input type="number" id="amount" placeholder="Amount (TK)">
         <input type="text" id="wallet" placeholder="Enter Wallet Number">
         <button onclick="requestWithdraw()">CONFIRM WITHDRAW</button>
+        <p id="limitMsg" style="text-align:center; font-size: 0.8rem; color: #ffd700; margin-top: 10px;"></p>
     </div>
 
     <!-- History -->
@@ -55,64 +57,102 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
         import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-        import { getDatabase, ref, push, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+        // ADDED 'get' and 'update' here
+        import { getDatabase, ref, push, onValue, serverTimestamp, get, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
         
         const firebaseConfig = { apiKey: "AIzaSyB2YLhAvSF12ZZx7LSnbqcCjtS2_8QLt4o", authDomain: "task-f6078.firebaseapp.com", databaseURL: "https://task-f6078-default-rtdb.firebaseio.com", projectId: "task-f6078", storageBucket: "task-f6078.firebasestorage.app", messagingSenderId: "887907470692", appId: "1:887907470692:web:c4142ac9573e19d29d3e71" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // Update placeholder based on selection
+        let userBalance = 0;
+        let minWithdrawLimit = 50; // Default fallback
+
+        // Update placeholder
         window.updatePlaceholder = () => {
             const method = document.getElementById('method').value;
             const input = document.getElementById('wallet');
-            if(method === 'shopping28') {
-                input.placeholder = "Enter Shopping28 User ID";
-            } else if (method === 'usdt') {
-                input.placeholder = "Enter BEP20 Address";
-            } else {
-                input.placeholder = "Enter " + method.charAt(0).toUpperCase() + method.slice(1) + " Number";
-            }
+            if(method === 'shopping28') input.placeholder = "Enter Shopping28 User ID";
+            else if (method === 'usdt') input.placeholder = "Enter TRC20 Address";
+            else input.placeholder = "Enter " + method.charAt(0).toUpperCase() + method.slice(1) + " Number";
         }
 
         auth.onAuthStateChanged(user => {
             if(user) {
+                // 1. Listen to Balance
+                onValue(ref(db, 'users/' + user.uid), snap => {
+                    const data = snap.val();
+                    userBalance = data.balance || 0;
+                    document.getElementById('myCurrentBal').innerText = userBalance + " TK";
+                });
+
+                // 2. Get Admin Min Limit
+                get(ref(db, 'settings/min_withdrawal')).then(snap => {
+                    if(snap.exists()) {
+                        minWithdrawLimit = parseInt(snap.val());
+                        document.getElementById('limitMsg').innerText = `Minimum withdrawal limit: ${minWithdrawLimit} TK`;
+                    }
+                });
+
                 loadHistory(user.uid);
             } else {
                 window.location.href = "register_login.html";
             }
         });
 
-        window.requestWithdraw = () => {
+        // --- MAIN FIX IS HERE ---
+        window.requestWithdraw = async () => {
             const user = auth.currentUser;
-            const amount = document.getElementById('amount').value;
+            const amountInput = document.getElementById('amount');
+            const walletInput = document.getElementById('wallet');
             const method = document.getElementById('method').value;
-            const wallet = document.getElementById('wallet').value;
+            
+            const amount = parseInt(amountInput.value);
+            const wallet = walletInput.value;
 
+            // Validation 1: Empty Fields
             if(!amount || !wallet) return alert("Please fill all fields");
-            if(amount < 50) return alert("Minimum withdrawal is 50 TK"); // Example limit
+
+            // Validation 2: Check Admin Limit
+            if(amount < minWithdrawLimit) {
+                return alert(`Minimum withdrawal amount is ${minWithdrawLimit} TK`);
+            }
+
+            // Validation 3: Check User Balance (Fix for "Balance chara withdraw")
+            if(amount > userBalance) {
+                return alert("Insufficient Balance! You have only " + userBalance + " TK.");
+            }
 
             const btn = document.querySelector('button');
             btn.innerHTML = "Processing...";
             btn.disabled = true;
 
-            push(ref(db, 'withdrawals'), {
-                uid: user.uid,
-                amount: amount,
-                method: method,
-                wallet: wallet,
-                status: 'pending',
-                timestamp: serverTimestamp()
-            }).then(() => {
+            try {
+                // Step 1: Deduct Balance Immediately (To prevent double withdraw)
+                const newBal = userBalance - amount;
+                await update(ref(db, 'users/' + user.uid), {
+                    balance: newBal
+                });
+
+                // Step 2: Create Request
+                await push(ref(db, 'withdrawals'), {
+                    uid: user.uid,
+                    amount: amount,
+                    method: method,
+                    wallet: wallet,
+                    status: 'pending',
+                    timestamp: serverTimestamp()
+                });
+
                 alert("Withdrawal Request Sent Successfully!");
-                document.getElementById('amount').value = "";
-                document.getElementById('wallet').value = "";
-                btn.innerHTML = "CONFIRM WITHDRAW";
-                btn.disabled = false;
-            }).catch(e => {
-                alert("Error: " + e.message);
-                btn.disabled = false;
-            });
+                amountInput.value = "";
+                walletInput.value = "";
+            } catch (error) {
+                alert("Error: " + error.message);
+            }
+
+            btn.innerHTML = "CONFIRM WITHDRAW";
+            btn.disabled = false;
         };
 
         function loadHistory(uid) {
@@ -137,13 +177,10 @@
                     return;
                 }
 
-                // Show last 5 (reversed)
                 myWithdraws.reverse().slice(0,5).forEach(w => {
                     let badgeClass = 'status-pending';
                     if(w.status === 'success') badgeClass = 'status-success';
                     if(w.status === 'rejected') badgeClass = 'status-rejected';
-
-                    // Format Method Name
                     let methodName = w.method === 'shopping28' ? 'Shopping28' : w.method.toUpperCase();
 
                     list.innerHTML += `
