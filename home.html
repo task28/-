@@ -47,7 +47,7 @@
             border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* BALANCE CARD (Highlight) */
+        /* BALANCE CARD */
         .balance-card {
             background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(0,0,0,0.8));
             border: 1px solid var(--gold);
@@ -60,13 +60,6 @@
             backdrop-filter: blur(10px);
         }
 
-        .balance-label {
-            font-size: 0.9rem;
-            color: var(--text-sec);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
         .balance-amount {
             font-size: 2.5rem;
             font-weight: 700;
@@ -75,57 +68,7 @@
             text-shadow: 0 0 20px rgba(255,255,255,0.1);
         }
 
-        .currency-symbol {
-            color: var(--gold);
-            font-size: 1.5rem;
-        }
-
-        /* TOGGLE SWITCH DESIGN */
-        .toggle-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 10px;
-        }
-        .switch-label {
-            font-size: 0.8rem;
-            margin: 0 10px;
-            color: var(--text-sec);
-            transition: 0.3s;
-        }
-        .switch-label.active {
-            color: var(--gold);
-            font-weight: bold;
-        }
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #333;
-            transition: .4s;
-            border-radius: 34px;
-            border: 1px solid #555;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 3px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .slider { background-color: var(--gold); border-color: var(--gold); }
-        input:checked + .slider:before { transform: translateX(24px); background-color: #000; }
+        .currency-symbol { color: var(--gold); font-size: 1.5rem; }
 
         /* MENU GRID */
         .grid-menu {
@@ -153,10 +96,64 @@
             margin-bottom: 10px;
             display: block;
         }
-        .menu-item span {
-            font-size: 0.9rem;
-            font-weight: 500;
+        .menu-item span { font-size: 0.9rem; font-weight: 500; }
+
+        /* --- BONUS NOTIFICATION POPUP --- */
+        .popup-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 2000;
+            display: none; /* Hidden by default */
+            justify-content: center; align-items: center;
         }
+        
+        .popup-box {
+            background: linear-gradient(180deg, #1a1a1a 0%, #000 100%);
+            border: 2px solid var(--gold);
+            padding: 40px 30px;
+            border-radius: 25px;
+            text-align: center;
+            width: 85%; max-width: 320px;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.3);
+            animation: bounceIn 0.8s ease;
+            position: relative;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .gift-anim {
+            font-size: 4rem;
+            color: var(--gold);
+            margin-bottom: 20px;
+            animation: shake 2s infinite;
+        }
+        @keyframes shake { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
+
+        .popup-title { font-size: 1.5rem; color: white; margin: 0 0 10px 0; text-transform: uppercase; }
+        .popup-text { color: #ccc; font-size: 0.9rem; margin-bottom: 20px; }
+        .bonus-amount { font-size: 2rem; color: var(--gold); font-weight: bold; margin-bottom: 25px; display: block; }
+        
+        .claim-btn {
+            background: var(--gold); color: #000; border: none;
+            padding: 15px 40px; border-radius: 50px; font-weight: 800; font-size: 1rem;
+            cursor: pointer; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+            transition: 0.3s;
+        }
+        .claim-btn:hover { transform: scale(1.05); background: #fff; }
+
+        /* Toggle Switch (Optional kept from before) */
+        .toggle-container { display: flex; justify-content: center; align-items: center; margin-top: 10px; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 24px; margin: 0 10px;}
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; border: 1px solid #555; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--gold); }
+        input:checked + .slider:before { transform: translateX(24px); background-color: #000; }
+        .switch-label { font-size: 0.8rem; color: #aaa; }
+        .switch-label.active { color: var(--gold); font-weight: bold; }
 
     </style>
 </head>
@@ -167,16 +164,11 @@
         <div class="user-badge" id="userName">User</div>
     </div>
 
-    <!-- MAIN BALANCE CARD -->
+    <!-- MAIN BALANCE -->
     <div class="balance-card">
-        <div class="balance-label">Total Balance</div>
-        
-        <!-- Amount updates via JS -->
-        <div class="balance-amount" id="displayBalance">
-            0 <span class="currency-symbol">TK</span>
-        </div>
+        <div style="color:#aaa; font-size:0.9rem; margin-bottom:5px;">TOTAL BALANCE</div>
+        <div class="balance-amount" id="displayBalance">0 <span class="currency-symbol">TK</span></div>
 
-        <!-- Toggle Switch -->
         <div class="toggle-container">
             <span class="switch-label active" id="lblTk">BDT</span>
             <label class="switch">
@@ -187,7 +179,7 @@
         </div>
     </div>
 
-    <!-- MENU BUTTONS -->
+    <!-- MENU (No Bonus Button Here) -->
     <div class="grid-menu">
         <div class="menu-item" onclick="window.location.href='balance.html'">
             <i class="fas fa-wallet"></i>
@@ -209,12 +201,26 @@
             <i class="fas fa-clock"></i>
             <span>Task 2</span>
         </div>
+        <!-- Add more menu items if needed -->
+    </div>
+
+    <!-- BONUS NOTIFICATION POPUP -->
+    <div class="popup-overlay" id="bonusPopup">
+        <div class="popup-box">
+            <i class="fas fa-gift gift-anim"></i>
+            <h2 class="popup-title">Welcome Bonus!</h2>
+            <p class="popup-text">Admin has sent you a special registration gift.</p>
+            
+            <span class="bonus-amount" id="popupAmount">+0 TK</span>
+            
+            <button class="claim-btn" onclick="claimBonusNow()">CLAIM REWARD</button>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+        import { getDatabase, ref, onValue, update, get } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
         const firebaseConfig = { apiKey: "AIzaSyB2YLhAvSF12ZZx7LSnbqcCjtS2_8QLt4o", authDomain: "task-f6078.firebaseapp.com", databaseURL: "https://task-f6078-default-rtdb.firebaseio.com", projectId: "task-f6078", storageBucket: "task-f6078.firebasestorage.app", messagingSenderId: "887907470692", appId: "1:887907470692:web:c4142ac9573e19d29d3e71" };
         const app = initializeApp(firebaseConfig);
@@ -222,24 +228,67 @@
         const db = getDatabase(app);
 
         let userBalance = 0;
+        let currentUid = null;
+        let pendingBonusAmount = 0;
         const usdtRate = 115;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
+                currentUid = user.uid;
+                // Load User Data
                 onValue(ref(db, 'users/' + user.uid), (snapshot) => {
                     const data = snapshot.val();
-                    document.getElementById('userName').innerText = data.name || "User";
-                    userBalance = data.balance || 0;
-                    updateUI(); // Initial Load
+                    if(data) {
+                        document.getElementById('userName').innerText = data.name || "User";
+                        userBalance = data.balance || 0;
+                        updateUI();
+                        
+                        // --- CHECK ELIGIBILITY ---
+                        // যদি বোনাস না নিয়ে থাকে, তাহলে চেক করবে
+                        if (!data.bonusReceived) {
+                            checkBonusAvailable();
+                        }
+                    }
                 });
             } else {
                 window.location.href = "register_login.html";
             }
         });
 
-        window.toggleCurrency = () => {
-            updateUI();
+        function checkBonusAvailable() {
+            // Admin Panel থেকে টাকার পরিমাণ দেখা
+            const adminRef = ref(db, 'adminSettings/registrationBonus');
+            get(adminRef).then((snap) => {
+                if(snap.exists()) {
+                    const amount = parseInt(snap.val());
+                    if(amount > 0) {
+                        // বোনাস এভেইলেবল, পপ-আপ দেখাও
+                        pendingBonusAmount = amount;
+                        document.getElementById('popupAmount').innerText = `+${amount} TK`;
+                        document.getElementById('bonusPopup').style.display = 'flex';
+                    }
+                }
+            });
         }
+
+        // ইউজার Claim বাটনে ক্লিক করলে এই ফাংশন কাজ করবে
+        window.claimBonusNow = function() {
+            if(!currentUid || pendingBonusAmount <= 0) return;
+
+            const updates = {};
+            updates['users/' + currentUid + '/balance'] = userBalance + pendingBonusAmount;
+            updates['users/' + currentUid + '/bonusReceived'] = true; // ফ্ল্যাগ সেট করে দিচ্ছে যাতে আর না পায়
+
+            update(ref(db), updates).then(() => {
+                // পপ-আপ বন্ধ করা
+                document.getElementById('bonusPopup').style.display = 'none';
+                alert("Congratulation! Bonus Added Successfully.");
+            }).catch((err) => {
+                alert("Error: " + err.message);
+            });
+        }
+
+        window.toggleCurrency = () => { updateUI(); }
 
         function updateUI() {
             const isUsdt = document.getElementById('currencyToggle').checked;
@@ -248,13 +297,11 @@
             const lblUsdt = document.getElementById('lblUsdt');
 
             if(isUsdt) {
-                // Show USDT
                 let converted = (userBalance / usdtRate).toFixed(2);
                 display.innerHTML = `${converted} <span class="currency-symbol">USDT</span>`;
                 lblTk.classList.remove('active');
                 lblUsdt.classList.add('active');
             } else {
-                // Show Taka
                 display.innerHTML = `${userBalance} <span class="currency-symbol">TK</span>`;
                 lblTk.classList.add('active');
                 lblUsdt.classList.remove('active');
