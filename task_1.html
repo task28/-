@@ -2,67 +2,69 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Task 1 - Paused</title>
+    <title>Maintenance - Tasks Paused</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         /* PREMIUM DARK THEME */
-        body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: #fff; font-family: 'Poppins', sans-serif; padding: 20px; min-height: 100vh; }
-        .container { max-width: 600px; margin: 0 auto; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); padding: 25px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
-        h2 { text-align: center; color: #ffd700; margin-top: 0; text-transform: uppercase; }
+        body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: #fff; font-family: 'Poppins', sans-serif; padding: 20px; min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }
         
-        .main-btn { width: 100%; display: block; text-decoration: none; text-align: center; padding: 14px; background: linear-gradient(45deg, #ffd700, #ff8c00); border: none; font-weight: bold; cursor: pointer; border-radius: 8px; color: #000; font-size: 1rem; transition: 0.3s; margin-top: 15px; box-sizing: border-box; }
-        .main-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4); }
+        .container { width: 100%; max-width: 500px; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); padding: 40px 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 15px 35px rgba(0,0,0,0.5); text-align: center; }
         
-        .back-link { display: block; text-align: center; margin-top: 20px; color: #aaa; text-decoration: none; }
+        /* ICON ANIMATION */
+        .status-icon { font-size: 5rem; color: #ff4444; margin-bottom: 25px; display: inline-block; animation: float 3s ease-in-out infinite; }
         
-        /* MAINTENANCE BOX STYLES */
-        .maintenance-box { text-align: center; padding: 30px 10px; }
-        .icon-large { font-size: 4rem; color: #ff4444; margin-bottom: 20px; animation: pulse 2s infinite; }
-        .info-box { background: rgba(255, 255, 255, 0.1); border-left: 4px solid #ffd700; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: left; }
+        h2 { color: #ffd700; margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 1px; font-size: 1.8rem; }
         
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
+        p { color: #ccc; line-height: 1.6; margin-bottom: 25px; font-size: 1.05rem; }
+        
+        .highlight { color: #fff; font-weight: bold; background: rgba(255, 68, 68, 0.2); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(255, 68, 68, 0.3); }
+
+        /* TIME BOX */
+        .time-box { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px; }
+        .time-title { color: #aaa; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 5px; display: block; }
+        .time-val { font-size: 1.5rem; font-weight: bold; color: #2ecc71; }
+
+        /* BUTTON */
+        .home-btn { display: block; width: 100%; padding: 15px; background: linear-gradient(45deg, #ffd700, #ff8c00); text-decoration: none; font-weight: bold; border-radius: 10px; color: #000; font-size: 1.1rem; transition: 0.3s; box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3); }
+        .home-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(255, 215, 0, 0.5); }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>Task 1 Status</h2>
-        
-        <div class="maintenance-box">
-            <!-- Icon -->
-            <i class="fas fa-clock icon-large"></i>
-            
-            <h3 style="font-size: 1.5rem; margin-bottom: 10px;">Temporarily Paused</h3>
-            
-            <p style="color: #ccc; line-height: 1.6;">
-                Task 1 is currently unavailable for updates. <br>
-                Please check back in <strong>6 Days</strong>.
-            </p>
-
-            <!-- Info Box -->
-            <div class="info-box">
-                <i class="fas fa-info-circle" style="color: #ffd700; margin-right: 8px;"></i>
-                <strong>Action Required:</strong>
-                <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: #ddd;">
-                    Do not wait here. Please continue your work on Task 2 to keep earning.
-                </p>
-            </div>
-
-            <!-- Button to Task 2 -->
-            <a href="task2.html" class="main-btn">
-                GO TO TASK 2 <i class="fas fa-arrow-right" style="margin-left: 10px;"></i>
-            </a>
-
-            <a href="home.html" class="back-link">Back to Dashboard</a>
+        <!-- Maintenance Icon -->
+        <div class="status-icon">
+            <i class="fas fa-tools"></i>
         </div>
+
+        <h2>System Maintenance</h2>
+        
+        <p>
+            Task 1 and Task 2 are currently <span class="highlight">CLOSED</span> for server upgrades and maintenance.
+        </p>
+
+        <!-- Duration Box -->
+        <div class="time-box">
+            <span class="time-title">Estimated Wait Time</span>
+            <div class="time-val">2 Days</div>
+        </div>
+
+        <p style="font-size: 0.9rem; color: #888;">
+            Please check back later. We apologize for the inconvenience.
+        </p>
+
+        <!-- Back Button -->
+        <a href="home.html" class="home-btn">
+            <i class="fas fa-home"></i> BACK TO DASHBOARD
+        </a>
     </div>
 
-    <!-- Script removed temporarily since logic is not needed while task is off -->
-    
 </body>
 </html>
