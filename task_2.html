@@ -2,269 +2,163 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Task 2 - Launching Tonight</title>
+    <title>Task 2 - Gmail Creation</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
-
-        body { 
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); 
-            color: white; 
-            font-family: 'Poppins', sans-serif; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            margin: 0; 
-            text-align: center; 
-            padding: 20px;
-            box-sizing: border-box;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* LIVE CLOCK STYLES */
-        .live-clock-container {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            text-align: right;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px 20px;
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        .time-display {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #ffd700;
-            font-family: 'Courier New', monospace;
-            letter-spacing: 1px;
-        }
-        .date-display {
-            font-size: 0.75rem;
-            color: #aaa;
-            text-transform: uppercase;
-            margin-top: 2px;
-            font-weight: 600;
-        }
-
-        /* MAIN CONTENT */
-        .icon-box { 
-            font-size: 4rem; 
-            color: #ffd700; 
-            margin-bottom: 20px; 
-            animation: float 3s ease-in-out infinite; 
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-        }
-
-        h1 { 
-            font-size: 2.5rem; 
-            margin: 0; 
-            background: -webkit-linear-gradient(#ffd700, #ff8c00); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        p { 
-            opacity: 0.8; 
-            letter-spacing: 1px; 
-            margin-top: 10px; 
-            margin-bottom: 30px;
-        }
-
-        /* COUNTDOWN STYLES */
-        .countdown {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .time-box {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            padding: 15px;
-            border-radius: 12px;
-            min-width: 75px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            position: relative;
-            overflow: hidden;
-        }
+        /* PREMIUM THEME */
+        body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: #fff; font-family: 'Poppins', sans-serif; padding: 20px; }
+        .container { max-width: 500px; margin: 0 auto; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); padding: 25px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+        h2 { text-align: center; color: #00d2ff; text-transform: uppercase; }
         
-        .time-box::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            animation: shine 3s infinite;
-        }
-
-        .number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #fff;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-            font-family: 'Courier New', monospace;
-        }
-
-        .label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            color: #ffd700;
-            margin-top: 5px;
-            font-weight: 600;
-        }
-
-        .btn-back { 
-            padding: 12px 40px; 
-            border: none; 
-            background: linear-gradient(45deg, #FFD700, #ff8c00); 
-            color: #000; 
-            border-radius: 30px; 
-            cursor: pointer; 
-            transition: 0.3s; 
-            text-decoration: none; 
-            font-weight: bold;
-            font-size: 1rem;
-            box-shadow: 0 5px 20px rgba(255, 140, 0, 0.4);
-        }
-
-        .btn-back:hover { 
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(255, 140, 0, 0.6);
-        }
-
-        @keyframes float { 
-            0%, 100% { transform: translateY(0); } 
-            50% { transform: translateY(-20px); } 
-        }
-        @keyframes shine {
-            0% { left: -100%; }
-            20% { left: 100%; }
-            100% { left: 100%; }
-        }
+        .status-box { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
         
-        @media (max-width: 480px) {
-            .live-clock-container { top: 15px; right: 15px; padding: 8px 15px; }
-            .time-display { font-size: 1rem; }
-            .countdown { gap: 10px; }
-            .time-box { min-width: 60px; padding: 10px; }
-            .number { font-size: 1.5rem; }
-        }
+        /* DATA DISPLAY */
+        .task-info { background: rgba(0, 210, 255, 0.1); padding: 15px; border-radius: 10px; border-left: 4px solid #00d2ff; margin-bottom: 20px; }
+        .data-row { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; }
+        .label { color: #aaa; font-size: 0.9rem; }
+        .val { font-family: monospace; font-size: 1rem; color: #fff; }
+
+        /* INPUTS */
+        input { width: 100%; padding: 12px; margin-bottom: 10px; background: rgba(0,0,0,0.3); border: 1px solid #555; color: white; border-radius: 8px; box-sizing: border-box; outline: none; }
+        input:focus { border-color: #00d2ff; }
+
+        .btn { width: 100%; padding: 12px; border: none; font-weight: bold; cursor: pointer; border-radius: 8px; color: #fff; font-size: 1rem; transition: 0.3s; margin-top: 10px; }
+        .btn-apply { background: linear-gradient(45deg, #00d2ff, #3a7bd5); }
+        .btn-submit { background: linear-gradient(45deg, #00b09b, #96c93d); }
+        
+        .waiting-anim { font-size: 3rem; color: #00d2ff; margin: 20px; text-align: center; }
+        .reward-msg { text-align: center; font-size: 1.2rem; color: #2ecc71; font-weight: bold; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-    <!-- LIVE CLOCK -->
-    <div class="live-clock-container">
-        <div class="time-display" id="clock">00:00:00 PM</div>
-        <div class="date-display" id="date">Loading...</div>
+<div class="container">
+    <h2>Task 2 Zone</h2>
+    <div id="statusText" class="status-box">Loading...</div>
+
+    <!-- 1. APPLY SECTION -->
+    <div id="applySection" style="display:none; text-align:center;">
+        <p>Apply to get a new Gmail Task.</p>
+        <button class="btn btn-apply" onclick="applyTask()">APPLY NOW</button>
     </div>
 
-    <div class="icon-box"><i class="fas fa-rocket"></i></div>
-    <h1>Launching Tonight</h1>
-    <p>Get ready! Task 2 starts at 9:00 PM.</p>
-
-    <!-- COUNTDOWN TIMER -->
-    <div class="countdown">
-        <div class="time-box">
-            <span class="number" id="days">00</span>
-            <span class="label">Days</span>
-        </div>
-        <div class="time-box">
-            <span class="number" id="hours">00</span>
-            <span class="label">Hours</span>
-        </div>
-        <div class="time-box">
-            <span class="number" id="minutes">00</span>
-            <span class="label">Minutes</span>
-        </div>
-        <div class="time-box">
-            <span class="number" id="seconds">00</span>
-            <span class="label">Seconds</span>
-        </div>
+    <!-- 2. WAITING FOR ADMIN -->
+    <div id="waitingSection" style="display:none; text-align:center;">
+        <div class="waiting-anim"><i class="fas fa-sync fa-spin"></i></div>
+        <p>Waiting for Admin to assign data...</p>
     </div>
 
-    <a href="home.html" class="btn-back">Back to Dashboard</a>
+    <!-- 3. WORK SECTION (Admin Data Show) -->
+    <div id="workSection" style="display:none;">
+        <p style="text-align:center; color:#00d2ff;">Create Gmail with this info:</p>
+        <div class="task-info">
+            <div class="data-row"><span class="label">First Name:</span> <span class="val" id="showFname">...</span></div>
+            <div class="data-row"><span class="label">Req. Email:</span> <span class="val" id="showEmail">...</span></div>
+            <div class="data-row"><span class="label">Password:</span> <span class="val" id="showPass">...</span></div>
+        </div>
 
-    <script>
-        // --- 1. LIVE CLOCK ---
-        function updateLiveClock() {
-            const now = new Date();
-            let hours = now.getHours();
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12;
-            hours = hours ? hours : 12; 
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
+        <input type="text" id="subEmail" placeholder="Enter Created Gmail">
+        <input type="text" id="subPass" placeholder="Enter Password Used">
+        <button class="btn btn-submit" onclick="submitWork()">SUBMIT TASK</button>
+    </div>
+
+    <!-- 4. UNDER REVIEW -->
+    <div id="reviewSection" style="display:none; text-align:center;">
+        <i class="fas fa-hourglass-half" style="font-size:3rem; color:#ffd700; margin:15px;"></i>
+        <p>Your work is under review.</p>
+    </div>
+
+    <!-- 5. COMPLETED -->
+    <div id="completedSection" style="display:none; text-align:center;">
+        <div class="reward-msg">
+            <i class="fas fa-check-circle"></i> Task Approved!<br>
+            Reward: <span id="rewardAmount">0</span> TK
+        </div>
+        <button class="btn btn-apply" onclick="resetTask()">DO ANOTHER TASK</button>
+    </div>
+    
+    <a href="home.html" style="display:block; text-align:center; margin-top:20px; color:#aaa; text-decoration:none;">Back to Home</a>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getDatabase, ref, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+    // আপনার ফায়ারবেস কনফিগ এখানে দিন
+    const firebaseConfig = { apiKey: "AIzaSyB2YLhAvSF12ZZx7LSnbqcCjtS2_8QLt4o", authDomain: "task-f6078.firebaseapp.com", databaseURL: "https://task-f6078-default-rtdb.firebaseio.com", projectId: "task-f6078", storageBucket: "task-f6078.firebasestorage.app", messagingSenderId: "887907470692", appId: "1:887907470692:web:c4142ac9573e19d29d3e71" };
+    
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    let currentUser = null;
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentUser = user;
+            checkTask();
+        } else { window.location.href = "login.html"; }
+    });
+
+    function checkTask() {
+        const taskRef = ref(db, 'task2_requests/' + currentUser.uid);
+        onValue(taskRef, (snapshot) => {
+            const data = snapshot.val();
+            hideAll();
             
-            document.getElementById('clock').innerText = `${hours}:${minutes}:${seconds} ${ampm}`;
-            
-            const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
-            document.getElementById('date').innerText = now.toLocaleDateString('en-US', options);
-        }
-        setInterval(updateLiveClock, 1000);
-        updateLiveClock();
+            if (!data) {
+                document.getElementById('applySection').style.display = 'block';
+                document.getElementById('statusText').innerText = "Status: Idle";
+            } else if (data.status === 'requested') {
+                document.getElementById('waitingSection').style.display = 'block';
+                document.getElementById('statusText').innerText = "Status: Pending Admin";
+            } else if (data.status === 'assigned') {
+                document.getElementById('workSection').style.display = 'block';
+                document.getElementById('statusText').innerText = "Status: Task Assigned";
+                // Show Admin Data
+                document.getElementById('showFname').innerText = data.adminData.fname;
+                document.getElementById('showEmail').innerText = data.adminData.email;
+                document.getElementById('showPass').innerText = data.adminData.password;
+            } else if (data.status === 'submitted') {
+                document.getElementById('reviewSection').style.display = 'block';
+                document.getElementById('statusText').innerText = "Status: Under Review";
+            } else if (data.status === 'completed') {
+                document.getElementById('completedSection').style.display = 'block';
+                document.getElementById('statusText').innerText = "Status: Completed";
+                document.getElementById('rewardAmount').innerText = data.reward || 0;
+            }
+        });
+    }
 
-        // --- 2. 9:00 PM COUNTDOWN LOGIC ---
-        function startCountdown() {
-            // আগের যদি কোনো সেভ করা টাইম থাকে তা ডিলিট করছি, যাতে আজ ৯টা ফিক্স হয়
-            localStorage.removeItem('task2_target_time');
+    function hideAll() {
+        ['applySection', 'waitingSection', 'workSection', 'reviewSection', 'completedSection'].forEach(id => {
+            document.getElementById(id).style.display = 'none';
+        });
+    }
 
-            // আজকের তারিখ সেট করা হচ্ছে
-            const targetDate = new Date();
-            // সময় সেট: 21:00:00 (মানে রাত ৯টা)
-            targetDate.setHours(21, 0, 0, 0); 
+    window.applyTask = () => {
+        set(ref(db, 'task2_requests/' + currentUser.uid), {
+            status: 'requested',
+            userEmail: currentUser.email,
+            timestamp: Date.now()
+        });
+    };
 
-            // যদি কেউ ৯টার পরে পেজ দেখে, তাহলে কি হবে?
-            // আপনি যদি চান পরের দিন ৯টা দেখাবে, তাহলে নিচের কমেন্ট আউট করা কোডটি অন করতে পারেন।
-            // কিন্তু এখনকার জন্য এটি শুধু আজকের ৯টা টার্গেট করবে।
-            
-            /* 
-            const now = new Date();
-            if (now > targetDate) {
-               // যদি আজকের ৯টা পার হয়ে যায়, টার্গেট হবে আগামীকাল ৯টা
-               targetDate.setDate(targetDate.getDate() + 1);
-            } 
-            */
+    window.submitWork = () => {
+        const email = document.getElementById('subEmail').value;
+        const pass = document.getElementById('subPass').value;
+        if(!email || !pass) return alert("Fill all fields");
+        
+        update(ref(db, 'task2_requests/' + currentUser.uid), {
+            status: 'submitted',
+            submission: { email: email, password: pass }
+        });
+    };
 
-            const interval = setInterval(() => {
-                const now = new Date().getTime();
-                const distance = targetDate.getTime() - now;
-
-                if (distance < 0) {
-                    clearInterval(interval);
-                    document.querySelector('.countdown').innerHTML = "<h2 style='color:#2ecc71; text-shadow:0 0 10px #2ecc71; animation: float 2s infinite;'>LAUNCHED!</h2><p>Check Task List Now</p>";
-                    return;
-                }
-
-                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                document.getElementById("days").innerText = days < 10 ? "0" + days : days;
-                document.getElementById("hours").innerText = hours < 10 ? "0" + hours : hours;
-                document.getElementById("minutes").innerText = minutes < 10 ? "0" + minutes : minutes;
-                document.getElementById("seconds").innerText = seconds < 10 ? "0" + seconds : seconds;
-
-            }, 1000);
-        }
-
-        startCountdown();
-    </script>
+    window.resetTask = () => {
+        remove(ref(db, 'task2_requests/' + currentUser.uid));
+    };
+</script>
 </body>
 </html>
