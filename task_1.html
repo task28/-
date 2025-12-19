@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Task 1 - Premium</title>
+    <title>Task 1 - Paused</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -11,258 +11,58 @@
         .container { max-width: 600px; margin: 0 auto; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); padding: 25px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
         h2 { text-align: center; color: #ffd700; margin-top: 0; text-transform: uppercase; }
         
-        /* STATUS BOX */
-        .status-box { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); }
+        .main-btn { width: 100%; display: block; text-decoration: none; text-align: center; padding: 14px; background: linear-gradient(45deg, #ffd700, #ff8c00); border: none; font-weight: bold; cursor: pointer; border-radius: 8px; color: #000; font-size: 1rem; transition: 0.3s; margin-top: 15px; box-sizing: border-box; }
+        .main-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4); }
         
-        /* DATA DISPLAY GROUP */
-        .data-group { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #ffd700; }
-        .data-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
-        .data-row:last-child { border-bottom: none; margin-bottom: 0; }
-        .data-label { color: #aaa; font-size: 0.85rem; width: 30%; }
-        .data-val { color: #fff; font-family: monospace; font-size: 0.95rem; width: 55%; word-break: break-all; text-align: right; margin-right: 10px; }
-        
-        /* BUTTONS & INPUTS */
-        .btn-copy { background: transparent; border: 1px solid #ffd700; color: #ffd700; padding: 5px 10px; border-radius: 5px; cursor: pointer; transition: 0.3s; font-size: 0.8rem; }
-        .btn-copy:hover { background: #ffd700; color: #000; }
-        .input-box { margin-bottom: 15px; }
-        input { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid #555; color: white; border-radius: 8px; box-sizing: border-box; outline: none; transition: 0.3s; }
-        input:focus { border-color: #ffd700; }
-        
-        .main-btn { width: 100%; padding: 14px; background: linear-gradient(45deg, #ffd700, #ff8c00); border: none; font-weight: bold; cursor: pointer; border-radius: 8px; color: #000; font-size: 1rem; transition: 0.3s; }
-        .main-btn:disabled { background: #555; color: #aaa; cursor: not-allowed; }
-        
-        .timer-display { font-size: 1.5rem; color: #ff4444; text-align: center; margin: 15px 0; font-weight: bold; }
-        .last-earn { text-align: center; color: #2ecc71; margin-bottom: 10px; font-weight: bold; }
         .back-link { display: block; text-align: center; margin-top: 20px; color: #aaa; text-decoration: none; }
         
-        /* TOAST NOTIFICATION */
-        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 2px; padding: 16px; position: fixed; z-index: 1; left: 50%; bottom: 30px; transform: translateX(-50%); border-bottom: 3px solid #ffd700; }
-        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+        /* MAINTENANCE BOX STYLES */
+        .maintenance-box { text-align: center; padding: 30px 10px; }
+        .icon-large { font-size: 4rem; color: #ff4444; margin-bottom: 20px; animation: pulse 2s infinite; }
+        .info-box { background: rgba(255, 255, 255, 0.1); border-left: 4px solid #ffd700; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: left; }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>Gmail Task</h2>
+        <h2>Task 1 Status</h2>
         
-        <div id="statusArea" class="status-box">Loading...</div>
-
-        <!-- COOLDOWN / IDLE AREA -->
-        <div id="idleSection" style="display:none;">
-            <div id="earningMsg" class="last-earn" style="display:none;">
-                <i class="fas fa-coins"></i> Last Earned: <span id="earnAmt">0</span> TK
-            </div>
+        <div class="maintenance-box">
+            <!-- Icon -->
+            <i class="fas fa-clock icon-large"></i>
             
-            <!-- Countdown -->
-            <div id="cooldownBox" style="display:none;">
-                <p style="text-align:center; opacity:0.7; color:#ff4444;">Task Cooldown Active</p>
-                <div id="timer" class="timer-display">Loading...</div>
-                <p style="text-align:center; font-size:0.8rem;">Please wait before applying again.</p>
+            <h3 style="font-size: 1.5rem; margin-bottom: 10px;">Temporarily Paused</h3>
+            
+            <p style="color: #ccc; line-height: 1.6;">
+                Task 1 is currently unavailable for updates. <br>
+                Please check back in <strong>6 Days</strong>.
+            </p>
+
+            <!-- Info Box -->
+            <div class="info-box">
+                <i class="fas fa-info-circle" style="color: #ffd700; margin-right: 8px;"></i>
+                <strong>Action Required:</strong>
+                <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: #ddd;">
+                    Do not wait here. Please continue your work on Task 2 to keep earning.
+                </p>
             </div>
 
-            <!-- Apply Button -->
-            <div id="applyBox" style="display:none;">
-                <p style="text-align:center;">Create a Gmail account according to instructions.</p>
-                <button id="btnApply" class="main-btn" onclick="applyForTask()">APPLY FOR TASK</button>
-            </div>
-        </div>
+            <!-- Button to Task 2 -->
+            <a href="task2.html" class="main-btn">
+                GO TO TASK 2 <i class="fas fa-arrow-right" style="margin-left: 10px;"></i>
+            </a>
 
-        <!-- WAITING FOR ADMIN -->
-        <div id="waitingSection" style="display:none; text-align:center;">
-            <h3>Request Pending</h3>
-            <div style="font-size: 3rem; color: #ffd700; margin: 20px;"><i class="fas fa-hourglass-half fa-spin"></i></div>
-            <p>Admin is reviewing your request.</p>
+            <a href="home.html" class="back-link">Back to Dashboard</a>
         </div>
-
-        <!-- SUBMIT SECTION -->
-        <div id="submitSection" style="display:none;">
-            <h3>Task Details</h3>
-            <!-- ডাটা এখানে শো হবে -->
-            <div id="taskDataContainer" class="data-group"></div>
-            
-            <hr style="border-color:rgba(255,255,255,0.1); margin: 20px 0;">
-            
-            <h3>Submit Work</h3>
-            <div class="input-box"><input type="text" id="subEmail" placeholder="Created Gmail (e.g. example@gmail.com)"></div>
-            <div class="input-box"><input type="text" id="subPass" placeholder="Password used"></div>
-            <button class="main-btn" onclick="submitTask()">SUBMIT TASK</button>
-        </div>
-
-        <a href="home.html" class="back-link">Back to Dashboard</a>
     </div>
 
-    <div id="toast">Copied!</div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-        import { getDatabase, ref, set, onValue, update, get } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-        
-        const firebaseConfig = { apiKey: "AIzaSyB2YLhAvSF12ZZx7LSnbqcCjtS2_8QLt4o", authDomain: "task-f6078.firebaseapp.com", databaseURL: "https://task-f6078-default-rtdb.firebaseio.com", projectId: "task-f6078", storageBucket: "task-f6078.firebasestorage.app", messagingSenderId: "887907470692", appId: "1:887907470692:web:c4142ac9573e19d29d3e71" };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
-        
-        let currentUser = null;
-        let cooldownMinutes = 0; 
-        let timerInterval = null;
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                get(ref(db, 'settings/task_settings')).then(snap => {
-                    const data = snap.val();
-                    if(data && data.cooldown_minutes) {
-                        cooldownMinutes = parseInt(data.cooldown_minutes);
-                    }
-                    checkTaskStatus();
-                });
-            } else { window.location.href = "register_login.html"; }
-        });
-
-        function checkTaskStatus() {
-            const taskRef = ref(db, 'task_requests/' + currentUser.uid);
-            const userRef = ref(db, 'users/' + currentUser.uid);
-
-            onValue(taskRef, (snapshot) => {
-                const data = snapshot.val();
-                const uiStatus = document.getElementById('statusArea');
-                
-                document.getElementById('idleSection').style.display = 'none';
-                document.getElementById('waitingSection').style.display = 'none';
-                document.getElementById('submitSection').style.display = 'none';
-
-                if (!data) {
-                    uiStatus.innerText = "Status: Checking Availability...";
-                    document.getElementById('idleSection').style.display = 'block';
-
-                    get(userRef).then((uSnap) => {
-                        const uData = uSnap.val();
-                        if(uData.lastEarned) {
-                            document.getElementById('earningMsg').style.display = 'block';
-                            document.getElementById('earnAmt').innerText = uData.lastEarned;
-                        }
-
-                        if(uData.lastTaskTime && cooldownMinutes > 0) {
-                            const lastTime = uData.lastTaskTime;
-                            const diffMs = Date.now() - lastTime;
-                            const cooldownMs = cooldownMinutes * 60 * 1000;
-
-                            if(diffMs < cooldownMs) {
-                                document.getElementById('applyBox').style.display = 'none';
-                                document.getElementById('cooldownBox').style.display = 'block';
-                                uiStatus.innerText = "Status: Cooldown Active";
-                                startTimer(lastTime + cooldownMs);
-                            } else {
-                                showApplyButton(uiStatus);
-                            }
-                        } else {
-                            showApplyButton(uiStatus);
-                        }
-                    });
-
-                } else if (data.status === 'requested') {
-                    uiStatus.innerText = "Status: Pending Approval";
-                    document.getElementById('waitingSection').style.display = 'block';
-                } else if (data.status === 'assigned') {
-                    uiStatus.innerText = "Status: Task Assigned";
-                    document.getElementById('submitSection').style.display = 'block';
-                    
-                    // --- HERE IS THE FIX FOR DATA RENDERING ---
-                    if(data.adminData){
-                        renderTaskData(data.adminData);
-                    }
-                } else if (data.status === 'submitted') {
-                    uiStatus.innerText = "Status: Under Review";
-                    document.getElementById('waitingSection').style.display = 'block';
-                }
-            });
-        }
-
-        function showApplyButton(uiStatus) {
-            document.getElementById('applyBox').style.display = 'block';
-            document.getElementById('cooldownBox').style.display = 'none';
-            uiStatus.innerText = "Status: Ready to Apply";
-        }
-
-        // --- FIXED RENDER FUNCTION (Variable names matched with Admin) ---
-        function renderTaskData(adminData) {
-            const container = document.getElementById('taskDataContainer');
-            container.innerHTML = "";
-            
-            // নামগুলো লক্ষ্য করুন: fname, lname, password, email (অ্যাডমিনের সাথে মিল রেখে)
-            const fields = [
-                { label: "First Name", val: adminData.fname },
-                { label: "Last Name", val: adminData.lname },
-                { label: "Password", val: adminData.password },
-                { label: "Req. Email", val: adminData.email },
-                { label: "Recovery", val: adminData.recovery }
-            ];
-
-            fields.forEach((item, index) => {
-                // ভ্যালু যদি থাকে তবেই শো করবে
-                if(item.val) {
-                    container.innerHTML += `
-                    <div class="data-row">
-                        <span class="data-label">${item.label}</span>
-                        <span class="data-val" id="copy_${index}">${item.val}</span>
-                        <button class="btn-copy" onclick="copyText('copy_${index}')"><i class="fas fa-copy"></i></button>
-                    </div>`;
-                }
-            });
-        }
-
-        window.copyText = (id) => {
-            const txt = document.getElementById(id).innerText;
-            navigator.clipboard.writeText(txt);
-            const x = document.getElementById("toast");
-            x.className = "show";
-            setTimeout(() => x.className = x.className.replace("show", ""), 3000);
-        }
-
-        window.applyForTask = () => {
-            const btn = document.getElementById('btnApply');
-            btn.innerHTML = "Processing...";
-            btn.disabled = true;
-            set(ref(db, 'task_requests/' + currentUser.uid), {
-                status: 'requested',
-                userPhone: currentUser.email.split('@')[0], 
-                timestamp: Date.now()
-            });
-        };
-
-        window.submitTask = () => {
-            const subEmail = document.getElementById('subEmail').value;
-            const subPass = document.getElementById('subPass').value;
-            if(!subEmail || !subPass) return alert("Please fill all fields.");
-            update(ref(db, 'task_requests/' + currentUser.uid), {
-                status: 'submitted',
-                submission: { email: subEmail, password: subPass }
-            });
-        }
-
-        function startTimer(targetTime) {
-            if(timerInterval) clearInterval(timerInterval);
-            const timerEl = document.getElementById("timer");
-            
-            timerInterval = setInterval(() => {
-                const now = Date.now();
-                const distance = targetTime - now;
-
-                if (distance < 0) {
-                    clearInterval(timerInterval);
-                    timerEl.innerHTML = "00:00:00";
-                    checkTaskStatus(); 
-                    return;
-                }
-                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const s = Math.floor((distance % (1000 * 60)) / 1000);
-                timerEl.innerHTML = `${h}h ${m}m ${s}s`;
-            }, 1000);
-        }
-    </script>
+    <!-- Script removed temporarily since logic is not needed while task is off -->
+    
 </body>
 </html>
