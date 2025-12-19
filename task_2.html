@@ -2,163 +2,230 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Task 2 - Gmail Creation</title>
+    <title>Task 2 - Premium</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* PREMIUM THEME */
-        body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: #fff; font-family: 'Poppins', sans-serif; padding: 20px; }
-        .container { max-width: 500px; margin: 0 auto; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); padding: 25px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
-        h2 { text-align: center; color: #00d2ff; text-transform: uppercase; }
+        /* PREMIUM DARK THEME (SAME AS TASK 1) */
+        body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: #fff; font-family: 'Poppins', sans-serif; padding: 20px; min-height: 100vh; }
+        .container { max-width: 600px; margin: 0 auto; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); padding: 25px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+        h2 { text-align: center; color: #00d2ff; margin-top: 0; text-transform: uppercase; } /* Blue/Cyan Title for Task 2 */
         
-        .status-box { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        /* STATUS BOX */
+        .status-box { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); }
         
-        /* DATA DISPLAY */
-        .task-info { background: rgba(0, 210, 255, 0.1); padding: 15px; border-radius: 10px; border-left: 4px solid #00d2ff; margin-bottom: 20px; }
-        .data-row { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; }
-        .label { color: #aaa; font-size: 0.9rem; }
-        .val { font-family: monospace; font-size: 1rem; color: #fff; }
-
-        /* INPUTS */
-        input { width: 100%; padding: 12px; margin-bottom: 10px; background: rgba(0,0,0,0.3); border: 1px solid #555; color: white; border-radius: 8px; box-sizing: border-box; outline: none; }
+        /* DATA DISPLAY GROUP */
+        .data-group { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #00d2ff; }
+        .data-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
+        .data-row:last-child { border-bottom: none; margin-bottom: 0; }
+        .data-label { color: #aaa; font-size: 0.85rem; width: 30%; }
+        .data-val { color: #fff; font-family: monospace; font-size: 0.95rem; width: 55%; word-break: break-all; text-align: right; margin-right: 10px; }
+        
+        /* BUTTONS & INPUTS */
+        .btn-copy { background: transparent; border: 1px solid #00d2ff; color: #00d2ff; padding: 5px 10px; border-radius: 5px; cursor: pointer; transition: 0.3s; font-size: 0.8rem; }
+        .btn-copy:hover { background: #00d2ff; color: #000; }
+        .input-box { margin-bottom: 15px; }
+        input { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid #555; color: white; border-radius: 8px; box-sizing: border-box; outline: none; transition: 0.3s; }
         input:focus { border-color: #00d2ff; }
-
-        .btn { width: 100%; padding: 12px; border: none; font-weight: bold; cursor: pointer; border-radius: 8px; color: #fff; font-size: 1rem; transition: 0.3s; margin-top: 10px; }
-        .btn-apply { background: linear-gradient(45deg, #00d2ff, #3a7bd5); }
-        .btn-submit { background: linear-gradient(45deg, #00b09b, #96c93d); }
         
-        .waiting-anim { font-size: 3rem; color: #00d2ff; margin: 20px; text-align: center; }
-        .reward-msg { text-align: center; font-size: 1.2rem; color: #2ecc71; font-weight: bold; margin-bottom: 15px; }
+        .main-btn { width: 100%; padding: 14px; background: linear-gradient(45deg, #00d2ff, #3a7bd5); border: none; font-weight: bold; cursor: pointer; border-radius: 8px; color: #fff; font-size: 1rem; transition: 0.3s; }
+        .main-btn:disabled { background: #555; color: #aaa; cursor: not-allowed; }
+        
+        .timer-display { font-size: 1.5rem; color: #ff4444; text-align: center; margin: 15px 0; font-weight: bold; }
+        .last-earn { text-align: center; color: #2ecc71; margin-bottom: 10px; font-weight: bold; }
+        .back-link { display: block; text-align: center; margin-top: 20px; color: #aaa; text-decoration: none; }
+        
+        /* TOAST NOTIFICATION */
+        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 2px; padding: 16px; position: fixed; z-index: 1; left: 50%; bottom: 30px; transform: translateX(-50%); border-bottom: 3px solid #00d2ff; }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Task 2 Zone</h2>
-    <div id="statusText" class="status-box">Loading...</div>
-
-    <!-- 1. APPLY SECTION -->
-    <div id="applySection" style="display:none; text-align:center;">
-        <p>Apply to get a new Gmail Task.</p>
-        <button class="btn btn-apply" onclick="applyTask()">APPLY NOW</button>
-    </div>
-
-    <!-- 2. WAITING FOR ADMIN -->
-    <div id="waitingSection" style="display:none; text-align:center;">
-        <div class="waiting-anim"><i class="fas fa-sync fa-spin"></i></div>
-        <p>Waiting for Admin to assign data...</p>
-    </div>
-
-    <!-- 3. WORK SECTION (Admin Data Show) -->
-    <div id="workSection" style="display:none;">
-        <p style="text-align:center; color:#00d2ff;">Create Gmail with this info:</p>
-        <div class="task-info">
-            <div class="data-row"><span class="label">First Name:</span> <span class="val" id="showFname">...</span></div>
-            <div class="data-row"><span class="label">Req. Email:</span> <span class="val" id="showEmail">...</span></div>
-            <div class="data-row"><span class="label">Password:</span> <span class="val" id="showPass">...</span></div>
-        </div>
-
-        <input type="text" id="subEmail" placeholder="Enter Created Gmail">
-        <input type="text" id="subPass" placeholder="Enter Password Used">
-        <button class="btn btn-submit" onclick="submitWork()">SUBMIT TASK</button>
-    </div>
-
-    <!-- 4. UNDER REVIEW -->
-    <div id="reviewSection" style="display:none; text-align:center;">
-        <i class="fas fa-hourglass-half" style="font-size:3rem; color:#ffd700; margin:15px;"></i>
-        <p>Your work is under review.</p>
-    </div>
-
-    <!-- 5. COMPLETED -->
-    <div id="completedSection" style="display:none; text-align:center;">
-        <div class="reward-msg">
-            <i class="fas fa-check-circle"></i> Task Approved!<br>
-            Reward: <span id="rewardAmount">0</span> TK
-        </div>
-        <button class="btn btn-apply" onclick="resetTask()">DO ANOTHER TASK</button>
-    </div>
-    
-    <a href="home.html" style="display:block; text-align:center; margin-top:20px; color:#aaa; text-decoration:none;">Back to Home</a>
-</div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getDatabase, ref, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-
-    // আপনার ফায়ারবেস কনফিগ এখানে দিন
-    const firebaseConfig = { apiKey: "AIzaSyB2YLhAvSF12ZZx7LSnbqcCjtS2_8QLt4o", authDomain: "task-f6078.firebaseapp.com", databaseURL: "https://task-f6078-default-rtdb.firebaseio.com", projectId: "task-f6078", storageBucket: "task-f6078.firebasestorage.app", messagingSenderId: "887907470692", appId: "1:887907470692:web:c4142ac9573e19d29d3e71" };
-    
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-    let currentUser = null;
-
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            currentUser = user;
-            checkTask();
-        } else { window.location.href = "login.html"; }
-    });
-
-    function checkTask() {
-        const taskRef = ref(db, 'task2_requests/' + currentUser.uid);
-        onValue(taskRef, (snapshot) => {
-            const data = snapshot.val();
-            hideAll();
-            
-            if (!data) {
-                document.getElementById('applySection').style.display = 'block';
-                document.getElementById('statusText').innerText = "Status: Idle";
-            } else if (data.status === 'requested') {
-                document.getElementById('waitingSection').style.display = 'block';
-                document.getElementById('statusText').innerText = "Status: Pending Admin";
-            } else if (data.status === 'assigned') {
-                document.getElementById('workSection').style.display = 'block';
-                document.getElementById('statusText').innerText = "Status: Task Assigned";
-                // Show Admin Data
-                document.getElementById('showFname').innerText = data.adminData.fname;
-                document.getElementById('showEmail').innerText = data.adminData.email;
-                document.getElementById('showPass').innerText = data.adminData.password;
-            } else if (data.status === 'submitted') {
-                document.getElementById('reviewSection').style.display = 'block';
-                document.getElementById('statusText').innerText = "Status: Under Review";
-            } else if (data.status === 'completed') {
-                document.getElementById('completedSection').style.display = 'block';
-                document.getElementById('statusText').innerText = "Status: Completed";
-                document.getElementById('rewardAmount').innerText = data.reward || 0;
-            }
-        });
-    }
-
-    function hideAll() {
-        ['applySection', 'waitingSection', 'workSection', 'reviewSection', 'completedSection'].forEach(id => {
-            document.getElementById(id).style.display = 'none';
-        });
-    }
-
-    window.applyTask = () => {
-        set(ref(db, 'task2_requests/' + currentUser.uid), {
-            status: 'requested',
-            userEmail: currentUser.email,
-            timestamp: Date.now()
-        });
-    };
-
-    window.submitWork = () => {
-        const email = document.getElementById('subEmail').value;
-        const pass = document.getElementById('subPass').value;
-        if(!email || !pass) return alert("Fill all fields");
+    <div class="container">
+        <h2>Gmail Task 2</h2>
         
-        update(ref(db, 'task2_requests/' + currentUser.uid), {
-            status: 'submitted',
-            submission: { email: email, password: pass }
-        });
-    };
+        <div id="statusArea" class="status-box">Loading...</div>
 
-    window.resetTask = () => {
-        remove(ref(db, 'task2_requests/' + currentUser.uid));
-    };
-</script>
+        <!-- COOLDOWN / IDLE AREA -->
+        <div id="idleSection" style="display:none;">
+            <div id="earningMsg" class="last-earn" style="display:none;">
+                <i class="fas fa-coins"></i> Last Earned: <span id="earnAmt">0</span> TK
+            </div>
+            
+            <!-- Countdown -->
+            <div id="cooldownBox" style="display:none;">
+                <p style="text-align:center; opacity:0.7; color:#ff4444;">Task Cooldown Active</p>
+                <div id="timer" class="timer-display">Loading...</div>
+                <p style="text-align:center; font-size:0.8rem;">Please wait before applying again.</p>
+            </div>
+
+            <!-- Apply Button -->
+            <div id="applyBox" style="display:none;">
+                <p style="text-align:center;">Apply to get First Name, Email & Password.</p>
+                <button id="btnApply" class="main-btn" onclick="applyForTask()">APPLY FOR TASK 2</button>
+            </div>
+        </div>
+
+        <!-- WAITING FOR ADMIN -->
+        <div id="waitingSection" style="display:none; text-align:center;">
+            <h3>Request Pending</h3>
+            <div style="font-size: 3rem; color: #00d2ff; margin: 20px;"><i class="fas fa-hourglass-half fa-spin"></i></div>
+            <p>Admin is assigning your data...</p>
+        </div>
+
+        <!-- SUBMIT SECTION -->
+        <div id="submitSection" style="display:none;">
+            <h3>Task Details</h3>
+            <!-- ডাটা এখানে শো হবে (First Name, Email, Password) -->
+            <div id="taskDataContainer" class="data-group"></div>
+            
+            <hr style="border-color:rgba(255,255,255,0.1); margin: 20px 0;">
+            
+            <h3>Submit Work</h3>
+            <div class="input-box"><input type="text" id="subEmail" placeholder="Created Gmail (e.g. example@gmail.com)"></div>
+            <div class="input-box"><input type="text" id="subPass" placeholder="Password used"></div>
+            <button class="main-btn" onclick="submitTask()">SUBMIT TASK</button>
+        </div>
+
+        <a href="home.html" class="back-link">Back to Dashboard</a>
+    </div>
+
+    <div id="toast">Copied!</div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+        import { getDatabase, ref, set, onValue, update, get } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+        
+        const firebaseConfig = { apiKey: "AIzaSyB2YLhAvSF12ZZx7LSnbqcCjtS2_8QLt4o", authDomain: "task-f6078.firebaseapp.com", databaseURL: "https://task-f6078-default-rtdb.firebaseio.com", projectId: "task-f6078", storageBucket: "task-f6078.firebasestorage.app", messagingSenderId: "887907470692", appId: "1:887907470692:web:c4142ac9573e19d29d3e71" };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        
+        let currentUser = null;
+        let cooldownMinutes = 0; 
+        let timerInterval = null;
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                // Task 2 Settings Load
+                get(ref(db, 'settings/task2_settings')).then(snap => {
+                    const data = snap.val();
+                    if(data && data.cooldown_minutes) {
+                        cooldownMinutes = parseInt(data.cooldown_minutes);
+                    }
+                    checkTaskStatus();
+                });
+            } else { window.location.href = "register_login.html"; }
+        });
+
+        function checkTaskStatus() {
+            // Task 2 Database Reference
+            const taskRef = ref(db, 'task2_requests/' + currentUser.uid);
+            const userRef = ref(db, 'users/' + currentUser.uid);
+
+            onValue(taskRef, (snapshot) => {
+                const data = snapshot.val();
+                const uiStatus = document.getElementById('statusArea');
+                
+                document.getElementById('idleSection').style.display = 'none';
+                document.getElementById('waitingSection').style.display = 'none';
+                document.getElementById('submitSection').style.display = 'none';
+
+                if (!data) {
+                    uiStatus.innerText = "Status: Checking Availability...";
+                    document.getElementById('idleSection').style.display = 'block';
+
+                    get(userRef).then((uSnap) => {
+                        const uData = uSnap.val();
+                        // Task 2 তে শেষ কবে কাজ করেছে সেটা চেক করা যেতে পারে (যদি থাকে)
+                        if(uData.lastEarned) {
+                            document.getElementById('earningMsg').style.display = 'block';
+                            document.getElementById('earnAmt').innerText = uData.lastEarned;
+                        }
+                        showApplyButton(uiStatus);
+                    });
+
+                } else if (data.status === 'requested') {
+                    uiStatus.innerText = "Status: Pending Approval";
+                    document.getElementById('waitingSection').style.display = 'block';
+                } else if (data.status === 'assigned') {
+                    uiStatus.innerText = "Status: Task Assigned";
+                    document.getElementById('submitSection').style.display = 'block';
+                    
+                    // --- Render Data for Task 2 ---
+                    if(data.adminData){
+                        renderTaskData(data.adminData);
+                    }
+                } else if (data.status === 'submitted') {
+                    uiStatus.innerText = "Status: Under Review";
+                    document.getElementById('waitingSection').style.display = 'block';
+                }
+            });
+        }
+
+        function showApplyButton(uiStatus) {
+            document.getElementById('applyBox').style.display = 'block';
+            document.getElementById('cooldownBox').style.display = 'none';
+            uiStatus.innerText = "Status: Ready to Apply";
+        }
+
+        // --- RENDER FUNCTION (First Name, Email, Password Only) ---
+        function renderTaskData(adminData) {
+            const container = document.getElementById('taskDataContainer');
+            container.innerHTML = "";
+            
+            const fields = [
+                { label: "First Name", val: adminData.fname },
+                // Last Name removed as per request
+                { label: "Req. Email", val: adminData.email },
+                { label: "Password", val: adminData.password }
+            ];
+
+            fields.forEach((item, index) => {
+                if(item.val) {
+                    container.innerHTML += `
+                    <div class="data-row">
+                        <span class="data-label">${item.label}</span>
+                        <span class="data-val" id="copy_${index}">${item.val}</span>
+                        <button class="btn-copy" onclick="copyText('copy_${index}')"><i class="fas fa-copy"></i></button>
+                    </div>`;
+                }
+            });
+        }
+
+        window.copyText = (id) => {
+            const txt = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(txt);
+            const x = document.getElementById("toast");
+            x.className = "show";
+            setTimeout(() => x.className = x.className.replace("show", ""), 3000);
+        }
+
+        window.applyForTask = () => {
+            const btn = document.getElementById('btnApply');
+            btn.innerHTML = "Processing...";
+            btn.disabled = true;
+            set(ref(db, 'task2_requests/' + currentUser.uid), {
+                status: 'requested',
+                userEmail: currentUser.email, 
+                timestamp: Date.now()
+            });
+        };
+
+        window.submitTask = () => {
+            const subEmail = document.getElementById('subEmail').value;
+            const subPass = document.getElementById('subPass').value;
+            if(!subEmail || !subPass) return alert("Please fill all fields.");
+            update(ref(db, 'task2_requests/' + currentUser.uid), {
+                status: 'submitted',
+                submission: { email: subEmail, password: subPass }
+            });
+        }
+    </script>
 </body>
 </html>
