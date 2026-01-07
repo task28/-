@@ -32,6 +32,7 @@
         .main-btn:disabled { background: #555; color: #aaa; cursor: not-allowed; }
         
         .timer-display { font-size: 1.5rem; color: #ff4444; text-align: center; margin: 15px 0; font-weight: bold; }
+        .wait-timer { font-size: 1.8rem; color: #00d2ff; text-align: center; margin: 10px 0; font-weight: bold; font-family: monospace;}
         .last-earn { text-align: center; color: #2ecc71; margin-bottom: 10px; font-weight: bold; }
         .back-link { display: block; text-align: center; margin-top: 20px; color: #aaa; text-decoration: none; }
         
@@ -55,7 +56,7 @@
                 <i class="fas fa-coins"></i> Last Earned: <span id="earnAmt">0</span> TK
             </div>
             
-            <!-- Countdown -->
+            <!-- Cooldown Timer -->
             <div id="cooldownBox" style="display:none;">
                 <p style="text-align:center; opacity:0.7; color:#ff4444;">Task Cooldown Active</p>
                 <div id="timer" class="timer-display">Loading...</div>
@@ -69,17 +70,20 @@
             </div>
         </div>
 
-        <!-- WAITING FOR ADMIN -->
+        <!-- WAITING FOR ADMIN (NEW 5 MIN TIMER) -->
         <div id="waitingSection" style="display:none; text-align:center;">
             <h3>Request Pending</h3>
-            <div style="font-size: 3rem; color: #ffd700; margin: 20px;"><i class="fas fa-hourglass-half fa-spin"></i></div>
-            <p>Admin is reviewing your request.</p>
+            <div style="font-size: 2rem; color: #00d2ff; margin: 10px;"><i class="fas fa-satellite-dish fa-spin"></i></div>
+            <p>Waiting for admin to assign task...</p>
+            
+            <!-- 5 Min Countdown Display -->
+            <div id="waitTimerDisplay" class="wait-timer">05:00</div>
+            <p style="font-size: 0.8rem; color: #aaa;">If no task is assigned within time, request will cancel automatically.</p>
         </div>
 
         <!-- SUBMIT SECTION -->
         <div id="submitSection" style="display:none;">
             <h3>Task Details</h3>
-            <!-- ডাটা এখানে শো হবে -->
             <div id="taskDataContainer" class="data-group"></div>
             
             <hr style="border-color:rgba(255,255,255,0.1); margin: 20px 0;">
@@ -90,6 +94,13 @@
             <button class="main-btn" onclick="submitTask()">SUBMIT TASK</button>
         </div>
 
+        <!-- UNDER REVIEW -->
+        <div id="reviewSection" style="display:none; text-align:center;">
+            <h3>Under Review</h3>
+            <div style="font-size: 3rem; color: #ffd700; margin: 20px;"><i class="fas fa-hourglass-half fa-spin"></i></div>
+            <p>Admin is checking your submission.</p>
+        </div>
+
         <a href="home.html" class="back-link">Back to Dashboard</a>
     </div>
 
@@ -98,7 +109,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-        import { getDatabase, ref, set, onValue, update, get } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+        // Added 'remove' to imports
+        import { getDatabase, ref, set, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
         
         const firebaseConfig = { apiKey: "AIzaSyB2YLhAvSF12ZZx7LSnbqcCjtS2_8QLt4o", authDomain: "task-f6078.firebaseapp.com", databaseURL: "https://task-f6078-default-rtdb.firebaseio.com", projectId: "task-f6078", storageBucket: "task-f6078.firebasestorage.app", messagingSenderId: "887907470692", appId: "1:887907470692:web:c4142ac9573e19d29d3e71" };
         const app = initializeApp(firebaseConfig);
@@ -107,7 +119,8 @@
         
         let currentUser = null;
         let cooldownMinutes = 0; 
-        let timerInterval = null;
+        let cooldownInterval = null;
+        let waitInterval = null; // New interval for waiting timer
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -130,22 +143,27 @@
                 const data = snapshot.val();
                 const uiStatus = document.getElementById('statusArea');
                 
+                // Reset Views
                 document.getElementById('idleSection').style.display = 'none';
                 document.getElementById('waitingSection').style.display = 'none';
                 document.getElementById('submitSection').style.display = 'none';
+                document.getElementById('reviewSection').style.display = 'none';
+                
+                if(waitInterval) clearInterval(waitInterval); // Clear wait timer if status changes
 
                 if (!data) {
+                    // --- IDLE / COOLDOWN STATE ---
                     uiStatus.innerText = "Status: Checking Availability...";
                     document.getElementById('idleSection').style.display = 'block';
 
                     get(userRef).then((uSnap) => {
                         const uData = uSnap.val();
-                        if(uData.lastEarned) {
+                        if(uData && uData.lastEarned) {
                             document.getElementById('earningMsg').style.display = 'block';
                             document.getElementById('earnAmt').innerText = uData.lastEarned;
                         }
 
-                        if(uData.lastTaskTime && cooldownMinutes > 0) {
+                        if(uData && uData.lastTaskTime && cooldownMinutes > 0) {
                             const lastTime = uData.lastTaskTime;
                             const diffMs = Date.now() - lastTime;
                             const cooldownMs = cooldownMinutes * 60 * 1000;
@@ -154,7 +172,7 @@
                                 document.getElementById('applyBox').style.display = 'none';
                                 document.getElementById('cooldownBox').style.display = 'block';
                                 uiStatus.innerText = "Status: Cooldown Active";
-                                startTimer(lastTime + cooldownMs);
+                                startCooldownTimer(lastTime + cooldownMs);
                             } else {
                                 showApplyButton(uiStatus);
                             }
@@ -164,19 +182,28 @@
                     });
 
                 } else if (data.status === 'requested') {
+                    // --- WAITING FOR ADMIN (5 MIN LIMIT) ---
                     uiStatus.innerText = "Status: Pending Approval";
                     document.getElementById('waitingSection').style.display = 'block';
+                    
+                    // Calculate 5 minutes deadline
+                    const reqTime = data.timestamp || Date.now();
+                    const waitTimeLimit = 5 * 60 * 1000; // 5 Minutes in MS
+                    const deadline = reqTime + waitTimeLimit;
+
+                    // Start the countdown logic
+                    startWaitTimer(deadline);
+
                 } else if (data.status === 'assigned') {
+                    // --- SUBMIT WORK ---
                     uiStatus.innerText = "Status: Task Assigned";
                     document.getElementById('submitSection').style.display = 'block';
-                    
-                    // --- HERE IS THE FIX FOR DATA RENDERING ---
-                    if(data.adminData){
-                        renderTaskData(data.adminData);
-                    }
+                    if(data.adminData) renderTaskData(data.adminData);
+
                 } else if (data.status === 'submitted') {
+                    // --- REVIEW ---
                     uiStatus.innerText = "Status: Under Review";
-                    document.getElementById('waitingSection').style.display = 'block';
+                    document.getElementById('reviewSection').style.display = 'block';
                 }
             });
         }
@@ -187,12 +214,9 @@
             uiStatus.innerText = "Status: Ready to Apply";
         }
 
-        // --- FIXED RENDER FUNCTION (Variable names matched with Admin) ---
         function renderTaskData(adminData) {
             const container = document.getElementById('taskDataContainer');
             container.innerHTML = "";
-            
-            // নামগুলো লক্ষ্য করুন: fname, lname, password, email (অ্যাডমিনের সাথে মিল রেখে)
             const fields = [
                 { label: "First Name", val: adminData.fname },
                 { label: "Last Name", val: adminData.lname },
@@ -200,9 +224,7 @@
                 { label: "Req. Email", val: adminData.email },
                 { label: "Recovery", val: adminData.recovery }
             ];
-
             fields.forEach((item, index) => {
-                // ভ্যালু যদি থাকে তবেই শো করবে
                 if(item.val) {
                     container.innerHTML += `
                     <div class="data-row">
@@ -229,7 +251,7 @@
             set(ref(db, 'task_requests/' + currentUser.uid), {
                 status: 'requested',
                 userPhone: currentUser.email.split('@')[0], 
-                timestamp: Date.now()
+                timestamp: Date.now() // Important for timer
             });
         };
 
@@ -243,25 +265,73 @@
             });
         }
 
-        function startTimer(targetTime) {
-            if(timerInterval) clearInterval(timerInterval);
+        // --- COOLDOWN TIMER (For after finishing task) ---
+        function startCooldownTimer(targetTime) {
+            if(cooldownInterval) clearInterval(cooldownInterval);
             const timerEl = document.getElementById("timer");
             
-            timerInterval = setInterval(() => {
+            cooldownInterval = setInterval(() => {
                 const now = Date.now();
                 const distance = targetTime - now;
-
                 if (distance < 0) {
-                    clearInterval(timerInterval);
+                    clearInterval(cooldownInterval);
                     timerEl.innerHTML = "00:00:00";
                     checkTaskStatus(); 
                     return;
                 }
-                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                formatTime(timerEl, distance);
+            }, 1000);
+        }
+
+        // --- NEW: WAITING TIMER (For 5 mins pending request) ---
+        function startWaitTimer(targetTime) {
+            if(waitInterval) clearInterval(waitInterval);
+            const waitDisplay = document.getElementById("waitTimerDisplay");
+            
+            // Check immediately so we don't wait 1 second to cancel
+            if(Date.now() > targetTime) {
+                autoCancelRequest();
+                return;
+            }
+
+            waitInterval = setInterval(() => {
+                const now = Date.now();
+                const distance = targetTime - now;
+
+                if (distance < 0) {
+                    clearInterval(waitInterval);
+                    waitDisplay.innerHTML = "00:00";
+                    // TIME IS UP! CANCEL REQUEST
+                    autoCancelRequest();
+                    return;
+                }
+                
+                // Show Minutes:Seconds
                 const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const s = Math.floor((distance % (1000 * 60)) / 1000);
-                timerEl.innerHTML = `${h}h ${m}m ${s}s`;
+                waitDisplay.innerHTML = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+
             }, 1000);
+        }
+
+        // --- AUTO CANCEL FUNCTION ---
+        function autoCancelRequest() {
+            const taskRef = ref(db, 'task_requests/' + currentUser.uid);
+            remove(taskRef)
+                .then(() => {
+                    alert("Time expired! Admin is busy. Please apply again.");
+                    // View will automatically update because of onValue listener
+                })
+                .catch((error) => {
+                    console.error("Error cancelling task:", error);
+                });
+        }
+
+        function formatTime(element, distance) {
+            const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((distance % (1000 * 60)) / 1000);
+            element.innerHTML = `${h}h ${m}m ${s}s`;
         }
     </script>
 </body>
