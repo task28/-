@@ -13,35 +13,18 @@
         
         /* NOTICE BOX STYLE */
         .notice-box { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 10px; padding: 15px; margin-bottom: 25px; }
-        .notice-header { text-align: center; color: #ffd700; font-weight: bold; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 10px; }
         .notice-item { display: flex; align-items: flex-start; margin-bottom: 10px; font-size: 0.85rem; line-height: 1.4; }
-        .notice-icon { width: 25px; color: #00d2ff; margin-right: 5px; text-align: center; flex-shrink: 0; margin-top: 2px;}
+        .notice-icon { width: 25px; color: #00d2ff; margin-right: 5px; text-align: center; }
         .notice-warning { color: #ff4444; }
-        .notice-title { font-weight: bold; color: #e0e0e0; display: block; margin-bottom: 2px; }
 
         /* REJECTION ALERT BOX */
         .reject-box { 
-            background: rgba(255, 0, 0, 0.1); 
-            border: 1px solid #ff4444; 
-            padding: 15px; 
-            border-radius: 10px; 
-            text-align: center; 
-            margin-bottom: 20px; 
-            display: none; /* Hidden by default */
+            background: rgba(255, 0, 0, 0.15); border: 1px solid #ff4444; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 20px; display: none; 
         }
-        .reject-title { color: #ff4444; font-weight: bold; font-size: 1.1rem; margin-bottom: 5px; }
-        .reject-reason { color: #fff; font-size: 0.9rem; margin-bottom: 10px; }
+        .reject-title { color: #ff4444; font-weight: bold; font-size: 1.1rem; }
         .tutorial-link { 
-            display: inline-block; 
-            background: #c4302b; 
-            color: white; 
-            padding: 10px 20px; 
-            border-radius: 5px; 
-            text-decoration: none; 
-            font-weight: bold; 
-            margin-top: 10px;
+            display: inline-block; background: #c4302b; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; margin-top: 10px;
         }
-        .tutorial-link:hover { background: #ff0000; }
 
         /* STATUS BOX */
         .status-box { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); }
@@ -49,17 +32,14 @@
         /* DATA DISPLAY GROUP */
         .data-group { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #ffd700; }
         .data-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
-        .data-row:last-child { border-bottom: none; margin-bottom: 0; }
-        .data-label { color: #aaa; font-size: 0.85rem; width: 30%; }
-        .data-val { color: #fff; font-family: monospace; font-size: 0.95rem; width: 55%; word-break: break-all; text-align: right; margin-right: 10px; }
+        .data-val { color: #fff; font-family: monospace; font-size: 0.95rem; width: 60%; word-break: break-all; text-align: right; }
         
-        .btn-copy { background: transparent; border: 1px solid #ffd700; color: #ffd700; padding: 5px 10px; border-radius: 5px; cursor: pointer; transition: 0.3s; font-size: 0.8rem; }
+        .btn-copy { background: transparent; border: 1px solid #ffd700; color: #ffd700; padding: 4px 8px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
         .input-box { margin-bottom: 15px; }
-        input { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid #555; color: white; border-radius: 8px; box-sizing: border-box; outline: none; transition: 0.3s; }
-        .main-btn { width: 100%; padding: 14px; background: linear-gradient(45deg, #ffd700, #ff8c00); border: none; font-weight: bold; cursor: pointer; border-radius: 8px; color: #000; font-size: 1rem; transition: 0.3s; }
+        input { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid #555; color: white; border-radius: 8px; outline: none; transition: 0.3s; }
+        .main-btn { width: 100%; padding: 14px; background: linear-gradient(45deg, #ffd700, #ff8c00); border: none; font-weight: bold; cursor: pointer; border-radius: 8px; color: #000; font-size: 1rem; }
         
         .timer-display { font-size: 1.5rem; color: #ff4444; text-align: center; margin: 15px 0; font-weight: bold; }
-        .wait-timer { font-size: 1.8rem; color: #00d2ff; text-align: center; margin: 10px 0; font-weight: bold; font-family: monospace;}
         .back-link { display: block; text-align: center; margin-top: 20px; color: #aaa; text-decoration: none; }
     </style>
 </head>
@@ -68,75 +48,50 @@
     <div class="container">
         <h2>Gmail Task</h2>
 
-        <!-- REJECTION MESSAGE BOX -->
+        <!-- REJECTION BOX -->
         <div id="rejectAlert" class="reject-box">
             <div class="reject-title"><i class="fas fa-times-circle"></i> Task Rejected</div>
-            <div id="rejectReasonText" class="reject-reason">Reason: Improper details provided.</div>
+            <div id="rejectReasonText" style="color:#fff; margin:5px 0;">Reason: ...</div>
             
-            <!-- Tutorial Link (Hidden by default, shown if rejects >= 3) -->
             <div id="tutorialSection" style="display:none;">
-                <p style="font-size:0.85rem; color:#aaa;">You have failed multiple times. Please watch the tutorial:</p>
-                <a href="https://youtu.be/YOUR_VIDEO_LINK" target="_blank" class="tutorial-link">
-                    <i class="fab fa-youtube"></i> Watch Tutorial
-                </a>
+                <p style="font-size:0.85rem; color:#aaa;">You failed multiple times. Watch tutorial:</p>
+                <a href="https://youtu.be/YOUR_VIDEO_LINK" target="_blank" class="tutorial-link"><i class="fab fa-youtube"></i> Watch Tutorial</a>
             </div>
-            
             <button class="main-btn" style="margin-top:10px; font-size:0.8rem; padding:8px;" onclick="closeRejectBox()">Try Again</button>
         </div>
 
-        <!-- NOTICE SECTION -->
         <div class="notice-box">
-            <div class="notice-header"><i class="fas fa-bullhorn"></i> IMPORTANT NOTICE</div>
-            <div class="notice-item">
-                <div class="notice-icon"><i class="far fa-clock"></i></div>
-                <div><span class="notice-title">Task Request Time:</span> 12:00 PM - 10:00 PM</div>
-            </div>
-            <div class="notice-item">
-                <div class="notice-icon"><i class="fas fa-hourglass-half"></i></div>
-                <div><span class="notice-title">Waiting Time:</span> Wait 2-3 mins after request.</div>
-            </div>
-            <div class="notice-item">
-                <div class="notice-icon notice-warning"><i class="fas fa-exclamation-triangle"></i></div>
-                <div class="notice-warning"><span class="notice-title">Warning:</span> Fake/Wrong info may block account.</div>
-            </div>
+            <div class="notice-item"><div class="notice-icon"><i class="fas fa-bullhorn"></i></div><div>Request Time: 12:00 PM - 10:00 PM</div></div>
+            <div class="notice-item"><div class="notice-icon"><i class="fas fa-exclamation-triangle notice-warning"></i></div><div class="notice-warning">Fake info will block account.</div></div>
         </div>
         
-        <div id="statusArea" class="status-box">Loading...</div>
+        <div id="statusArea" class="status-box">Checking...</div>
 
-        <!-- IDLE AREA -->
+        <!-- IDLE / APPLY -->
         <div id="idleSection" style="display:none;">
-            <div id="cooldownBox" style="display:none;">
-                <p style="text-align:center; opacity:0.7; color:#ff4444;">Task Cooldown Active</p>
-                <div id="timer" class="timer-display">Loading...</div>
-            </div>
-            <div id="applyBox" style="display:none;">
-                <button id="btnApply" class="main-btn" onclick="applyForTask()">APPLY FOR TASK</button>
-            </div>
+            <div id="applyBox"><button id="btnApply" class="main-btn" onclick="applyForTask()">APPLY FOR TASK</button></div>
         </div>
 
-        <!-- WAITING AREA -->
+        <!-- WAITING -->
         <div id="waitingSection" style="display:none; text-align:center;">
             <h3>Request Pending</h3>
             <div style="font-size: 2rem; color: #00d2ff; margin: 10px;"><i class="fas fa-satellite-dish fa-spin"></i></div>
-            <div id="waitTimerDisplay" class="wait-timer">05:00</div>
+            <div id="waitTimerDisplay" style="font-size:1.5rem; color:#00d2ff;">05:00</div>
         </div>
 
-        <!-- SUBMIT AREA -->
+        <!-- SUBMIT -->
         <div id="submitSection" style="display:none;">
             <h3>Task Details</h3>
             <div id="taskDataContainer" class="data-group"></div>
-            <hr style="border-color:rgba(255,255,255,0.1); margin: 20px 0;">
-            <h3>Submit Work</h3>
             <div class="input-box"><input type="text" id="subEmail" placeholder="Created Gmail"></div>
-            <div class="input-box"><input type="text" id="subPass" placeholder="Password used"></div>
+            <div class="input-box"><input type="text" id="subPass" placeholder="Password"></div>
             <button class="main-btn" onclick="submitTask()">SUBMIT TASK</button>
         </div>
 
-        <!-- REVIEW AREA -->
+        <!-- REVIEW -->
         <div id="reviewSection" style="display:none; text-align:center;">
             <h3>Under Review</h3>
             <div style="font-size: 3rem; color: #ffd700; margin: 20px;"><i class="fas fa-hourglass-half fa-spin"></i></div>
-            <p>Admin is checking your submission.</p>
         </div>
 
         <a href="home.html" class="back-link">Back to Dashboard</a>
@@ -153,36 +108,23 @@
         const db = getDatabase(app);
         
         let currentUser = null;
-        let cooldownMinutes = 0; 
-        let cooldownInterval = null;
         let waitInterval = null;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
-                // Check Rejection Count
-                checkRejectionHistory();
-                
-                get(ref(db, 'settings/task_settings')).then(snap => {
-                    const data = snap.val();
-                    if(data && data.cooldown_minutes) {
-                        cooldownMinutes = parseInt(data.cooldown_minutes);
-                    }
-                    checkTaskStatus();
-                });
+                // Run checks in parallel for speed
+                checkRejections();
+                checkTaskStatus();
             } else { window.location.href = "register_login.html"; }
         });
 
-        function checkRejectionHistory() {
-            // Check if user has a pending rejection message
-            const userRef = ref(db, 'users/' + currentUser.uid);
-            get(userRef).then((snap) => {
+        function checkRejections() {
+            get(ref(db, 'users/' + currentUser.uid)).then((snap) => {
                 const data = snap.val();
                 if(data && data.lastRejectReason) {
                     document.getElementById('rejectAlert').style.display = 'block';
                     document.getElementById('rejectReasonText').innerText = "Reason: " + data.lastRejectReason;
-
-                    // Check if rejected 3 or more times
                     if(data.rejectCount && data.rejectCount >= 3) {
                         document.getElementById('tutorialSection').style.display = 'block';
                     }
@@ -190,43 +132,31 @@
             });
         }
 
-        window.closeRejectBox = function() {
-            // Clear rejection reason from DB so it doesn't show again
-            update(ref(db, 'users/' + currentUser.uid), {
-                lastRejectReason: null 
-            });
+        window.closeRejectBox = () => {
+            update(ref(db, 'users/' + currentUser.uid), { lastRejectReason: null });
             document.getElementById('rejectAlert').style.display = 'none';
         }
 
         function checkTaskStatus() {
-            const taskRef = ref(db, 'task_requests/' + currentUser.uid);
-            onValue(taskRef, (snapshot) => {
+            onValue(ref(db, 'task_requests/' + currentUser.uid), (snapshot) => {
                 const data = snapshot.val();
                 const uiStatus = document.getElementById('statusArea');
                 
-                document.getElementById('idleSection').style.display = 'none';
-                document.getElementById('waitingSection').style.display = 'none';
-                document.getElementById('submitSection').style.display = 'none';
-                document.getElementById('reviewSection').style.display = 'none';
-                
+                // Reset Views
+                ['idleSection', 'waitingSection', 'submitSection', 'reviewSection'].forEach(id => document.getElementById(id).style.display = 'none');
                 if(waitInterval) clearInterval(waitInterval);
 
                 if (!data) {
-                    uiStatus.innerText = "Status: Checking Availability...";
+                    uiStatus.innerText = "Status: Ready to Apply";
                     document.getElementById('idleSection').style.display = 'block';
-                    // Cooldown logic here (Simplified for brevity)
-                    showApplyButton(uiStatus);
-
                 } else if (data.status === 'requested') {
                     uiStatus.innerText = "Status: Pending Approval";
                     document.getElementById('waitingSection').style.display = 'block';
                     startWaitTimer(data.timestamp + (5*60*1000));
-
                 } else if (data.status === 'assigned') {
                     uiStatus.innerText = "Status: Task Assigned";
                     document.getElementById('submitSection').style.display = 'block';
                     if(data.adminData) renderTaskData(data.adminData);
-
                 } else if (data.status === 'submitted') {
                     uiStatus.innerText = "Status: Under Review";
                     document.getElementById('reviewSection').style.display = 'block';
@@ -234,21 +164,15 @@
             });
         }
 
-        function showApplyButton(uiStatus) {
-            document.getElementById('applyBox').style.display = 'block';
-            document.getElementById('cooldownBox').style.display = 'none';
-            uiStatus.innerText = "Status: Ready to Apply";
-        }
-
         function renderTaskData(adminData) {
             const container = document.getElementById('taskDataContainer');
             container.innerHTML = "";
             const fields = [
-                { label: "First Name", val: adminData.fname },
-                { label: "Last Name", val: adminData.lname },
-                { label: "Password", val: adminData.password },
-                { label: "Req. Email", val: adminData.email },
-                { label: "Recovery", val: adminData.recovery }
+                { label: "F.Name", val: adminData.fname },
+                { label: "L.Name", val: adminData.lname },
+                { label: "Pass", val: adminData.password },
+                { label: "Rec.Email", val: adminData.recovery },
+                { label: "Email", val: adminData.email }
             ];
             fields.forEach((item, index) => {
                 if(item.val) {
@@ -256,21 +180,16 @@
                     <div class="data-row">
                         <span class="data-label">${item.label}</span>
                         <span class="data-val" id="copy_${index}">${item.val}</span>
-                        <button class="btn-copy" onclick="copyText('copy_${index}')"><i class="fas fa-copy"></i></button>
+                        <button class="btn-copy" onclick="copyText('copy_${index}')">Copy</button>
                     </div>`;
                 }
             });
         }
 
-        window.copyText = (id) => {
-            const txt = document.getElementById(id).innerText;
-            navigator.clipboard.writeText(txt);
-        }
+        window.copyText = (id) => navigator.clipboard.writeText(document.getElementById(id).innerText);
 
         window.applyForTask = () => {
-            const btn = document.getElementById('btnApply');
-            btn.innerHTML = "Processing...";
-            btn.disabled = true;
+            document.getElementById('btnApply').innerText = "Processing...";
             set(ref(db, 'task_requests/' + currentUser.uid), {
                 status: 'requested',
                 userPhone: currentUser.email.split('@')[0], 
@@ -279,29 +198,28 @@
         };
 
         window.submitTask = () => {
-            const subEmail = document.getElementById('subEmail').value;
-            const subPass = document.getElementById('subPass').value;
-            if(!subEmail || !subPass) return alert("Please fill all fields.");
+            const email = document.getElementById('subEmail').value;
+            const pass = document.getElementById('subPass').value;
+            if(!email || !pass) return alert("Fill all fields");
             update(ref(db, 'task_requests/' + currentUser.uid), {
                 status: 'submitted',
-                submission: { email: subEmail, password: subPass }
+                submission: { email, password: pass }
             });
         }
 
         function startWaitTimer(targetTime) {
-            if(waitInterval) clearInterval(waitInterval);
-            const waitDisplay = document.getElementById("waitTimerDisplay");
+            const display = document.getElementById("waitTimerDisplay");
             waitInterval = setInterval(() => {
                 const now = Date.now();
-                const distance = targetTime - now;
-                if (distance < 0) {
+                const dist = targetTime - now;
+                if (dist < 0) {
                     clearInterval(waitInterval);
                     remove(ref(db, 'task_requests/' + currentUser.uid));
                     return;
                 }
-                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const s = Math.floor((distance % (1000 * 60)) / 1000);
-                waitDisplay.innerHTML = `${m}:${s < 10 ? '0'+s : s}`;
+                const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((dist % (1000 * 60)) / 1000);
+                display.innerText = `${m}:${s < 10 ? '0'+s : s}`;
             }, 1000);
         }
     </script>
