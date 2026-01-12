@@ -34,11 +34,9 @@
 
         h2 { color: #ffd700; margin-top: 0; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; }
 
-        /* HEADER ICON */
         .header-icon { font-size: 3rem; color: #ffd700; margin-bottom: 10px; animation: float 3s ease-in-out infinite; }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
 
-        /* TIMER DISPLAY */
         .timer-display { 
             font-size: 2.2rem; 
             font-weight: bold; 
@@ -71,7 +69,37 @@
             border-radius: 4px;
         }
 
-        /* SELECTION BUTTONS */
+        /* NEW: REFERRAL LINK BOX IN DASHBOARD */
+        .ref-share-box {
+            margin-top: 25px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px dashed #ffd700;
+            padding: 15px;
+            border-radius: 12px;
+        }
+        .ref-code-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+            letter-spacing: 2px;
+            margin: 5px 0;
+            display: block;
+        }
+        .copy-link-btn {
+            background: #ffd700;
+            color: #000;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        .copy-link-btn:active { transform: scale(0.95); }
+
+
+        /* SELECTION & OTHERS */
         .target-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
         .target-btn {
             background: rgba(0,0,0,0.3); border: 1px solid #444; color: #aaa; padding: 15px 10px; border-radius: 10px; cursor: pointer; transition: 0.3s;
@@ -81,7 +109,6 @@
         .t-amount { font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 3px; }
         .t-req { font-size: 0.7rem; color: #ccc; }
 
-        /* STATUS MESSAGES */
         .pending-box { border: 1px dashed orange; padding: 20px; border-radius: 10px; background: rgba(255, 165, 0, 0.1); margin-top: 20px; }
         .final-msg { margin-top: 20px; font-weight: bold; font-size: 1.1rem; }
         
@@ -111,40 +138,15 @@
             <div id="selectSection" style="display:none;">
                 <p style="color:#ddd; font-size:0.9rem; margin-top:15px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
                     Select your target for this month.<br>
-                    <small style="color:#ff6b6b;">Note: Only referrals who complete 2+ tasks are counted.</small>
+                    <small style="color:#ff6b6b;">Note: Counting starts AFTER you select a package.</small>
                 </p>
                 <div class="target-grid">
-                    
-                    <div class="target-btn" onclick="applySalary(30, 60, 400)">
-                        <span class="t-amount">400 TK</span>
-                        <span class="t-req">30 Refs + 60 Tasks</span>
-                    </div>
-
-                    <div class="target-btn" onclick="applySalary(50, 100, 600)">
-                        <span class="t-amount">600 TK</span>
-                        <span class="t-req">50 Refs + 100 Tasks</span>
-                    </div>
-
-                    <div class="target-btn" onclick="applySalary(100, 200, 1000)">
-                        <span class="t-amount">1,000 TK</span>
-                        <span class="t-req">100 Refs + 200 Tasks</span>
-                    </div>
-
-                    <div class="target-btn" onclick="applySalary(200, 400, 2500)">
-                        <span class="t-amount">2,500 TK</span>
-                        <span class="t-req">200 Refs + 400 Tasks</span>
-                    </div>
-
-                    <div class="target-btn" onclick="applySalary(300, 600, 3500)">
-                        <span class="t-amount">3,500 TK</span>
-                        <span class="t-req">300 Refs + 600 Tasks</span>
-                    </div>
-
-                    <div class="target-btn" onclick="applySalary(400, 800, 5000)">
-                        <span class="t-amount">5,000 TK</span>
-                        <span class="t-req">400 Refs + 800 Tasks</span>
-                    </div>
-
+                    <div class="target-btn" onclick="applySalary(30, 60, 400)"><span class="t-amount">400 TK</span><span class="t-req">30 Refs + 60 Tasks</span></div>
+                    <div class="target-btn" onclick="applySalary(50, 100, 600)"><span class="t-amount">600 TK</span><span class="t-req">50 Refs + 100 Tasks</span></div>
+                    <div class="target-btn" onclick="applySalary(100, 200, 1000)"><span class="t-amount">1,000 TK</span><span class="t-req">100 Refs + 200 Tasks</span></div>
+                    <div class="target-btn" onclick="applySalary(200, 400, 2500)"><span class="t-amount">2,500 TK</span><span class="t-req">200 Refs + 400 Tasks</span></div>
+                    <div class="target-btn" onclick="applySalary(300, 600, 3500)"><span class="t-amount">3,500 TK</span><span class="t-req">300 Refs + 600 Tasks</span></div>
+                    <div class="target-btn" onclick="applySalary(400, 800, 5000)"><span class="t-amount">5,000 TK</span><span class="t-req">400 Refs + 800 Tasks</span></div>
                 </div>
             </div>
 
@@ -153,10 +155,7 @@
                 <div class="pending-box">
                     <i class="fas fa-hourglass-half fa-spin" style="font-size:2rem; color:orange;"></i>
                     <h3 style="color:orange; margin:10px 0;">Approval Pending</h3>
-                    <p style="font-size:0.85rem; color:#ddd;">
-                        Admin is reviewing your request.<br>
-                        Wait for approval.
-                    </p>
+                    <p style="font-size:0.85rem; color:#ddd;">Admin is reviewing your request.</p>
                     <div style="margin-top:10px; font-weight:bold; color:#fff;" id="pendingText">...</div>
                 </div>
             </div>
@@ -188,6 +187,15 @@
                         <div class="stat-val" id="currTasks">0</div>
                         <div class="stat-target">Target: <span id="targetTasks">0</span></div>
                     </div>
+                </div>
+
+                <!-- NEW: REFERRAL SHARE SECTION INSIDE ACTIVE DASHBOARD -->
+                <div class="ref-share-box">
+                    <span style="font-size:0.8rem; color:#ccc;">INVITE FOR SALARY TARGET</span>
+                    <span class="ref-code-text" id="displayRefCode">...</span>
+                    <button class="copy-link-btn" onclick="copySalaryRef()">
+                        <i class="fas fa-link"></i> Copy Referral Link
+                    </button>
                 </div>
 
                 <div id="finalMsg" class="final-msg"></div>
@@ -229,6 +237,11 @@
                 const data = snap.val();
                 if(!data) return;
                 myCode = data.referralCode;
+                
+                // Set Code in Display
+                if(document.getElementById('displayRefCode')){
+                    document.getElementById('displayRefCode').innerText = myCode;
+                }
 
                 const salary = data.salaryTarget;
 
@@ -255,14 +268,16 @@
             document.getElementById('targetRefs').innerText = salary.reqRefs;
             document.getElementById('targetTasks').innerText = salary.reqTasks;
 
-            // --- DEBUG & COUNTING LOGIC ---
+            // --- CRITICAL LOGIC CHANGE ---
+            // Count referrals ONLY joined AFTER the salary request date
             
-            // Start of this month (Timestamp)
+            // reqDate is when they clicked "Apply" button
+            // If reqDate is missing (old data), fallback to start of month
             const date = new Date();
             const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).getTime();
+            const countStartTime = salary.reqDate || startOfMonth; 
             
-            console.log("My Referral Code:", myCode);
-            console.log("Checking from Date:", new Date(startOfMonth));
+            console.log("Counting Started From:", new Date(countStartTime));
 
             onValue(ref(db, 'users'), (allSnap) => {
                 let validRefs = 0;
@@ -270,27 +285,21 @@
 
                 allSnap.forEach(child => {
                     const u = child.val();
-                    
-                    // Safe Data Handling
-                    const joinTime = u.joinedAt ? u.joinedAt : 0; 
+                    const joinTime = u.joinedAt || 0; 
                     const userTasks = u.tasksCompleted ? parseInt(u.tasksCompleted) : 0;
                     const theirReferrer = u.referredBy ? u.referredBy.trim() : "";
                     const myCodeClean = myCode ? myCode.trim() : "";
 
-                    // CHECK LOGIC
-                    if (theirReferrer === myCodeClean && joinTime >= startOfMonth) {
+                    // LOGIC:
+                    // 1. Referred by ME
+                    // 2. Joined AFTER I started the salary plan (countStartTime)
+                    if (theirReferrer === myCodeClean && joinTime >= countStartTime) {
                         
-                        console.log(`Matched User: ${u.name} | Tasks: ${userTasks}`);
-                        
-                        // Add Tasks
                         validTasks += userTasks;
 
-                        // Count Referral ONLY if tasks >= 2
+                        // Valid Referral condition: Must complete 2+ tasks
                         if (userTasks >= 2) {
                             validRefs++;
-                            console.log("-> Valid Referral Counted!");
-                        } else {
-                            console.log("-> Skipped Referral (Tasks < 2)");
                         }
                     }
                 });
@@ -306,7 +315,6 @@
                         document.getElementById('countdown').innerText = "Waiting..."; 
                         return; 
                     }
-                    
                     startTimer(salary.endDate);
                     
                     if (isComplete) {
@@ -326,34 +334,28 @@
 
         function startTimer(endTime) {
             if(timerInterval) clearInterval(timerInterval);
-
             function updateTime() {
                 const now = Date.now();
                 const diff = endTime - now;
-
                 if (diff <= 0) {
                     clearInterval(timerInterval);
                     document.getElementById('countdown').innerText = "00d 00h 00m 00s";
-                    document.getElementById('finalMsg').innerText = "Time Expired. Target Failed.";
+                    document.getElementById('finalMsg').innerText = "Time Expired.";
                     document.getElementById('finalMsg').style.color = "#ff4444";
                     return;
                 }
-
                 const d = Math.floor(diff / (1000 * 60 * 60 * 24));
                 const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                 const s = Math.floor((diff % (1000 * 60)) / 1000);
-
                 document.getElementById('countdown').innerText = `${d < 10 ? '0'+d : d}d ${h < 10 ? '0'+h : h}h ${m < 10 ? '0'+m : m}m ${s < 10 ? '0'+s : s}s`;
             }
-
             updateTime();
             timerInterval = setInterval(updateTime, 1000);
         }
 
         window.applySalary = (refs, tasks, amount) => {
             if(!confirm(`Confirm ${amount} TK Salary Target?`)) return;
-
             const date = new Date();
             const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
             lastDay.setHours(23, 59, 59, 999);
@@ -364,17 +366,29 @@
                 reqRefs: refs,
                 reqTasks: tasks,
                 status: 'pending',
-                reqDate: Date.now(),
+                reqDate: Date.now(), // THIS IS THE START TIME FOR COUNTING
                 endDate: lastDay.getTime()
             };
-
             update(ref(db, 'users/' + currentUser.uid + '/salaryTarget'), request);
         };
 
         window.claimReward = () => {
              update(ref(db, 'users/' + currentUser.uid + '/salaryTarget/status'), 'claimable')
-             .then(() => alert("Claim sent! Admin will pay you soon."));
+             .then(() => alert("Claim sent!"));
         }
+
+        // --- NEW COPY FUNCTION ---
+        window.copySalaryRef = () => {
+            if(myCode) {
+                // Change this URL to your actual domain
+                const link = "https://task28.github.io/-/register_login.html?ref=" + myCode;
+                navigator.clipboard.writeText(link).then(() => {
+                    alert("Referral Link Copied!");
+                });
+            } else {
+                alert("Loading code...");
+            }
+        };
 
         function showSection(id) {
             ['selectSection', 'pendingSection', 'activeSection'].forEach(s => document.getElementById(s).style.display = 'none');
