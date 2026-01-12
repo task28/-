@@ -213,7 +213,6 @@
         let myCode = "";
         let timerInterval = null;
         
-        // Month Logic
         const dateObj = new Date();
         const currentMonth = dateObj.toLocaleString('default', { month: 'long', year: 'numeric' });
         document.getElementById('monthDisplay').innerText = currentMonth;
@@ -230,9 +229,6 @@
                 const data = snap.val();
                 if(!data) return;
                 myCode = data.referralCode;
-                
-                // Debugging
-                console.log("My Referral Code:", myCode);
 
                 const salary = data.salaryTarget;
 
@@ -259,13 +255,14 @@
             document.getElementById('targetRefs').innerText = salary.reqRefs;
             document.getElementById('targetTasks').innerText = salary.reqTasks;
 
-            // --- MAIN COUNTING LOGIC ---
+            // --- DEBUG & COUNTING LOGIC ---
             
-            // 1. Determine Start of Current Month
+            // Start of this month (Timestamp)
             const date = new Date();
             const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).getTime();
             
-            console.log("Counting Start Date:", new Date(startOfMonth));
+            console.log("My Referral Code:", myCode);
+            console.log("Checking from Date:", new Date(startOfMonth));
 
             onValue(ref(db, 'users'), (allSnap) => {
                 let validRefs = 0;
@@ -273,37 +270,37 @@
 
                 allSnap.forEach(child => {
                     const u = child.val();
-                    const joinTime = u.joinedAt || 0; 
-                    const userTasks = u.tasksCompleted || 0;
-                    const theirReferrer = u.referredBy || "";
+                    
+                    // Safe Data Handling
+                    const joinTime = u.joinedAt ? u.joinedAt : 0; 
+                    const userTasks = u.tasksCompleted ? parseInt(u.tasksCompleted) : 0;
+                    const theirReferrer = u.referredBy ? u.referredBy.trim() : "";
+                    const myCodeClean = myCode ? myCode.trim() : "";
 
-                    // Debug Log
-                    // console.log(`Checking User: ${u.name} | RefBy: ${theirReferrer} | Joined: ${joinTime} | Tasks: ${userTasks}`);
-
-                    // LOGIC:
-                    // 1. referredBy matches MY code
-                    // 2. joinedAt is GREATER than Start of Month
-                    if (theirReferrer === myCode && joinTime >= startOfMonth) {
+                    // CHECK LOGIC
+                    if (theirReferrer === myCodeClean && joinTime >= startOfMonth) {
                         
-                        // Add their tasks to Team Tasks total (regardless of validation)
+                        console.log(`Matched User: ${u.name} | Tasks: ${userTasks}`);
+                        
+                        // Add Tasks
                         validTasks += userTasks;
 
-                        // Only count as "Valid Referral" if they did at least 2 tasks
+                        // Count Referral ONLY if tasks >= 2
                         if (userTasks >= 2) {
                             validRefs++;
+                            console.log("-> Valid Referral Counted!");
+                        } else {
+                            console.log("-> Skipped Referral (Tasks < 2)");
                         }
                     }
                 });
 
-                console.log(`Total Valid Refs: ${validRefs}, Total Team Tasks: ${validTasks}`);
-
-                // Update UI Counters
                 document.getElementById('currRefs').innerText = validRefs;
                 document.getElementById('currTasks').innerText = validTasks;
 
                 const isComplete = (validRefs >= salary.reqRefs && validTasks >= salary.reqTasks);
                 
-                // --- TIMER LOGIC ---
+                // --- TIMER ---
                 if (salary.status === 'active') {
                     if (!salary.endDate) {
                         document.getElementById('countdown').innerText = "Waiting..."; 
@@ -318,7 +315,6 @@
                         document.getElementById('finalMsg').innerText = "CONGRATULATIONS! Target Achieved.";
                         document.getElementById('finalMsg').style.color = "#ffd700";
                         document.getElementById('claimBtn').style.display = 'block';
-                        
                         if(timerInterval) clearInterval(timerInterval);
                     }
                 } else if (salary.status === 'paid') {
@@ -348,12 +344,7 @@
                 const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                 const s = Math.floor((diff % (1000 * 60)) / 1000);
 
-                const dd = d < 10 ? '0'+d : d;
-                const hh = h < 10 ? '0'+h : h;
-                const mm = m < 10 ? '0'+m : m;
-                const ss = s < 10 ? '0'+s : s;
-
-                document.getElementById('countdown').innerText = `${dd}d ${hh}h ${mm}m ${ss}s`;
+                document.getElementById('countdown').innerText = `${d < 10 ? '0'+d : d}d ${h < 10 ? '0'+h : h}h ${m < 10 ? '0'+m : m}m ${s < 10 ? '0'+s : s}s`;
             }
 
             updateTime();
@@ -366,7 +357,6 @@
             const date = new Date();
             const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
             lastDay.setHours(23, 59, 59, 999);
-            const endOfMonthTimestamp = lastDay.getTime();
 
             const request = {
                 month: currentMonth,
@@ -375,7 +365,7 @@
                 reqTasks: tasks,
                 status: 'pending',
                 reqDate: Date.now(),
-                endDate: endOfMonthTimestamp
+                endDate: lastDay.getTime()
             };
 
             update(ref(db, 'users/' + currentUser.uid + '/salaryTarget'), request);
@@ -387,9 +377,7 @@
         }
 
         function showSection(id) {
-            document.getElementById('selectSection').style.display = 'none';
-            document.getElementById('pendingSection').style.display = 'none';
-            document.getElementById('activeSection').style.display = 'none';
+            ['selectSection', 'pendingSection', 'activeSection'].forEach(s => document.getElementById(s).style.display = 'none');
             document.getElementById(id).style.display = 'block';
         }
     </script>
