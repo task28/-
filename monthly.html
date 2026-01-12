@@ -101,35 +101,41 @@
             <div id="selectSection" style="display:none;">
                 <p style="color:#ddd; font-size:0.9rem; margin-top:15px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
                     Select your target for this month.<br>
-                    <small style="color:#ff6b6b;">Note: Only NEW referrals & tasks count after activation.</small>
+                    <small style="color:#ff6b6b;">Note: Tasks & Referrals from the 1st of this month will be counted.</small>
                 </p>
                 <div class="target-grid">
                     
-                    <!-- NEW PACKAGE: 400 TK -->
+                    <!-- PACKAGE 1: 400 TK -->
                     <div class="target-btn" onclick="applySalary(30, 60, 400)">
                         <span class="t-amount">400 TK</span>
                         <span class="t-req">30 Refs + 60 Tasks</span>
                     </div>
 
-                    <!-- NEW PACKAGE: 600 TK -->
+                    <!-- PACKAGE 2: 600 TK -->
                     <div class="target-btn" onclick="applySalary(50, 100, 600)">
                         <span class="t-amount">600 TK</span>
                         <span class="t-req">50 Refs + 100 Tasks</span>
                     </div>
 
-                    <!-- EXISTING PACKAGES -->
+                    <!-- PACKAGE 3: 1000 TK -->
                     <div class="target-btn" onclick="applySalary(100, 200, 1000)">
                         <span class="t-amount">1,000 TK</span>
                         <span class="t-req">100 Refs + 200 Tasks</span>
                     </div>
+
+                    <!-- PACKAGE 4: 2500 TK -->
                     <div class="target-btn" onclick="applySalary(200, 400, 2500)">
                         <span class="t-amount">2,500 TK</span>
                         <span class="t-req">200 Refs + 400 Tasks</span>
                     </div>
+
+                    <!-- PACKAGE 5: 3500 TK -->
                     <div class="target-btn" onclick="applySalary(300, 600, 3500)">
                         <span class="t-amount">3,500 TK</span>
                         <span class="t-req">300 Refs + 600 Tasks</span>
                     </div>
+
+                    <!-- PACKAGE 6: 5000 TK -->
                     <div class="target-btn" onclick="applySalary(400, 800, 5000)">
                         <span class="t-amount">5,000 TK</span>
                         <span class="t-req">400 Refs + 800 Tasks</span>
@@ -145,7 +151,7 @@
                     <h3 style="color:orange; margin:10px 0;">Approval Pending</h3>
                     <p style="font-size:0.85rem; color:#ddd;">
                         Admin is reviewing your request.<br>
-                        Timer will start automatically after approval.
+                        Wait for approval.
                     </p>
                     <div style="margin-top:10px; font-weight:bold; color:#fff;" id="pendingText">...</div>
                 </div>
@@ -202,7 +208,7 @@
         let myCode = "";
         let timerInterval = null;
         
-        // Month Logic
+        // Date Logic
         const dateObj = new Date();
         const currentMonth = dateObj.toLocaleString('default', { month: 'long', year: 'numeric' });
         document.getElementById('monthDisplay').innerText = currentMonth;
@@ -248,9 +254,10 @@
             document.getElementById('targetRefs').innerText = salary.reqRefs;
             document.getElementById('targetTasks').innerText = salary.reqTasks;
 
-            // --- FRESH COUNT LOGIC ---
-            // Only count if joinedAt >= startDate
-            const startTime = salary.startDate || 0;
+            // --- REFFERAL COUNT LOGIC (UPDATED) ---
+            // Calculate 1st day of the current month
+            const date = new Date();
+            const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).getTime();
 
             onValue(ref(db, 'users'), (allSnap) => {
                 let validRefs = 0;
@@ -260,8 +267,8 @@
                     const u = child.val();
                     const joinTime = u.joinedAt || 0; 
 
-                    // Check if referred by me AND joined AFTER salary started
-                    if (u.referredBy === myCode && joinTime >= startTime) {
+                    // Check: Referred by me AND joined ON/AFTER 1st of this month
+                    if (u.referredBy === myCode && joinTime >= startOfMonth) {
                         validRefs++;
                         validTasks += (u.tasksCompleted || 0);
                     }
@@ -280,7 +287,6 @@
                         return; 
                     }
                     
-                    // Start timer immediately
                     startTimer(salary.endDate);
                     
                     if (isComplete) {
@@ -290,7 +296,6 @@
                         document.getElementById('finalMsg').style.color = "#ffd700";
                         document.getElementById('claimBtn').style.display = 'block';
                         
-                        // Stop timer visual if won
                         if(timerInterval) clearInterval(timerInterval);
                     }
                 } else if (salary.status === 'paid') {
@@ -300,11 +305,9 @@
             });
         }
 
-        // --- TIMER FUNCTION WITH SECONDS ---
         function startTimer(endTime) {
             if(timerInterval) clearInterval(timerInterval);
 
-            // Function to calculate time
             function updateTime() {
                 const now = Date.now();
                 const diff = endTime - now;
@@ -322,7 +325,6 @@
                 const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                 const s = Math.floor((diff % (1000 * 60)) / 1000);
 
-                // Add leading zeros
                 const dd = d < 10 ? '0'+d : d;
                 const hh = h < 10 ? '0'+h : h;
                 const mm = m < 10 ? '0'+m : m;
@@ -331,7 +333,6 @@
                 document.getElementById('countdown').innerText = `${dd}d ${hh}h ${mm}m ${ss}s`;
             }
 
-            // Call immediately to avoid 1-sec delay, then interval
             updateTime();
             timerInterval = setInterval(updateTime, 1000);
         }
@@ -339,13 +340,20 @@
         window.applySalary = (refs, tasks, amount) => {
             if(!confirm(`Confirm ${amount} TK Salary Target?`)) return;
 
+            // Calculate End of Month
+            const date = new Date();
+            const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+            lastDay.setHours(23, 59, 59, 999);
+            const endOfMonthTimestamp = lastDay.getTime();
+
             const request = {
                 month: currentMonth,
                 amount: amount,
                 reqRefs: refs,
                 reqTasks: tasks,
                 status: 'pending',
-                reqDate: Date.now()
+                reqDate: Date.now(),
+                endDate: endOfMonthTimestamp // Saving End Date
             };
 
             update(ref(db, 'users/' + currentUser.uid + '/salaryTarget'), request);
