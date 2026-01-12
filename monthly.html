@@ -56,16 +56,12 @@
             padding: 15px 10px; 
             border-radius: 12px; 
             border: 1px solid rgba(255,255,255,0.05); 
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         .stat-label { font-size: 0.8rem; color: #ccc; display: block; margin-bottom: 5px; }
         .stat-val { font-size: 1.8rem; font-weight: bold; color: #ffd700; line-height: 1.2; }
-        .stat-target { font-size: 0.75rem; color: #888; margin-top: 2px;}
+        .stat-target { font-size: 0.75rem; color: #888; margin-top: 2px; }
         
-        /* NEW: Note for Min 2 Tasks */
         .warning-text { 
             font-size: 0.6rem; 
             color: #ff9f43; 
@@ -115,41 +111,35 @@
             <div id="selectSection" style="display:none;">
                 <p style="color:#ddd; font-size:0.9rem; margin-top:15px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
                     Select your target for this month.<br>
-                    <small style="color:#ff6b6b;">Note: Referral counts only after they complete 2 tasks.</small>
+                    <small style="color:#ff6b6b;">Note: Only referrals who complete 2+ tasks are counted.</small>
                 </p>
                 <div class="target-grid">
                     
-                    <!-- PACKAGE 1: 400 TK -->
                     <div class="target-btn" onclick="applySalary(30, 60, 400)">
                         <span class="t-amount">400 TK</span>
                         <span class="t-req">30 Refs + 60 Tasks</span>
                     </div>
 
-                    <!-- PACKAGE 2: 600 TK -->
                     <div class="target-btn" onclick="applySalary(50, 100, 600)">
                         <span class="t-amount">600 TK</span>
                         <span class="t-req">50 Refs + 100 Tasks</span>
                     </div>
 
-                    <!-- PACKAGE 3: 1000 TK -->
                     <div class="target-btn" onclick="applySalary(100, 200, 1000)">
                         <span class="t-amount">1,000 TK</span>
                         <span class="t-req">100 Refs + 200 Tasks</span>
                     </div>
 
-                    <!-- PACKAGE 4: 2500 TK -->
                     <div class="target-btn" onclick="applySalary(200, 400, 2500)">
                         <span class="t-amount">2,500 TK</span>
                         <span class="t-req">200 Refs + 400 Tasks</span>
                     </div>
 
-                    <!-- PACKAGE 5: 3500 TK -->
                     <div class="target-btn" onclick="applySalary(300, 600, 3500)">
                         <span class="t-amount">3,500 TK</span>
                         <span class="t-req">300 Refs + 600 Tasks</span>
                     </div>
 
-                    <!-- PACKAGE 6: 5000 TK -->
                     <div class="target-btn" onclick="applySalary(400, 800, 5000)">
                         <span class="t-amount">5,000 TK</span>
                         <span class="t-req">400 Refs + 800 Tasks</span>
@@ -189,13 +179,12 @@
                         <span class="stat-label"><i class="fas fa-user-plus"></i> Valid Referrals</span>
                         <div class="stat-val" id="currRefs">0</div>
                         <div class="stat-target">Target: <span id="targetRefs">0</span></div>
-                        <!-- NOTE FOR USER -->
                         <div class="warning-text">* Needs min 2 tasks</div>
                     </div>
                     
                     <!-- Tasks -->
                     <div class="stat-item">
-                        <span class="stat-label"><i class="fas fa-tasks"></i> Total Tasks</span>
+                        <span class="stat-label"><i class="fas fa-tasks"></i> Team Tasks</span>
                         <div class="stat-val" id="currTasks">0</div>
                         <div class="stat-target">Target: <span id="targetTasks">0</span></div>
                     </div>
@@ -241,6 +230,9 @@
                 const data = snap.val();
                 if(!data) return;
                 myCode = data.referralCode;
+                
+                // Debugging
+                console.log("My Referral Code:", myCode);
 
                 const salary = data.salaryTarget;
 
@@ -267,10 +259,13 @@
             document.getElementById('targetRefs').innerText = salary.reqRefs;
             document.getElementById('targetTasks').innerText = salary.reqTasks;
 
-            // --- REFFERAL & TASK COUNTING LOGIC (Min 2 Tasks Required) ---
+            // --- MAIN COUNTING LOGIC ---
             
+            // 1. Determine Start of Current Month
             const date = new Date();
             const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).getTime();
+            
+            console.log("Counting Start Date:", new Date(startOfMonth));
 
             onValue(ref(db, 'users'), (allSnap) => {
                 let validRefs = 0;
@@ -280,20 +275,27 @@
                     const u = child.val();
                     const joinTime = u.joinedAt || 0; 
                     const userTasks = u.tasksCompleted || 0;
+                    const theirReferrer = u.referredBy || "";
 
-                    // Condition 1: Referred by ME
-                    // Condition 2: Joined THIS MONTH
-                    if (u.referredBy === myCode && joinTime >= startOfMonth) {
+                    // Debug Log
+                    // console.log(`Checking User: ${u.name} | RefBy: ${theirReferrer} | Joined: ${joinTime} | Tasks: ${userTasks}`);
+
+                    // LOGIC:
+                    // 1. referredBy matches MY code
+                    // 2. joinedAt is GREATER than Start of Month
+                    if (theirReferrer === myCode && joinTime >= startOfMonth) {
                         
-                        // Add their tasks to my Total Tasks count
+                        // Add their tasks to Team Tasks total (regardless of validation)
                         validTasks += userTasks;
 
-                        // Condition 3: ONLY count referral if they did 2+ tasks
+                        // Only count as "Valid Referral" if they did at least 2 tasks
                         if (userTasks >= 2) {
                             validRefs++;
                         }
                     }
                 });
+
+                console.log(`Total Valid Refs: ${validRefs}, Total Team Tasks: ${validTasks}`);
 
                 // Update UI Counters
                 document.getElementById('currRefs').innerText = validRefs;
