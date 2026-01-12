@@ -53,13 +53,27 @@
         .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
         .stat-item { 
             background: rgba(0,0,0,0.3); 
-            padding: 20px 10px; 
+            padding: 15px 10px; 
             border-radius: 12px; 
             border: 1px solid rgba(255,255,255,0.05); 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
         .stat-label { font-size: 0.8rem; color: #ccc; display: block; margin-bottom: 5px; }
-        .stat-val { font-size: 1.8rem; font-weight: bold; color: #ffd700; }
-        .stat-target { font-size: 0.75rem; color: #888; }
+        .stat-val { font-size: 1.8rem; font-weight: bold; color: #ffd700; line-height: 1.2; }
+        .stat-target { font-size: 0.75rem; color: #888; margin-top: 2px;}
+        
+        /* NEW: Note for Min 2 Tasks */
+        .warning-text { 
+            font-size: 0.6rem; 
+            color: #ff9f43; 
+            margin-top: 5px; 
+            background: rgba(255, 159, 67, 0.1);
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
 
         /* SELECTION BUTTONS */
         .target-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
@@ -101,7 +115,7 @@
             <div id="selectSection" style="display:none;">
                 <p style="color:#ddd; font-size:0.9rem; margin-top:15px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
                     Select your target for this month.<br>
-                    <small style="color:#ff6b6b;">Note: Tasks & Referrals from the 1st of this month will be counted.</small>
+                    <small style="color:#ff6b6b;">Note: Referral counts only after they complete 2 tasks.</small>
                 </p>
                 <div class="target-grid">
                     
@@ -172,9 +186,11 @@
                 <div class="stats-row">
                     <!-- Referrals -->
                     <div class="stat-item">
-                        <span class="stat-label"><i class="fas fa-user-plus"></i> New Referrals</span>
+                        <span class="stat-label"><i class="fas fa-user-plus"></i> Valid Referrals</span>
                         <div class="stat-val" id="currRefs">0</div>
                         <div class="stat-target">Target: <span id="targetRefs">0</span></div>
+                        <!-- NOTE FOR USER -->
+                        <div class="warning-text">* Needs min 2 tasks</div>
                     </div>
                     
                     <!-- Tasks -->
@@ -208,7 +224,7 @@
         let myCode = "";
         let timerInterval = null;
         
-        // Date Logic
+        // Month Logic
         const dateObj = new Date();
         const currentMonth = dateObj.toLocaleString('default', { month: 'long', year: 'numeric' });
         document.getElementById('monthDisplay').innerText = currentMonth;
@@ -228,20 +244,17 @@
 
                 const salary = data.salaryTarget;
 
-                // 1. NO PLAN SELECTED or WRONG MONTH -> Show Selection
                 if (!salary || salary.month !== currentMonth) {
                     showSection('selectSection');
                     return;
                 }
 
-                // 2. PENDING ADMIN APPROVAL
                 if (salary.status === 'pending') {
                     document.getElementById('pendingText').innerText = `${salary.amount} TK Plan\n(Need ${salary.reqRefs} Refs & ${salary.reqTasks} Tasks)`;
                     showSection('pendingSection');
                     return;
                 }
 
-                // 3. ACTIVE / COMPLETED
                 if (salary.status === 'active' || salary.status === 'claimable' || salary.status === 'paid') {
                     showDashboard(salary);
                 }
@@ -254,8 +267,8 @@
             document.getElementById('targetRefs').innerText = salary.reqRefs;
             document.getElementById('targetTasks').innerText = salary.reqTasks;
 
-            // --- REFFERAL COUNT LOGIC (UPDATED) ---
-            // Calculate 1st day of the current month
+            // --- REFFERAL & TASK COUNTING LOGIC (Min 2 Tasks Required) ---
+            
             const date = new Date();
             const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).getTime();
 
@@ -266,11 +279,19 @@
                 allSnap.forEach(child => {
                     const u = child.val();
                     const joinTime = u.joinedAt || 0; 
+                    const userTasks = u.tasksCompleted || 0;
 
-                    // Check: Referred by me AND joined ON/AFTER 1st of this month
+                    // Condition 1: Referred by ME
+                    // Condition 2: Joined THIS MONTH
                     if (u.referredBy === myCode && joinTime >= startOfMonth) {
-                        validRefs++;
-                        validTasks += (u.tasksCompleted || 0);
+                        
+                        // Add their tasks to my Total Tasks count
+                        validTasks += userTasks;
+
+                        // Condition 3: ONLY count referral if they did 2+ tasks
+                        if (userTasks >= 2) {
+                            validRefs++;
+                        }
                     }
                 });
 
@@ -340,7 +361,6 @@
         window.applySalary = (refs, tasks, amount) => {
             if(!confirm(`Confirm ${amount} TK Salary Target?`)) return;
 
-            // Calculate End of Month
             const date = new Date();
             const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
             lastDay.setHours(23, 59, 59, 999);
@@ -353,7 +373,7 @@
                 reqTasks: tasks,
                 status: 'pending',
                 reqDate: Date.now(),
-                endDate: endOfMonthTimestamp // Saving End Date
+                endDate: endOfMonthTimestamp
             };
 
             update(ref(db, 'users/' + currentUser.uid + '/salaryTarget'), request);
