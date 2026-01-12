@@ -2,375 +2,238 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Level Up Earning</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Coming Soon - Monthly Salary</title>
+    <!-- Font: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* PREMIUM DARK THEME */
-        body { 
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); 
-            color: white; 
-            font-family: 'Poppins', sans-serif; 
-            padding: 20px; 
-            min-height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
+        :root {
+            --primary-gold: #FFD700;
+            --accent-gold: #D4AF37;
+            --bg-body: #050505;
+            --card-bg: rgba(20, 20, 20, 0.6);
+            --card-border: 1px solid rgba(255, 215, 0, 0.15);
+            --glass-blur: blur(12px);
         }
-        
-        .container { width: 100%; max-width: 450px; }
 
-        /* HEADER */
-        .header-icon { font-size: 3rem; color: #ffd700; margin-bottom: 5px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        
-        h2 { margin: 10px 0 5px; color: #ffd700; text-transform: uppercase; letter-spacing: 1px; }
-        .sub-text { color: #aaa; font-size: 0.85rem; margin-bottom: 20px; }
+        body {
+            margin: 0; padding: 20px;
+            background-color: var(--bg-body);
+            background-image: 
+                radial-gradient(at 0% 0%, #111 0, transparent 50%), 
+                radial-gradient(at 50% 0%, #0a0a0a 0, transparent 50%), 
+                radial-gradient(at 100% 0%, #111 0, transparent 50%);
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
 
-        /* CARD STYLES */
-        .card { 
-            background: rgba(255,255,255,0.05); 
-            border: 1px solid rgba(255,255,255,0.1); 
-            border-radius: 20px; 
-            padding: 25px; 
-            text-align: center; 
-            backdrop-filter: blur(10px); 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+        .container {
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        /* CARD STYLE */
+        .coming-card {
+            background: var(--card-bg);
+            backdrop-filter: var(--glass-blur);
+            border: var(--card-border);
+            border-radius: 24px;
+            padding: 40px 30px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
             position: relative;
+            overflow: hidden;
+        }
+
+        /* Shine Animation Background */
+        .coming-card::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,215,0,0.03), transparent);
+            transform: rotate(45deg);
+            animation: shine 4s infinite;
+        }
+        @keyframes shine { 0% { left: -50%; } 100% { left: 150%; } }
+
+        /* ICON ANIMATION */
+        .icon-box {
             margin-bottom: 20px;
         }
-
-        /* TIMER */
-        .timer-val { 
-            font-size: 2rem; font-weight: bold; color: #00d2ff; 
-            font-family: 'Courier New', monospace; margin: 10px 0;
-            text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+        .icon-box i {
+            font-size: 4rem;
+            background: linear-gradient(to bottom, #fff, var(--primary-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.4));
+            animation: float 3s ease-in-out infinite;
         }
-        .target-amount { font-size: 2.5rem; font-weight: 800; color: #ffd700; margin: 5px 0; }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
 
-        /* STATS GRID */
-        .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
-        .stat-box { 
-            background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; 
-            border: 1px solid rgba(255,255,255,0.05); 
+        /* TEXT STYLES */
+        h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: 2px;
+            color: #fff;
+            text-transform: uppercase;
         }
-        .stat-num { font-size: 2rem; font-weight: bold; color: #ffd700; }
-        .stat-label { font-size: 0.8rem; color: #ccc; }
-        .stat-target { font-size: 0.7rem; color: #888; margin-top: 5px; }
-        .badge-warn { background: rgba(255, 165, 0, 0.2); color: orange; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 5px; }
+        .subtitle {
+            font-size: 14px;
+            color: var(--primary-gold);
+            letter-spacing: 4px;
+            margin-top: 5px;
+            font-weight: 600;
+        }
+        .description {
+            color: #8b9bb4;
+            font-size: 13px;
+            margin: 20px 0 30px 0;
+            line-height: 1.6;
+        }
 
-        /* INVITE SECTION (New Design) */
-        .invite-card {
-            border: 2px dashed #ffd700;
-            background: rgba(255, 215, 0, 0.05);
-            padding: 20px;
-            border-radius: 15px;
-            margin-top: 20px;
+        /* PROGRESS BAR */
+        .progress-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            height: 6px;
+            width: 80%;
+            margin: 0 auto 30px auto;
+            position: relative;
+            overflow: hidden;
         }
-        .invite-code { font-size: 1.4rem; font-weight: bold; color: #fff; letter-spacing: 2px; margin: 10px 0; display: block;}
-        .btn-copy {
-            background: #ffd700; color: #000; border: none; padding: 10px 25px; 
-            border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 1rem;
-            display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0 auto;
+        .progress-bar {
+            height: 100%;
+            width: 85%; /* Loading percentage */
+            background: linear-gradient(90deg, var(--accent-gold), var(--primary-gold));
+            border-radius: 50px;
+            box-shadow: 0 0 10px var(--primary-gold);
+            animation: loading 2s infinite ease-in-out;
+        }
+        @keyframes loading { 0% { width: 80%; opacity: 0.8; } 50% { width: 85%; opacity: 1; } 100% { width: 80%; opacity: 0.8; } }
+
+        /* COUNTDOWN TIMER */
+        .timer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .time-box {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 10px 5px;
+        }
+        .time-val { font-size: 18px; font-weight: bold; color: #fff; display: block; }
+        .time-label { font-size: 10px; color: #888; text-transform: uppercase; }
+
+        /* BACK BUTTON */
+        .btn-back {
+            display: inline-block;
+            padding: 12px 30px;
+            border: 1px solid var(--primary-gold);
+            color: var(--primary-gold);
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
             transition: 0.3s;
+            background: rgba(255, 215, 0, 0.05);
         }
-        .btn-copy:active { transform: scale(0.95); }
-
-        /* SELECTION GRID */
-        .level-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .level-btn {
-            background: rgba(255,255,255,0.05); border: 1px solid #444; padding: 15px; border-radius: 10px; cursor: pointer; transition: 0.3s;
+        .btn-back:hover {
+            background: var(--primary-gold);
+            color: #000;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
         }
-        .level-btn:hover { border-color: #ffd700; background: rgba(255, 215, 0, 0.1); transform: translateY(-3px); }
-        .lvl-price { font-size: 1.2rem; font-weight: bold; color: #fff; display: block; }
-        .lvl-desc { font-size: 0.7rem; color: #aaa; }
 
-        /* STATES */
-        .hidden { display: none; }
-        .btn-claim { background: #2ecc71; color: white; width: 100%; padding: 15px; border: none; border-radius: 10px; font-size: 1.2rem; font-weight: bold; cursor: pointer; animation: pulse 2s infinite; margin-top: 15px; }
-        .back-link { display: block; margin-top: 25px; color: #aaa; text-decoration: none; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        
-        <!-- HEADER -->
-        <div style="text-align: center;">
-            <i class="fas fa-layer-group header-icon"></i>
-            <h2>Level Up Earning</h2>
-            <p class="sub-text">Complete targets to unlock cash rewards.</p>
-        </div>
+        <div class="coming-card">
+            
+            <!-- Animated Icon -->
+            <div class="icon-box">
+                <i class="fas fa-rocket"></i>
+            </div>
 
-        <!-- 1. LOADING -->
-        <div id="loadingView" style="text-align: center; padding: 50px;">
-            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #ffd700;"></i>
-        </div>
+            <!-- Title -->
+            <h1>Monthly Salary</h1>
+            <div class="subtitle">COMING SOON</div>
 
-        <!-- 2. SELECTION VIEW (Choose Target) -->
-        <div id="selectionView" class="hidden">
-            <div class="card">
-                <p style="margin-bottom: 20px; color: #ccc;">Select a target to start counting:</p>
-                <div class="level-grid">
-                    <div class="level-btn" onclick="startLevelUp(400, 30, 60)">
-                        <span class="lvl-price">400 TK</span>
-                        <span class="lvl-desc">30 Refs + 60 Tasks</span>
-                    </div>
-                    <div class="level-btn" onclick="startLevelUp(600, 50, 100)">
-                        <span class="lvl-price">600 TK</span>
-                        <span class="lvl-desc">50 Refs + 100 Tasks</span>
-                    </div>
-                    <div class="level-btn" onclick="startLevelUp(1000, 100, 200)">
-                        <span class="lvl-price">1,000 TK</span>
-                        <span class="lvl-desc">100 Refs + 200 Tasks</span>
-                    </div>
-                    <div class="level-btn" onclick="startLevelUp(2500, 200, 400)">
-                        <span class="lvl-price">2,500 TK</span>
-                        <span class="lvl-desc">200 Refs + 400 Tasks</span>
-                    </div>
-                    <div class="level-btn" onclick="startLevelUp(3500, 300, 600)">
-                        <span class="lvl-price">3,500 TK</span>
-                        <span class="lvl-desc">300 Refs + 600 Tasks</span>
-                    </div>
-                    <div class="level-btn" onclick="startLevelUp(5000, 400, 800)">
-                        <span class="lvl-price">5,000 TK</span>
-                        <span class="lvl-desc">400 Refs + 800 Tasks</span>
-                    </div>
+            <!-- Description -->
+            <p class="description">
+                We are preparing the ultimate fixed salary system for our leaders. 
+                Get ready to level up your earnings!
+            </p>
+
+            <!-- Loading Bar -->
+            <div class="progress-container">
+                <div class="progress-bar"></div>
+            </div>
+            <div style="font-size: 10px; color: #666; margin-top: -25px; margin-bottom: 25px;">Development in progress (85%)</div>
+
+            <!-- Countdown Timer -->
+            <div class="timer-grid">
+                <div class="time-box">
+                    <span class="time-val" id="d">02</span>
+                    <span class="time-label">Days</span>
+                </div>
+                <div class="time-box">
+                    <span class="time-val" id="h">14</span>
+                    <span class="time-label">Hours</span>
+                </div>
+                <div class="time-box">
+                    <span class="time-val" id="m">30</span>
+                    <span class="time-label">Mins</span>
+                </div>
+                <div class="time-box">
+                    <span class="time-val" id="s">45</span>
+                    <span class="time-label">Secs</span>
                 </div>
             </div>
+
+            <!-- Back Button -->
+            <a href="index.html" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+
         </div>
-
-        <!-- 3. PENDING VIEW -->
-        <div id="pendingView" class="hidden">
-            <div class="card" style="border-color: orange;">
-                <h3 style="color: orange;">Request Pending</h3>
-                <p>Admin is approving your target request.</p>
-                <div id="pendingDetails" style="margin-top: 10px; font-weight: bold;"></div>
-            </div>
-        </div>
-
-        <!-- 4. ACTIVE DASHBOARD VIEW -->
-        <div id="activeView" class="hidden">
-            <div class="card">
-                <div style="font-size: 0.8rem; color: #aaa;">TARGET AMOUNT</div>
-                <div class="target-amount" id="uiAmount">0 TK</div>
-                
-                <div class="timer-val" id="uiTimer">00d 00h 00m 00s</div>
-                <div style="font-size: 0.8rem; color: #aaa; margin-bottom: 20px;">Time Remaining</div>
-
-                <div class="stats-row">
-                    <!-- Valid Referrals -->
-                    <div class="stat-box">
-                        <i class="fas fa-user-friends" style="color: #fff;"></i> Valid Refs
-                        <div class="stat-num" id="uiRefs">0</div>
-                        <div class="stat-target">Target: <span id="targetRefVal">0</span></div>
-                        <span class="badge-warn">*Min 2 Tasks</span>
-                    </div>
-                    <!-- Team Tasks -->
-                    <div class="stat-box">
-                        <i class="fas fa-tasks" style="color: #fff;"></i> Team Tasks
-                        <div class="stat-num" id="uiTasks">0</div>
-                        <div class="stat-target">Target: <span id="targetTaskVal">0</span></div>
-                    </div>
-                </div>
-
-                <!-- Claim Button -->
-                <button id="btnClaim" class="btn-claim hidden" onclick="claimReward()">CLAIM REWARD</button>
-                <div id="msgComplete" class="hidden" style="margin-top:10px; color:#2ecc71; font-weight:bold;">REWARD PAID ✅</div>
-
-            </div>
-
-            <!-- INVITE BOX -->
-            <div class="invite-card">
-                <div style="font-size: 0.8rem; color: #ccc;">INVITE FOR LEVEL UP</div>
-                <span class="invite-code" id="myRefCode">...</span>
-                <button class="btn-copy" onclick="copyLink()">
-                    <i class="fas fa-link"></i> Copy Referral Link
-                </button>
-            </div>
-        </div>
-        
-        <a href="home.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
-
     </div>
 
-    <!-- FIREBASE SCRIPT -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    <script>
+        // Fake Countdown Timer Logic
+        // Sets a date 3 days from now
+        const countDownDate = new Date().getTime() + (3 * 24 * 60 * 60 * 1000);
 
-        const firebaseConfig = { apiKey: "AIzaSyB2YLhAvSF12ZZx7LSnbqcCjtS2_8QLt4o", authDomain: "task-f6078.firebaseapp.com", databaseURL: "https://task-f6078-default-rtdb.firebaseio.com", projectId: "task-f6078", storageBucket: "task-f6078.firebasestorage.app", messagingSenderId: "887907470692", appId: "1:887907470692:web:c4142ac9573e19d29d3e71" };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
+        const x = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = countDownDate - now;
 
-        let currentUser = null;
-        let myCode = "";
-        let timerInterval = null;
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-        // AUTH STATE CHANGE
-        onAuthStateChanged(auth, (user) => {
-            if(user) {
-                currentUser = user;
-                initApp();
-            } else {
-                window.location.href = "register_login.html";
+            document.getElementById("d").innerHTML = days < 10 ? "0" + days : days;
+            document.getElementById("h").innerHTML = hours < 10 ? "0" + hours : hours;
+            document.getElementById("m").innerHTML = minutes < 10 ? "0" + minutes : minutes;
+            document.getElementById("s").innerHTML = seconds < 10 ? "0" + seconds : seconds;
+
+            if (distance < 0) {
+                clearInterval(x);
+                document.querySelector('.subtitle').innerText = "LAUNCHING NOW";
             }
-        });
-
-        function initApp() {
-            // 1. Get User Data
-            onValue(ref(db, 'users/' + currentUser.uid), (snap) => {
-                const data = snap.val();
-                if(!data) return;
-                
-                myCode = data.referralCode || "ERROR";
-                document.getElementById('myRefCode').innerText = myCode;
-
-                const target = data.levelUpTarget; // Using new node 'levelUpTarget'
-                
-                // Hide Loader
-                document.getElementById('loadingView').classList.add('hidden');
-
-                if (!target) {
-                    showView('selectionView');
-                } else if (target.status === 'pending') {
-                    document.getElementById('pendingDetails').innerText = `${target.amount} TK Target`;
-                    showView('pendingView');
-                } else if (['active', 'claimable', 'paid'].includes(target.status)) {
-                    showView('activeView');
-                    updateDashboard(target);
-                }
-            });
-        }
-
-        function updateDashboard(target) {
-            document.getElementById('uiAmount').innerText = target.amount + " TK";
-            document.getElementById('targetRefVal').innerText = target.reqRefs;
-            document.getElementById('targetTaskVal').innerText = target.reqTasks;
-
-            // --- COUNTING LOGIC (Start Counting from 'startTime') ---
-            const countStartTime = target.startTime || 0; 
-
-            // Fetch ALL users to count referrals (Client Side Logic)
-            onValue(ref(db, 'users'), (usersSnap) => {
-                let validRefs = 0;
-                let teamTasks = 0;
-
-                usersSnap.forEach((child) => {
-                    const u = child.val();
-                    
-                    // Normalize Data
-                    const joinTime = u.joinedAt || 0;
-                    const tasks = u.tasksCompleted ? parseInt(u.tasksCompleted) : 0;
-                    const refBy = u.referredBy ? u.referredBy.trim() : "";
-                    const myCodeClean = myCode.trim();
-
-                    // CHECK: Is it my referral? Did they join AFTER I started the target?
-                    if (refBy === myCodeClean && joinTime >= countStartTime) {
-                        
-                        // Add to Team Tasks
-                        teamTasks += tasks;
-
-                        // Check Valid Referral (Min 2 Tasks)
-                        if (tasks >= 2) {
-                            validRefs++;
-                        }
-                    }
-                });
-
-                // Update UI
-                document.getElementById('uiRefs').innerText = validRefs;
-                document.getElementById('uiTasks').innerText = teamTasks;
-
-                // Check Completion
-                const isCompleted = (validRefs >= target.reqRefs && teamTasks >= target.reqTasks);
-
-                // Handle Status
-                if (target.status === 'active') {
-                    startTimer(target.endTime);
-                    
-                    if (isCompleted) {
-                        document.getElementById('uiTimer').innerText = "TARGET DONE";
-                        document.getElementById('uiTimer').style.color = "#2ecc71";
-                        document.getElementById('btnClaim').classList.remove('hidden');
-                        if(timerInterval) clearInterval(timerInterval);
-                    }
-                } else if (target.status === 'paid') {
-                    document.getElementById('uiTimer').innerText = "COMPLETED";
-                    document.getElementById('msgComplete').classList.remove('hidden');
-                    document.getElementById('btnClaim').classList.add('hidden');
-                }
-            });
-        }
-
-        // --- ACTIONS ---
-
-        window.startLevelUp = (amount, refs, tasks) => {
-            if(!confirm(`Start ${amount} TK Target?`)) return;
-
-            // Calculate 30 Days from NOW
-            const now = Date.now();
-            const endDate = now + (30 * 24 * 60 * 60 * 1000); 
-
-            const data = {
-                amount: amount,
-                reqRefs: refs,
-                reqTasks: tasks,
-                status: 'pending',
-                startTime: now, // Important: Counting starts from NOW
-                endTime: endDate
-            };
-
-            update(ref(db, 'users/' + currentUser.uid + '/levelUpTarget'), data);
-        };
-
-        window.claimReward = () => {
-            update(ref(db, 'users/' + currentUser.uid + '/levelUpTarget/status'), 'claimable')
-            .then(() => alert("Claim request sent!"));
-        };
-
-        window.copyLink = () => {
-            const link = "https://task28.github.io/-/register_login.html?ref=" + myCode;
-            navigator.clipboard.writeText(link).then(() => alert("Link Copied!"));
-        };
-
-        // --- UTILS ---
-
-        function startTimer(endTime) {
-            if(timerInterval) clearInterval(timerInterval);
-            
-            function tick() {
-                const now = Date.now();
-                const diff = endTime - now;
-
-                if(diff <= 0) {
-                    document.getElementById('uiTimer').innerText = "EXPIRED";
-                    document.getElementById('uiTimer').style.color = "red";
-                    clearInterval(timerInterval);
-                    return;
-                }
-
-                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                const s = Math.floor((diff % (1000 * 60)) / 1000);
-
-                document.getElementById('uiTimer').innerText = 
-                    `${d}d ${h}h ${m}m ${s}s`;
-            }
-            tick();
-            timerInterval = setInterval(tick, 1000);
-        }
-
-        function showView(viewId) {
-            ['loadingView', 'selectionView', 'pendingView', 'activeView'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-            });
-            document.getElementById(viewId).classList.remove('hidden');
-        }
-
+        }, 1000);
     </script>
+
 </body>
 </html>
