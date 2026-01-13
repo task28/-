@@ -9,63 +9,87 @@
         :root { --bg-dark: #0a0a0a; --card-bg: rgba(20, 20, 20, 0.6); --gold: #FFD700; --gold-glow: rgba(255, 215, 0, 0.3); --text-main: #ffffff; }
         body { margin: 0; padding: 20px; background: radial-gradient(circle at top right, #1a1a2e, #000000); color: var(--text-main); font-family: 'Poppins', sans-serif; min-height: 100vh; padding-bottom: 80px; }
 
-        /* PROFILE HEADER */
-        .profile-section { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; background: var(--card-bg); padding: 15px; border-radius: 20px; border: 1px solid rgba(255,215,0,0.2); }
-        .profile-img-box { position: relative; width: 70px; height: 70px; }
-        .profile-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold); box-shadow: 0 0 10px var(--gold-glow); }
-        .upload-icon { position: absolute; bottom: 0; right: 0; background: var(--gold); color: #000; border-radius: 50%; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; cursor: pointer; }
-        .profile-info h3 { margin: 0; font-size: 1.1rem; color: #fff; }
-        .profile-details { font-size: 0.75rem; color: #aaa; margin-top: 5px; }
-        .uid-badge { background: rgba(255,215,0,0.1); color: var(--gold); padding: 2px 8px; border-radius: 4px; font-weight: bold; }
+        /* HEADER & CREDITS */
+        .header-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .credit-pill { background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(255,215,0,0.3); display: flex; align-items: center; gap: 5px; margin-left: 5px; }
+        .credit-pill i { color: var(--gold); }
+
+        /* ACTIVE TARGET DASHBOARD */
+        .active-dashboard { background: linear-gradient(135deg, rgba(255,215,0,0.05), rgba(0,0,0,0.8)); border: 1px solid var(--gold); border-radius: 20px; padding: 20px; margin-bottom: 25px; box-shadow: 0 0 15px var(--gold-glow); display: none; /* Hidden by default */ }
+        .status-badge { display: inline-block; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px; }
+        .st-pending { background: #ff9800; color: #000; }
+        .st-active { background: #00e676; color: #000; }
+        
+        .timer-box { font-size: 1.5rem; font-weight: bold; color: #fff; text-align: center; margin: 15px 0; font-family: monospace; }
+        .progress-row { margin-bottom: 10px; }
+        .p-label { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px; color: #ccc; }
+        .p-bar-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; }
+        .p-bar-fill { height: 100%; background: var(--gold); width: 0%; transition: 0.5s; }
 
         /* TARGET BUTTONS */
         .target-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
-        .target-btn { background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); border: 1px solid rgba(255,215,0,0.3); padding: 20px 10px; border-radius: 15px; text-align: center; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; }
-        .target-btn.active { border-color: var(--gold); background: rgba(255, 215, 0, 0.1); box-shadow: 0 0 15px var(--gold-glow); }
-        .target-btn.disabled { opacity: 0.5; filter: grayscale(1); cursor: not-allowed; }
+        .target-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 20px 10px; border-radius: 15px; text-align: center; cursor: pointer; transition: 0.3s; position: relative; }
+        .target-btn:hover { border-color: var(--gold); }
+        .target-btn.disabled { opacity: 0.4; pointer-events: none; filter: grayscale(1); }
         .target-btn i { font-size: 2rem; color: var(--gold); margin-bottom: 10px; display: block; }
-        .target-label { font-size: 0.9rem; font-weight: bold; }
-        .credit-badge { position: absolute; top: 10px; right: 10px; background: #ff4444; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 10px; }
-
-        /* MENU GRID (Existing) */
+        
+        /* MENU GRID */
         .grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .menu-item { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s; }
-        .menu-item:hover { background: rgba(255,255,255,0.1); transform: translateY(-5px); border-color: var(--gold); }
         .menu-item i { font-size: 1.8rem; color: var(--gold); margin-bottom: 10px; display: block; }
-        
-        input[type="file"] { display: none; }
     </style>
 </head>
 <body>
 
-    <!-- PROFILE SECTION -->
-    <div class="profile-section">
-        <div class="profile-img-box" onclick="document.getElementById('fileUpload').click()">
-            <img src="https://via.placeholder.com/70" id="profilePic" class="profile-img" alt="Profile">
-            <div class="upload-icon"><i class="fas fa-camera"></i></div>
-            <input type="file" id="fileUpload" accept="image/*" onchange="uploadImage()">
-        </div>
-        <div class="profile-info">
-            <h3 id="userName">Loading...</h3>
-            <div class="profile-details">
-                UID: <span class="uid-badge" id="uidDisplay">...</span><br>
-                Joined: <span id="joinDate">...</span>
-            </div>
+    <div class="header-box">
+        <div style="font-weight:bold; font-size:1.2rem;">TASK PRO</div>
+        <div style="display:flex;">
+            <div class="credit-pill"><i class="fas fa-calendar-week"></i> <span id="wkCredit">0</span></div>
+            <div class="credit-pill"><i class="fas fa-calendar-alt"></i> <span id="moCredit">0</span></div>
         </div>
     </div>
 
-    <!-- TARGET SELECTORS -->
-    <div class="target-grid">
-        <div class="target-btn" id="btnMonthly" onclick="goToTarget('monthly')">
-            <i class="fas fa-calendar-alt"></i>
-            <div class="target-label">Monthly Target</div>
-            <div style="font-size: 0.7rem; opacity: 0.7; margin-top: 5px;">Big Rewards</div>
+    <!-- ACTIVE / PENDING TARGET DASHBOARD -->
+    <div id="activeDash" class="active-dashboard">
+        <div style="display:flex; justify-content:space-between;">
+            <span id="targetName" style="font-weight:bold; color:var(--gold);">Target Loading...</span>
+            <span id="targetStatus" class="status-badge st-pending">Checking...</span>
         </div>
-        <div class="target-btn" id="btnWeekly" onclick="goToTarget('weekly')">
-            <div class="credit-badge" id="creditCount">0 Cr</div>
+        
+        <!-- Timer Section -->
+        <div id="timerSection">
+            <div class="timer-box" id="countDown">00d 00h 00m</div>
+            <div style="text-align:center; font-size:0.75rem; color:#aaa; margin-bottom:15px;">Time Remaining</div>
+        </div>
+
+        <!-- Waiting Message -->
+        <div id="pendingMsg" style="display:none; text-align:center; margin: 15px 0; color: #ff9800; font-size: 0.9rem;">
+            <i class="fas fa-hourglass-half"></i> Awaiting Admin Approval...<br>
+            <span style="font-size:0.75rem; opacity:0.7;">Timer & Counting starts after active.</span>
+        </div>
+
+        <!-- Progress Bars -->
+        <div class="progress-row">
+            <div class="p-label"><span>Referrals</span> <span id="refScore">0 / 0</span></div>
+            <div class="p-bar-bg"><div class="p-bar-fill" id="refBar"></div></div>
+        </div>
+        <div class="progress-row">
+            <div class="p-label"><span>Tasks</span> <span id="taskScore">0 / 0</span></div>
+            <div class="p-bar-bg"><div class="p-bar-fill" id="taskBar"></div></div>
+        </div>
+    </div>
+
+    <!-- SELECTION BUTTONS -->
+    <div class="target-grid">
+        <div class="target-btn" id="btnMonthly" onclick="window.location.href='monthly.html'">
+            <i class="fas fa-calendar-alt"></i>
+            <div style="font-weight:bold;">Monthly Target</div>
+            <div style="font-size:0.7rem; color:#aaa;">30 Days | Big Rewards</div>
+        </div>
+        <div class="target-btn" id="btnWeekly" onclick="window.location.href='weekly.html'">
             <i class="fas fa-calendar-week"></i>
-            <div class="target-label">Weekly Target</div>
-            <div style="font-size: 0.7rem; opacity: 0.7; margin-top: 5px;">Quick Earnings</div>
+            <div style="font-weight:bold;">Weekly Target</div>
+            <div style="font-size:0.7rem; color:#aaa;">7 Days | Quick Earn</div>
         </div>
     </div>
 
@@ -80,89 +104,107 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
         const firebaseConfig = { apiKey: "AIzaSyB2YLhAvSF12ZZx7LSnbqcCjtS2_8QLt4o", authDomain: "task-f6078.firebaseapp.com", databaseURL: "https://task-f6078-default-rtdb.firebaseio.com", projectId: "task-f6078", storageBucket: "task-f6078.firebasestorage.app", messagingSenderId: "887907470692", appId: "1:887907470692:web:c4142ac9573e19d29d3e71" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        let currentUid = null;
-        let activePlan = null; // { type: 'monthly'|'weekly', level: 1, endDate: timestamp }
-
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                currentUid = user.uid;
-                loadUserData();
-            } else {
-                window.location.href = "register_login.html";
-            }
+                const uid = user.uid;
+                
+                // 1. Monitor Credits
+                onValue(ref(db, `users/${uid}/credits`), (snap) => {
+                    const c = snap.val() || {};
+                    document.getElementById('wkCredit').innerText = c.weekly || 0;
+                    document.getElementById('moCredit').innerText = c.monthly || 0;
+                });
+
+                // 2. Monitor Active/Pending Target
+                onValue(ref(db, `users/${uid}/target`), (snap) => {
+                    const target = snap.val();
+                    const dash = document.getElementById('activeDash');
+                    const btnM = document.getElementById('btnMonthly');
+                    const btnW = document.getElementById('btnWeekly');
+
+                    if (target && (target.status === 'pending' || target.status === 'active')) {
+                        // User has a target -> Lock buttons, Show Dash
+                        btnM.classList.add('disabled');
+                        btnW.classList.add('disabled');
+                        dash.style.display = 'block';
+                        updateDashboard(target);
+                    } else {
+                        // No active target -> Unlock buttons, Hide Dash
+                        btnM.classList.remove('disabled');
+                        btnW.classList.remove('disabled');
+                        dash.style.display = 'none';
+                    }
+                });
+            } else { window.location.href = "register_login.html"; }
         });
 
-        function loadUserData() {
-            onValue(ref(db, 'users/' + currentUid), (snapshot) => {
-                const data = snapshot.val();
-                if(!data) return;
+        let timerInterval;
 
-                // 1. Profile Data
-                document.getElementById('userName').innerText = data.name || "User";
-                document.getElementById('uidDisplay').innerText = currentUid.substring(0, 6);
-                document.getElementById('joinDate').innerText = data.joiningDate || new Date().toLocaleDateString();
-                if(data.profilePic) document.getElementById('profilePic').src = data.profilePic;
+        function updateDashboard(t) {
+            const nameEl = document.getElementById('targetName');
+            const statusEl = document.getElementById('targetStatus');
+            const pendingMsg = document.getElementById('pendingMsg');
+            const timerSec = document.getElementById('timerSection');
 
-                // 2. Credits
-                const credits = data.weeklyCredits || 0;
-                document.getElementById('creditCount').innerText = `${credits} Cr`;
+            // Set Title
+            nameEl.innerText = (t.type === 'monthly' ? "Monthly" : "Weekly") + ` Level ${t.level}`;
 
-                // 3. Plan Logic
-                activePlan = data.currentPlan || null;
-                updateButtons(activePlan);
-            });
-        }
-
-        function updateButtons(plan) {
-            const btnMonthly = document.getElementById('btnMonthly');
-            const btnWeekly = document.getElementById('btnWeekly');
-
-            // Reset
-            btnMonthly.classList.remove('active', 'disabled');
-            btnWeekly.classList.remove('active', 'disabled');
-
-            if (plan && plan.status === 'active') {
-                const now = Date.now();
-                if (now < plan.endTime) {
-                    if (plan.type === 'monthly') {
-                        btnMonthly.classList.add('active');
-                        btnWeekly.classList.add('disabled');
-                    } else if (plan.type === 'weekly') {
-                        btnWeekly.classList.add('active');
-                        btnMonthly.classList.add('disabled');
-                    }
-                } else {
-                    // Plan expired, allow both
-                    update(ref(db, 'users/' + currentUid + '/currentPlan'), { status: 'expired' });
-                }
+            // Logic for Status
+            if(t.status === 'pending') {
+                statusEl.className = 'status-badge st-pending';
+                statusEl.innerText = "PENDING";
+                pendingMsg.style.display = 'block';
+                timerSec.style.display = 'none'; // No timer yet
+            } else {
+                statusEl.className = 'status-badge st-active';
+                statusEl.innerText = "ACTIVE";
+                pendingMsg.style.display = 'none';
+                timerSec.style.display = 'block';
+                startTimer(t.endTime);
             }
-        }
 
-        window.goToTarget = (type) => {
-            const btn = type === 'monthly' ? document.getElementById('btnMonthly') : document.getElementById('btnWeekly');
-            if(btn.classList.contains('disabled')) return alert(`You already have an active ${type === 'monthly' ? 'Weekly' : 'Monthly'} plan!`);
+            // Update Progress (New referrals only)
+            const curRef = t.currentRef || 0;
+            const curTask = t.currentTask || 0;
             
-            window.location.href = type + '.html';
+            document.getElementById('refScore').innerText = `${curRef} / ${t.reqRef}`;
+            document.getElementById('taskScore').innerText = `${curTask} / ${t.reqTask}`;
+
+            const refPct = Math.min((curRef / t.reqRef) * 100, 100);
+            const taskPct = Math.min((curTask / t.reqTask) * 100, 100);
+            
+            document.getElementById('refBar').style.width = refPct + "%";
+            document.getElementById('taskBar').style.width = taskPct + "%";
         }
 
-        // Simple Base64 Image Upload
-        window.uploadImage = () => {
-            const file = document.getElementById('fileUpload').files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64 = reader.result;
-                update(ref(db, 'users/' + currentUid), { profilePic: base64 })
-                    .then(() => alert("Profile updated!"));
+        function startTimer(endTime) {
+            if(timerInterval) clearInterval(timerInterval);
+            
+            const updateTime = () => {
+                const now = Date.now();
+                const dist = endTime - now;
+                
+                if(dist < 0) {
+                    document.getElementById('countDown').innerText = "EXPIRED";
+                    return;
+                }
+
+                const d = Math.floor(dist / (1000 * 60 * 60 * 24));
+                const h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
+                
+                document.getElementById('countDown').innerText = `${d}d ${h}h ${m}m`;
             };
-            reader.readAsDataURL(file);
+            
+            updateTime();
+            timerInterval = setInterval(updateTime, 60000); // Update every minute
         }
     </script>
 </body>
