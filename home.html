@@ -6,245 +6,163 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* PREMIUM DESIGN - Dark & Gold Theme */
         :root { --bg-dark: #0a0a0a; --card-bg: rgba(20, 20, 20, 0.6); --gold: #FFD700; --gold-glow: rgba(255, 215, 0, 0.3); --text-main: #ffffff; }
+        body { margin: 0; padding: 20px; background: radial-gradient(circle at top right, #1a1a2e, #000000); color: var(--text-main); font-family: 'Poppins', sans-serif; min-height: 100vh; padding-bottom: 80px; }
 
-        body { margin: 0; padding: 20px; background: radial-gradient(circle at top right, #1a1a2e, #000000); color: var(--text-main); font-family: 'Poppins', sans-serif; min-height: 100vh; }
+        /* PROFILE HEADER */
+        .profile-section { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; background: var(--card-bg); padding: 15px; border-radius: 20px; border: 1px solid rgba(255,215,0,0.2); }
+        .profile-img-box { position: relative; width: 70px; height: 70px; }
+        .profile-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold); box-shadow: 0 0 10px var(--gold-glow); }
+        .upload-icon { position: absolute; bottom: 0; right: 0; background: var(--gold); color: #000; border-radius: 50%; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; cursor: pointer; }
+        .profile-info h3 { margin: 0; font-size: 1.1rem; color: #fff; }
+        .profile-details { font-size: 0.75rem; color: #aaa; margin-top: 5px; }
+        .uid-badge { background: rgba(255,215,0,0.1); color: var(--gold); padding: 2px 8px; border-radius: 4px; font-weight: bold; }
 
-        /* HEADER */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .logo { font-size: 1.5rem; font-weight: 700; color: var(--gold); letter-spacing: 1px; text-shadow: 0 0 10px var(--gold-glow); }
-        .user-badge { background: rgba(255, 255, 255, 0.08); padding: 8px 15px; border-radius: 50px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); }
+        /* TARGET BUTTONS */
+        .target-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .target-btn { background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); border: 1px solid rgba(255,215,0,0.3); padding: 20px 10px; border-radius: 15px; text-align: center; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; }
+        .target-btn.active { border-color: var(--gold); background: rgba(255, 215, 0, 0.1); box-shadow: 0 0 15px var(--gold-glow); }
+        .target-btn.disabled { opacity: 0.5; filter: grayscale(1); cursor: not-allowed; }
+        .target-btn i { font-size: 2rem; color: var(--gold); margin-bottom: 10px; display: block; }
+        .target-label { font-size: 0.9rem; font-weight: bold; }
+        .credit-badge { position: absolute; top: 10px; right: 10px; background: #ff4444; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 10px; }
 
-        /* BALANCE CARD */
-        .balance-card { background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(0,0,0,0.8)); border: 1px solid var(--gold); border-radius: 20px; padding: 25px; text-align: center; margin-bottom: 25px; box-shadow: 0 10px 30px -10px var(--gold-glow); backdrop-filter: blur(10px); }
-        .balance-amount { font-size: 2.5rem; font-weight: 700; margin: 10px 0; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.1); }
-        .currency-symbol { color: var(--gold); font-size: 1.5rem; }
-
-        /* --- DYNAMIC BANNER SLIDER --- */
-        .banner-wrapper { position: relative; width: 100%; margin-bottom: 20px; display: none; /* Hidden until loaded */ }
-        .banner-container { width: 100%; overflow-x: auto; display: flex; scroll-snap-type: x mandatory; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); scrollbar-width: none; scroll-behavior: smooth; }
-        .banner-container::-webkit-scrollbar { display: none; }
-        .banner-img { min-width: 100%; height: auto; object-fit: contain; scroll-snap-align: start; border-radius: 15px; display: block; }
-        
-        .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0, 0, 0, 0.6); color: var(--gold); border: 1px solid var(--gold); border-radius: 50%; width: 35px; height: 35px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: 0.3s; }
-        .prev-btn { left: 10px; }
-        .next-btn { right: 10px; }
-
-        /* YOUTUBE BTN */
-        .youtube-btn-container { margin-bottom: 25px; }
-        .youtube-btn { width: 100%; background: linear-gradient(45deg, #1a1a1a, #000); border: 1px solid var(--gold); color: var(--text-main); padding: 15px; border-radius: 15px; font-size: 1.1rem; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.3s; text-transform: uppercase; }
-        .youtube-btn i { color: #FF0000; font-size: 1.5rem; }
-        .youtube-btn:hover { background: var(--gold); color: #000; transform: translateY(-2px); box-shadow: 0 0 20px var(--gold-glow); }
-
-        /* MENU GRID */
+        /* MENU GRID (Existing) */
         .grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .menu-item { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s; }
         .menu-item:hover { background: rgba(255,255,255,0.1); transform: translateY(-5px); border-color: var(--gold); }
         .menu-item i { font-size: 1.8rem; color: var(--gold); margin-bottom: 10px; display: block; }
-        .menu-item span { font-size: 0.9rem; font-weight: 500; }
-
-        /* POPUP & TOGGLE (Kept same) */
-        .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: none; justify-content: center; align-items: center; }
-        .popup-box { background: linear-gradient(180deg, #1a1a1a 0%, #000 100%); border: 2px solid var(--gold); padding: 40px 30px; border-radius: 25px; text-align: center; width: 85%; max-width: 320px; box-shadow: 0 0 50px rgba(255, 215, 0, 0.3); animation: bounceIn 0.8s ease; }
-        @keyframes bounceIn { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
-        .gift-anim { font-size: 4rem; color: var(--gold); margin-bottom: 20px; animation: shake 2s infinite; }
-        @keyframes shake { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
-        .bonus-amount { font-size: 2rem; color: var(--gold); font-weight: bold; margin-bottom: 25px; display: block; }
-        .claim-btn { background: var(--gold); color: #000; border: none; padding: 15px 40px; border-radius: 50px; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); transition: 0.3s; }
         
-        .toggle-container { display: flex; justify-content: center; align-items: center; margin-top: 10px; }
-        .switch { position: relative; display: inline-block; width: 50px; height: 24px; margin: 0 10px;}
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; border: 1px solid #555; }
-        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--gold); }
-        input:checked + .slider:before { transform: translateX(24px); background-color: #000; }
-        .switch-label { font-size: 0.8rem; color: #aaa; }
-        .switch-label.active { color: var(--gold); font-weight: bold; }
+        input[type="file"] { display: none; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="logo">TASK<span style="color:#fff">28</span></div>
-        <div class="user-badge" id="userName">User</div>
-    </div>
-
-    <div class="balance-card">
-        <div style="color:#aaa; font-size:0.9rem; margin-bottom:5px;">TOTAL BALANCE</div>
-        <div class="balance-amount" id="displayBalance">0 <span class="currency-symbol">TK</span></div>
-        <div class="toggle-container">
-            <span class="switch-label active" id="lblTk">BDT</span>
-            <label class="switch">
-                <input type="checkbox" id="currencyToggle" onchange="toggleCurrency()">
-                <span class="slider"></span>
-            </label>
-            <span class="switch-label" id="lblUsdt">USDT</span>
+    <!-- PROFILE SECTION -->
+    <div class="profile-section">
+        <div class="profile-img-box" onclick="document.getElementById('fileUpload').click()">
+            <img src="https://via.placeholder.com/70" id="profilePic" class="profile-img" alt="Profile">
+            <div class="upload-icon"><i class="fas fa-camera"></i></div>
+            <input type="file" id="fileUpload" accept="image/*" onchange="uploadImage()">
+        </div>
+        <div class="profile-info">
+            <h3 id="userName">Loading...</h3>
+            <div class="profile-details">
+                UID: <span class="uid-badge" id="uidDisplay">...</span><br>
+                Joined: <span id="joinDate">...</span>
+            </div>
         </div>
     </div>
 
-    <!-- DYNAMIC BANNER SLIDER -->
-    <div class="banner-wrapper" id="bannerWrapper">
-        <button class="nav-btn prev-btn" onclick="slideManual(-1)"><i class="fas fa-chevron-left"></i></button>
-        <div class="banner-container" id="bannerSlider">
-            <!-- Images will load from Firebase here -->
+    <!-- TARGET SELECTORS -->
+    <div class="target-grid">
+        <div class="target-btn" id="btnMonthly" onclick="goToTarget('monthly')">
+            <i class="fas fa-calendar-alt"></i>
+            <div class="target-label">Monthly Target</div>
+            <div style="font-size: 0.7rem; opacity: 0.7; margin-top: 5px;">Big Rewards</div>
         </div>
-        <button class="nav-btn next-btn" onclick="slideManual(1)"><i class="fas fa-chevron-right"></i></button>
+        <div class="target-btn" id="btnWeekly" onclick="goToTarget('weekly')">
+            <div class="credit-badge" id="creditCount">0 Cr</div>
+            <i class="fas fa-calendar-week"></i>
+            <div class="target-label">Weekly Target</div>
+            <div style="font-size: 0.7rem; opacity: 0.7; margin-top: 5px;">Quick Earnings</div>
+        </div>
     </div>
 
-    <div class="youtube-btn-container">
-        <button class="youtube-btn" onclick="window.location.href='http://www.youtube.com/@RafsanXLab'">
-            <i class="fab fa-youtube"></i> YOUTUBE
-        </button>
-    </div>
-
+    <!-- MAIN MENU -->
     <div class="grid-menu">
-        <div class="menu-item" onclick="window.location.href='balance.html'"><i class="fas fa-wallet"></i><span>My Balance</span></div>
+        <div class="menu-item" onclick="window.location.href='balance.html'"><i class="fas fa-wallet"></i><span>My Wallet</span></div>
         <div class="menu-item" onclick="window.location.href='referral.html'"><i class="fas fa-users"></i><span>Referral</span></div>
         <div class="menu-item" onclick="window.location.href='withdraw.html'"><i class="fas fa-hand-holding-usd"></i><span>Withdraw</span></div>
-        <div class="menu-item" onclick="window.location.href='task_1.html'"><i class="fas fa-check-circle"></i><span>Task 1</span></div>
-        <div class="menu-item" onclick="window.location.href='monthly.html'"><i class="fas fa-calendar-alt"></i><span>Monthly Salary</span></div>
-    </div>
-
-    <div class="popup-overlay" id="bonusPopup">
-        <div class="popup-box">
-            <i class="fas fa-gift gift-anim"></i>
-            <h2 class="popup-title">Welcome Bonus!</h2>
-            <p class="popup-text">Admin has sent you a special registration gift.</p>
-            <span class="bonus-amount" id="popupAmount">+0 TK</span>
-            <button class="claim-btn" onclick="claimBonusNow()">CLAIM REWARD</button>
-        </div>
+        <div class="menu-item" onclick="window.location.href='task_1.html'"><i class="fas fa-check-circle"></i><span>Daily Task</span></div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-        import { getDatabase, ref, onValue, update, get } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
         const firebaseConfig = { apiKey: "AIzaSyB2YLhAvSF12ZZx7LSnbqcCjtS2_8QLt4o", authDomain: "task-f6078.firebaseapp.com", databaseURL: "https://task-f6078-default-rtdb.firebaseio.com", projectId: "task-f6078", storageBucket: "task-f6078.firebasestorage.app", messagingSenderId: "887907470692", appId: "1:887907470692:web:c4142ac9573e19d29d3e71" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        let userBalance = 0;
         let currentUid = null;
-        let pendingBonusAmount = 0;
-        const usdtRate = 115; 
-        
-        // AUTO SCROLL VARS
-        let autoScrollInterval = 15000; // Default 15 sec
-        let timerId = null;
+        let activePlan = null; // { type: 'monthly'|'weekly', level: 1, endDate: timestamp }
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUid = user.uid;
-                onValue(ref(db, 'users/' + user.uid), (snapshot) => {
-                    const data = snapshot.val();
-                    if(data) {
-                        document.getElementById('userName').innerText = data.name || "User";
-                        userBalance = data.balance || 0;
-                        updateUI();
-                        if (!data.bonusReceived) checkBonusAvailable();
-                    }
-                });
-                // LOAD BANNERS & TIME
-                loadBannersAndTime();
+                loadUserData();
             } else {
                 window.location.href = "register_login.html";
             }
         });
 
-        // ---------------- DYNAMIC BANNER LOGIC ---------------- //
-        function loadBannersAndTime() {
-            // 1. Get Time Interval
-            onValue(ref(db, 'adminSettings/bannerInterval'), (snap) => {
-                if(snap.exists()) {
-                    autoScrollInterval = snap.val() * 1000; // Convert to ms
-                    startAutoScroll(); // Restart timer with new time
-                }
-            });
+        function loadUserData() {
+            onValue(ref(db, 'users/' + currentUid), (snapshot) => {
+                const data = snapshot.val();
+                if(!data) return;
 
-            // 2. Get Images
-            onValue(ref(db, 'adminSettings/bannerImages'), (snap) => {
-                const slider = document.getElementById('bannerSlider');
-                const wrapper = document.getElementById('bannerWrapper');
-                
-                slider.innerHTML = ""; // Clear old
+                // 1. Profile Data
+                document.getElementById('userName').innerText = data.name || "User";
+                document.getElementById('uidDisplay').innerText = currentUid.substring(0, 6);
+                document.getElementById('joinDate').innerText = data.joiningDate || new Date().toLocaleDateString();
+                if(data.profilePic) document.getElementById('profilePic').src = data.profilePic;
 
-                if(snap.exists()) {
-                    wrapper.style.display = 'block'; // Show slider
-                    const data = snap.val();
-                    Object.values(data).forEach(url => {
-                        const img = document.createElement('img');
-                        img.src = url;
-                        img.className = 'banner-img';
-                        slider.appendChild(img);
-                    });
-                } else {
-                    wrapper.style.display = 'none'; // Hide if no images
-                }
+                // 2. Credits
+                const credits = data.weeklyCredits || 0;
+                document.getElementById('creditCount').innerText = `${credits} Cr`;
+
+                // 3. Plan Logic
+                activePlan = data.currentPlan || null;
+                updateButtons(activePlan);
             });
         }
 
-        // AUTO SCROLL FUNCTION
-        function startAutoScroll() {
-            if(timerId) clearInterval(timerId); // Clear old timer
-            
-            const slider = document.getElementById('bannerSlider');
-            timerId = setInterval(() => {
-                if(slider.scrollLeft + slider.clientWidth >= slider.scrollWidth - 10) {
-                    slider.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+        function updateButtons(plan) {
+            const btnMonthly = document.getElementById('btnMonthly');
+            const btnWeekly = document.getElementById('btnWeekly');
+
+            // Reset
+            btnMonthly.classList.remove('active', 'disabled');
+            btnWeekly.classList.remove('active', 'disabled');
+
+            if (plan && plan.status === 'active') {
+                const now = Date.now();
+                if (now < plan.endTime) {
+                    if (plan.type === 'monthly') {
+                        btnMonthly.classList.add('active');
+                        btnWeekly.classList.add('disabled');
+                    } else if (plan.type === 'weekly') {
+                        btnWeekly.classList.add('active');
+                        btnMonthly.classList.add('disabled');
+                    }
                 } else {
-                    slider.scrollBy({ left: slider.clientWidth, behavior: 'smooth' });
+                    // Plan expired, allow both
+                    update(ref(db, 'users/' + currentUid + '/currentPlan'), { status: 'expired' });
                 }
-            }, autoScrollInterval);
-        }
-
-        window.slideManual = function(direction) {
-            const slider = document.getElementById('bannerSlider');
-            const scrollAmount = slider.clientWidth * direction;
-            slider.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-            // Reset timer on manual interaction
-            startAutoScroll();
-        }
-        // ---------------- END BANNER LOGIC ---------------- //
-
-        window.toggleCurrency = () => { updateUI(); }
-        function updateUI() {
-            const isUsdt = document.getElementById('currencyToggle').checked;
-            const display = document.getElementById('displayBalance');
-            const lblTk = document.getElementById('lblTk');
-            const lblUsdt = document.getElementById('lblUsdt');
-            if(isUsdt) {
-                let converted = (userBalance / usdtRate).toFixed(2);
-                display.innerHTML = `${converted} <span class="currency-symbol">USDT</span>`;
-                lblTk.classList.remove('active'); lblUsdt.classList.add('active');
-            } else {
-                display.innerHTML = `${userBalance} <span class="currency-symbol">TK</span>`;
-                lblTk.classList.add('active'); lblUsdt.classList.remove('active');
             }
         }
 
-        function checkBonusAvailable() {
-            get(ref(db, 'adminSettings/registrationBonus')).then((snap) => {
-                if(snap.exists() && snap.val() > 0) {
-                    pendingBonusAmount = parseInt(snap.val());
-                    document.getElementById('popupAmount').innerText = `+${pendingBonusAmount} TK`;
-                    document.getElementById('bonusPopup').style.display = 'flex';
-                }
-            });
+        window.goToTarget = (type) => {
+            const btn = type === 'monthly' ? document.getElementById('btnMonthly') : document.getElementById('btnWeekly');
+            if(btn.classList.contains('disabled')) return alert(`You already have an active ${type === 'monthly' ? 'Weekly' : 'Monthly'} plan!`);
+            
+            window.location.href = type + '.html';
         }
 
-        window.claimBonusNow = function() {
-            if(!currentUid || pendingBonusAmount <= 0) return;
-            const updates = {};
-            updates['users/' + currentUid + '/balance'] = userBalance + pendingBonusAmount;
-            updates['users/' + currentUid + '/bonusReceived'] = true;
-            update(ref(db), updates).then(() => {
-                document.getElementById('bonusPopup').style.display = 'none';
-                alert("Congratulation! Bonus Added Successfully.");
-            });
+        // Simple Base64 Image Upload
+        window.uploadImage = () => {
+            const file = document.getElementById('fileUpload').files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64 = reader.result;
+                update(ref(db, 'users/' + currentUid), { profilePic: base64 })
+                    .then(() => alert("Profile updated!"));
+            };
+            reader.readAsDataURL(file);
         }
     </script>
 </body>
