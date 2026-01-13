@@ -3,21 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maintenance Mode</title>
+    <title>Site Under Maintenance</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background: #000; color: #FFD700; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; margin: 0; text-align: center; }
-        .icon { font-size: 4rem; margin-bottom: 20px; animation: spin 4s linear infinite; }
+        body { 
+            background-color: #000; 
+            color: #FFD700; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+            font-family: sans-serif; 
+            text-align: center;
+        }
+        .icon { font-size: 5rem; margin-bottom: 20px; animation: spin 3s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        h1 { margin: 0; font-size: 2rem; }
-        p { color: #fff; opacity: 0.7; max-width: 300px; margin-top: 10px; }
+        h1 { margin: 0; font-size: 2rem; color: #fff; }
+        p { color: #888; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <i class="fas fa-cog icon"></i>
-    <h1>MAINTENANCE</h1>
-    <p>We are updating the system. Please come back later.</p>
-    <div style="margin-top:20px; font-size:0.8rem; color:#555;">Status: Checking...</div>
+
+    <i class="fas fa-tools icon"></i>
+    <h1>MAINTENANCE MODE</h1>
+    <p>We are upgrading the system.<br>Please wait, the site will reload automatically.</p>
+    
+    <div style="margin-top:20px; color: #00e676; font-size: 0.8rem;">● Checking Server Status...</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
@@ -27,11 +40,13 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Check if site is back ON
+        // সাইট আবার ON হলো কিনা চেক করা হচ্ছে
         onValue(ref(db, 'settings/siteStatus'), (snap) => {
             const isOn = snap.val();
+            
+            // যদি সাইট ON (true) হয়ে যায়, তাহলে হোম পেজে ফেরত পাঠাও
             if (isOn === true) {
-                window.location.href = "index.html"; // Go back to home when ON
+                window.location.href = "index.html";
             }
         });
     </script>
