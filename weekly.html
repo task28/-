@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Weekly Targets</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #050505; color: white; font-family: 'Poppins', sans-serif; padding: 20px; }
+        
+        /* CREDIT HEADER */
+        .credit-header { background: linear-gradient(45deg, #FFD700, #ff8c00); padding: 20px; border-radius: 15px; color: black; text-align: center; margin-bottom: 30px; }
+        .credit-count { font-size: 2.5rem; font-weight: 800; }
+        .btn-buy { background: black; color: #FFD700; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        
+        .level-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .wk-card { background: rgba(255,255,255,0.05); border: 1px solid #333; padding: 15px; border-radius: 10px; text-align: center; position: relative; }
+        .wk-card.locked { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
+        .wk-card.active { border-color: #FFD700; background: rgba(255,215,0,0.1); }
+        
+        .wk-title { color: #FFD700; font-weight: bold; margin-bottom: 5px; }
+        .wk-req { font-size: 0.75rem; color: #ccc; margin-bottom: 10px; }
+        .wk-reward { color: #00e676; font-weight: bold; font-size: 1.1rem; }
+        
+        .btn-start { width: 100%; margin-top: 10px; padding: 5px; background: transparent; border: 1px solid #FFD700; color: #FFD700; border-radius: 5px; cursor: pointer; }
+        .btn-start:hover { background: #FFD700; color: black; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 100; }
+        .modal-content { background: #1a1a1a; padding: 25px; border-radius: 15px; border: 1px solid #FFD700; text-align: center; max-width: 300px; }
+        .back-btn { color: #888; text-decoration: none; display: block; text-align: center; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="credit-header">
+        <div>Your Credits</div>
+        <div class="credit-count" id="displayCredits">0</div>
+        <button class="btn-buy" onclick="openPayment()">Buy 5 Credits (0.40 USDT)</button>
+        <div style="font-size: 0.7rem; margin-top: 5px;">1 Credit = 1 Week Access</div>
+    </div>
+
+    <div id="statusMsg" style="text-align:center; color:red; margin-bottom:15px; display:none;"></div>
+
+    <div class="level-grid" id="weekContainer">
+        <!-- JS Generated -->
+    </div>
+
+    <a href="home.html" class="back-btn">Back to Dashboard</a>
+
+    <!-- FAKE PAYMENT MODAL -->
+    <div id="payModal" class="modal">
+        <div class="modal-content">
+            <h3 style="color:#FFD700">Activate Plan</h3>
+            <p>Send 0.40 USDT (BEP20) to activate.</p>
+            <div style="background:#333; padding:10px; font-size:0.8rem; word-break:break-all; border-radius:5px; margin:10px 0;">
+                0x1234...ABCD (Demo)
+            </div>
+            <button class="btn-buy" style="background:#FFD700; color:black;" onclick="confirmPayment()">Confirm Payment</button>
+            <button style="background:transparent; color:#fff; border:none; margin-top:10px; cursor:pointer;" onclick="closePayment()">Cancel</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+        import { getDatabase, ref, onValue, update, get } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyB2YLhAvSF12ZZx7LSnbqcCjtS2_8QLt4o", authDomain: "task-f6078.firebaseapp.com", databaseURL: "https://task-f6078-default-rtdb.firebaseio.com", projectId: "task-f6078", storageBucket: "task-f6078.firebasestorage.app", messagingSenderId: "887907470692", appId: "1:887907470692:web:c4142ac9573e19d29d3e71" };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        const levels = [
+            { id: 1, refs: 10, task: 20, reward: 120 },
+            { id: 2, refs: 20, task: 40, reward: 240 },
+            { id: 3, refs: 30, task: 60, reward: 360 },
+            { id: 4, refs: 50, task: 100, reward: 600 },
+            { id: 5, refs: 60, task: 120, reward: 720 },
+            { id: 6, refs: 70, task: 140, reward: 840 }
+        ];
+
+        let currentUid = null;
+        let userCredits = 0;
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUid = user.uid;
+                fetchData();
+            }
+        });
+
+        function fetchData() {
+            onValue(ref(db, 'users/' + currentUid), (snap) => {
+                const data = snap.val();
+                userCredits = data.weeklyCredits || 0;
+                document.getElementById('displayCredits').innerText = userCredits;
+                renderLevels(data.currentPlan);
+            });
+        }
+
+        function renderLevels(plan) {
+            const container = document.getElementById('weekContainer');
+            const statusMsg = document.getElementById('statusMsg');
+            container.innerHTML = "";
+
+            let isMonthlyActive = (plan && plan.status === 'active' && plan.type === 'monthly');
+            let isWeeklyActive = (plan && plan.status === 'active' && plan.type === 'weekly');
+
+            if(isMonthlyActive) {
+                statusMsg.style.display = 'block';
+                statusMsg.innerText = "🚫 Monthly Plan Active. Weekly plan disabled.";
+            }
+
+            levels.forEach(lvl => {
+                let lockedClass = "";
+                let btnTxt = "Start (-1 Credit)";
+                
+                if(isMonthlyActive) {
+                    lockedClass = "locked";
+                } else if(isWeeklyActive) {
+                    if(plan.level === lvl.id) {
+                        lockedClass = "active";
+                        btnTxt = "Active";
+                    } else {
+                        lockedClass = "locked";
+                    }
+                }
+
+                container.innerHTML += `
+                <div class="wk-card ${lockedClass}">
+                    <div class="wk-title">Level ${lvl.id}</div>
+                    <div class="wk-req">${lvl.refs} Refs | ${lvl.task} Tasks</div>
+                    <div class="wk-reward">${lvl.reward} TK</div>
+                    ${lockedClass === 'active' ? 
+                        `<div style="margin-top:10px; font-weight:bold; color:#FFD700;">ACTIVE</div>` : 
+                        `<button class="btn-start" onclick="startWeek(${lvl.id})">${btnTxt}</button>`
+                    }
+                </div>`;
+            });
+        }
+
+        window.openPayment = () => document.getElementById('payModal').style.display = 'flex';
+        window.closePayment = () => document.getElementById('payModal').style.display = 'none';
+
+        window.confirmPayment = () => {
+            // Simulated Payment Logic
+            update(ref(db, 'users/' + currentUid), {
+                weeklyCredits: userCredits + 5
+            }).then(() => {
+                alert("Payment Successful! 5 Credits Added.");
+                closePayment();
+            });
+        }
+
+        window.startWeek = (lvlId) => {
+            if(userCredits < 1) return alert("Insufficient Credits! Please buy credits.");
+            
+            if(!confirm(`Use 1 Credit to start Level ${lvlId} for 7 days?`)) return;
+
+            const startTime = Date.now();
+            const endTime = startTime + (7 * 24 * 60 * 60 * 1000); // 7 Days
+
+            const updates = {};
+            updates['users/' + currentUid + '/weeklyCredits'] = userCredits - 1;
+            updates['users/' + currentUid + '/currentPlan'] = {
+                type: 'weekly',
+                level: lvlId,
+                status: 'active',
+                startTime: startTime,
+                endTime: endTime
+            };
+
+            update(ref(db), updates).then(() => {
+                alert("Weekly Plan Activated!");
+            });
+        }
+    </script>
+</body>
+</html>
