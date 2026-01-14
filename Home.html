@@ -111,7 +111,6 @@
             display: flex; justify-content: center; align-items: center;
             color: #444; font-weight: bold; overflow: hidden;
         }
-        .banner-img { width: 100%; height: 100%; object-fit: cover; }
 
         /* MENU */
         .menu-grid {
@@ -136,14 +135,25 @@
 
         #pageLoader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 999; display: flex; justify-content: center; align-items: center;
+            background: #000; z-index: 999; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
             color: #d4af37; font-weight: bold; font-family: 'Orbitron', sans-serif;
         }
+        .loader-spinner {
+            border: 4px solid #333; border-top: 4px solid #d4af37;
+            border-radius: 50%; width: 40px; height: 40px;
+            animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div id="pageLoader">CONNECTING...</div>
+    <div id="pageLoader">
+        <div class="loader-spinner"></div>
+        <div>CONNECTING...</div>
+    </div>
+    
     <div class="bg-glow"></div>
 
     <div class="header">
@@ -154,7 +164,7 @@
         </div>
     </div>
 
-    <!-- Balance & Credits Display (Added) -->
+    <!-- Balance & Credits -->
     <div class="balance-section">
         <div class="bal-box">
             <div class="bal-title">WALLET BALANCE</div>
@@ -197,7 +207,6 @@
     </div>
 
     <div class="banner-container">
-        <!-- 16:9 Banner Image Area -->
         <div style="text-align:center;">
             <i class="fas fa-ad" style="font-size:2rem; margin-bottom:10px;"></i><br>
             PREMIUM BANNER
@@ -217,23 +226,33 @@
     <button class="logout-btn" onclick="auth.signOut()">LOGOUT</button>
 
     <script>
+        // Force Loader Hide after 5 seconds (Safety Net)
+        setTimeout(() => {
+            const loader = document.getElementById('pageLoader');
+            if(loader && loader.style.display !== 'none') {
+                if(confirm("Connection is slow. Reload?")) {
+                    location.reload();
+                } else {
+                    loader.style.display = 'none'; // Force hide
+                }
+            }
+        }, 8000);
+
         auth.onAuthStateChanged((user) => {
             if (user) {
                 const uid = user.uid;
                 
-                // --- DATA LISTENER ---
+                // --- FIX: Check if Data Exists ---
                 db.ref('users/' + uid).on('value', (snapshot) => {
                     const data = snapshot.val();
                     
                     if(data) {
-                        // 1. SECURITY CHECK: BANNED USER
+                        // Data Found - Load Dashboard
                         if(data.isBanned === true) {
-                            document.body.innerHTML = "<div style='display:flex;justify-content:center;align-items:center;height:100vh;background:black;color:red;font-weight:bold;text-align:center;'>ACCOUNT SUSPENDED<br>CONTACT ADMIN</div>";
-                            setTimeout(() => { auth.signOut(); window.location.href = "Login.html"; }, 3000);
-                            return;
+                            alert("ACCOUNT SUSPENDED!");
+                            auth.signOut(); return;
                         }
 
-                        // 2. Update UI
                         document.getElementById('u_name').innerText = data.name;
                         document.getElementById('u_plan').innerText = (data.plan || "Free").toUpperCase();
                         
@@ -249,12 +268,19 @@
                         document.getElementById('u_total').innerText = parseFloat(data.totalProfit || 0).toFixed(2);
                         document.getElementById('u_today').innerText = parseFloat(data.todayProfit || 0).toFixed(2);
                         
-                        // Hide Loader
+                        // HIDE LOADER SUCCESSFULLY
                         document.getElementById('pageLoader').style.display = 'none';
+                    } else {
+                        // Data Not Found (Auth exists but DB empty)
+                        alert("Database error: Profile not found. Please Register again.");
+                        auth.signOut().then(() => {
+                            window.location.href = "Registration.html";
+                        });
                     }
                 });
 
             } else {
+                // Not Logged In
                 window.location.href = 'Login.html';
             }
         });
