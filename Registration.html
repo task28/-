@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TASK28 - Register</title>
+    <title>TASK28 - Join Us</title>
 
     <!-- Google Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
@@ -40,7 +40,7 @@
             align-items: center;
             font-family: 'Montserrat', sans-serif;
             color: #fff;
-            padding: 20px 0; /* Extra padding for scrolling on mobile */
+            padding: 20px 0;
         }
 
         .bg-glow {
@@ -70,7 +70,6 @@
         }
         .sub-text { color: #888; font-size: 0.85rem; letter-spacing: 1px; margin-top: 5px; }
 
-        /* Inputs */
         .input-group { position: relative; margin-bottom: 15px; }
         .input-group i.icon {
             position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
@@ -83,16 +82,13 @@
             transition: 0.3s;
         }
         .form-control:focus { border-color: #d4af37; box-shadow: 0 0 8px rgba(212, 175, 55, 0.2); }
-        .form-control::placeholder { color: #555; }
-
-        /* Password Toggle */
+        
         .toggle-pass {
             position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
             color: #666; cursor: pointer; transition: 0.3s;
         }
         .toggle-pass:hover { color: #d4af37; }
 
-        /* Button */
         .btn-reg {
             width: 100%; padding: 15px; margin-top: 10px;
             background: linear-gradient(45deg, #b8860b, #d4af37, #f1c40f, #b8860b);
@@ -161,6 +157,7 @@
     </div>
 
     <script>
+        // Toggle Password Visibility
         function togglePass(fieldId, icon) {
             const input = document.getElementById(fieldId);
             if (input.type === "password") {
@@ -176,76 +173,80 @@
             }
         }
 
+        // --- MAIN REGISTRATION LOGIC WITH BONUS ---
         function handleRegister() {
             const name = document.getElementById('name').value;
             const email = document.getElementById('email').value;
             const pass = document.getElementById('pass').value;
             const cpass = document.getElementById('cpass').value;
             const refCode = document.getElementById('refCode').value;
-            const bonusCode = document.getElementById('bonusCode').value;
-            const errorMsg = document.getElementById('errorMsg');
+            const bonusCode = document.getElementById('bonusCode').value.trim().toUpperCase();
+            
             const btn = document.querySelector('.btn-reg');
+            const errDiv = document.getElementById('errorMsg');
 
-            // Validation
-            if(!name || !email || !pass || !cpass) {
-                showError("Please fill in all required fields.");
-                return;
-            }
-            if(pass !== cpass) {
-                showError("Passwords do not match.");
-                return;
-            }
-            if(pass.length < 6) {
-                showError("Password must be at least 6 characters.");
-                return;
-            }
+            // 1. Basic Validation
+            if(!name || !email || !pass || !cpass) { showError("Fill all fields."); return; }
+            if(pass !== cpass) { showError("Passwords do not match."); return; }
+            if(pass.length < 6) { showError("Password must be 6+ chars."); return; }
 
-            // Start Loading
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> CREATING ID...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> VERIFYING...';
             btn.style.opacity = "0.7";
 
-            auth.createUserWithEmailAndPassword(email, pass)
-                .then((cred) => {
-                    const uid = cred.user.uid;
-                    const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-                    // Generate Unique Ref Code for this user
-                    const myRefCode = "TASK" + Math.floor(100000 + Math.random() * 900000);
+            // 2. Bonus Code Check
+            db.ref('bonusCodes/' + bonusCode).once('value').then(snap => {
+                
+                let startBalance = 0;
+                let startCredit = 0;
 
-                    // User Data Object
-                    const userData = {
+                // If user entered a code, check validity
+                if(bonusCode !== "") {
+                    if(snap.exists()) {
+                        const bData = snap.val();
+                        if(bData.type === 'balance') startBalance = parseFloat(bData.amount);
+                        if(bData.type === 'credit') startCredit = parseInt(bData.amount);
+                    } else {
+                        showError("Invalid Bonus Code! Clear it or use a valid one.");
+                        btn.innerHTML = 'REGISTER NOW';
+                        btn.style.opacity = "1";
+                        return; // Stop Registration
+                    }
+                }
+
+                // 3. Create Firebase Auth User
+                auth.createUserWithEmailAndPassword(email, pass).then((cred) => {
+                    const uid = cred.user.uid;
+                    const myRefCode = "TASK" + Math.floor(100000 + Math.random() * 900000);
+                    const today = new Date().toISOString().split('T')[0];
+
+                    // 4. Save User Data
+                    db.ref('users/' + uid).set({
                         name: name,
                         email: email,
-                        password: pass, // Storing password as requested
+                        password: pass,
                         uid: uid,
-                        balance: 0,
+                        balance: startBalance,   // Bonus Added
+                        credits: startCredit,    // Bonus Added
                         todayProfit: 0,
                         totalProfit: 0,
                         teamCount: 0,
                         partnerCount: 0,
-                        regDate: date,
+                        regDate: today,
                         myRefCode: myRefCode,
-                        referredBy: refCode || "admin",
-                        plan: "free", // monthly / weekly / free
-                        credits: 0 // Weekly credit balance
-                    };
-
-                    // Save to Database
-                    db.ref('users/' + uid).set(userData).then(() => {
-                        // Check Bonus Code Logic (Example)
-                        if(bonusCode === "TASK28BONUS") {
-                            db.ref('users/' + uid).update({ balance: 2 }); // $2 Bonus
-                        }
-
-                        // Success Redirect
-                        alert("Account Created Successfully!");
+                        referredBy: refCode || "none",
+                        plan: "free",
+                        isBanned: false
+                    }).then(() => {
+                        alert("Account Created Successfully! Welcome.");
                         window.location.href = "Home.html";
                     });
-                })
-                .catch((error) => {
-                    btn.innerHTML = "REGISTER NOW";
-                    btn.style.opacity = "1";
+
+                }).catch((error) => {
                     showError(error.message);
+                    btn.innerHTML = 'REGISTER NOW';
+                    btn.style.opacity = "1";
                 });
+            });
         }
 
         function showError(msg) {
@@ -254,6 +255,5 @@
             el.style.display = 'block';
         }
     </script>
-
 </body>
 </html>
