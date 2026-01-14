@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TASK28 - Weekly Plan</title>
+    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -33,14 +35,25 @@
         .apply-btn { width: 100%; padding: 18px; margin-top: 30px; background: linear-gradient(45deg, #d4af37, #b8860b); border: none; border-radius: 10px; color: #000; font-weight: 800; cursor: pointer; }
         .apply-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
 
+        /* MODAL CSS */
         #buyModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 999; display: none; justify-content: center; align-items: center; }
-        .modal-content { background: #1a1a1a; padding: 25px; border-radius: 15px; border: 1px solid #d4af37; width: 90%; max-width: 400px; }
-        .copy-box { background: #000; padding: 10px; color: #d4af37; font-family: monospace; border: 1px dashed #555; word-break: break-all; margin: 10px 0; cursor: pointer; }
-        .inp-field { width: 100%; padding: 10px; margin: 5px 0 15px; background: #222; border: 1px solid #444; color: #fff; outline: none; }
-        .submit-req-btn { width: 100%; background: #27ae60; color: #fff; padding: 10px; border: none; font-weight: bold; cursor: pointer; }
+        .modal-content { background: #1a1a1a; padding: 25px; border-radius: 15px; border: 1px solid #d4af37; width: 90%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
         
-        .bonus-badge { background: #d4af37; color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-left: 5px; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+        .copy-box { background: #000; padding: 10px; color: #d4af37; font-family: monospace; border: 1px dashed #555; word-break: break-all; margin: 5px 0 15px; cursor: pointer; text-align: center; }
+        .inp-field { width: 100%; padding: 12px; margin: 5px 0 15px; background: #222; border: 1px solid #444; color: #fff; outline: none; border-radius: 5px; }
+        
+        /* PACKAGE OPTION */
+        .pkg-option { 
+            background: #111; border: 1px solid #333; padding: 12px; margin-bottom: 10px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s;
+        }
+        .pkg-option:hover { border-color: #aaa; }
+        .pkg-option.selected { border-color: #d4af37; background: rgba(212, 175, 55, 0.1); }
+        
+        .pkg-info div:first-child { font-weight: bold; color: #fff; }
+        .pkg-info div:last-child { font-size: 0.8rem; color: #2ecc71; }
+        .old-price { text-decoration: line-through; color: #666; font-size: 0.8rem; margin-right: 5px; }
+
+        .submit-req-btn { width: 100%; background: #27ae60; color: #fff; padding: 12px; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -60,63 +73,49 @@
     </div>
 
     <div class="levels-container">
-        <div class="level-card">
-            <div class="lvl-header"><span>LEVEL 1</span> <span style="color:#d4af37">$1.20</span></div>
-            <div class="lvl-req">10 Ref • 20 Task</div>
-        </div>
-        <div class="level-card">
-            <div class="lvl-header"><span>LEVEL 2</span> <span style="color:#d4af37">$2.40</span></div>
-            <div class="lvl-req">20 Ref • 40 Task</div>
-        </div>
-        <div class="level-card">
-            <div class="lvl-header"><span>LEVEL 3</span> <span style="color:#d4af37">$3.60</span></div>
-            <div class="lvl-req">30 Ref • 60 Task</div>
-        </div>
-        <div class="level-card">
-            <div class="lvl-header"><span>LEVEL 4</span> <span style="color:#d4af37">$4.80</span></div>
-            <div class="lvl-req">40 Ref • 80 Task</div>
-        </div>
-        <div class="level-card">
-            <div class="lvl-header"><span>LEVEL 5</span> <span style="color:#d4af37">$9.00</span></div>
-            <div class="lvl-req">100 Ref • 150 Task</div>
-        </div>
-        <div class="level-card" style="border-left-color: #d4af37;">
-            <div class="lvl-header"><span>LEVEL 6</span> <span style="color:#d4af37">$21.00</span></div>
-            <div class="lvl-req">200 Ref • 350 Task</div>
-        </div>
+        <div class="level-card"><div class="lvl-header"><span>LEVEL 1</span> <span style="color:#d4af37">$1.20</span></div><div class="lvl-req">10 Ref • 20 Task</div></div>
+        <div class="level-card"><div class="lvl-header"><span>LEVEL 2</span> <span style="color:#d4af37">$2.40</span></div><div class="lvl-req">20 Ref • 40 Task</div></div>
+        <div class="level-card"><div class="lvl-header"><span>LEVEL 3</span> <span style="color:#d4af37">$3.60</span></div><div class="lvl-req">30 Ref • 60 Task</div></div>
+        <div class="level-card"><div class="lvl-header"><span>LEVEL 4</span> <span style="color:#d4af37">$4.80</span></div><div class="lvl-req">40 Ref • 80 Task</div></div>
+        <div class="level-card"><div class="lvl-header"><span>LEVEL 5</span> <span style="color:#d4af37">$9.00</span></div><div class="lvl-req">100 Ref • 150 Task</div></div>
+        <div class="level-card" style="border-left-color: #d4af37;"><div class="lvl-header"><span>LEVEL 6 (PREM)</span> <span style="color:#d4af37">$21.00</span></div><div class="lvl-req">200 Ref • 350 Task</div></div>
     </div>
 
     <button id="mainBtn" class="apply-btn" onclick="applyWeekly()">ACTIVATE WEEKLY PLAN</button>
     <p style="text-align:center; color:#555; font-size:0.8rem; margin-top:10px;">Cost: 3 Credits ($0.60)</p>
 
+    <!-- BUY MODAL -->
     <div id="buyModal">
         <div class="modal-content">
-            <h3 style="color:#d4af37; text-align:center;">BUY CREDITS</h3>
+            <h3 style="color:#d4af37; text-align:center; margin-bottom:15px;">SELECT PACKAGE</h3>
             
-            <div id="rateDisplay" style="text-align:center; margin: 10px 0; color: #fff;">
-                Loading Rates...
+            <!-- Dynamic Packages -->
+            <div id="packageContainer">
+                <p style="text-align:center; color:#666;">Loading Packages...</p>
             </div>
 
-            <p style="color:#aaa; font-size:0.8rem; text-align:center;">1. Send USDT (BEP20) to:</p>
-            <div class="copy-box" onclick="navigator.clipboard.writeText(this.innerText); alert('Copied!')">
-                0xDcAdeDd096528235B05D42321e882e1a10932A8b
+            <div style="margin-top:20px; border-top:1px solid #333; padding-top:15px;">
+                <p style="color:#aaa; font-size:0.8rem; text-align:center;">1. Send Amount to:</p>
+                <div class="copy-box" onclick="navigator.clipboard.writeText(this.innerText); alert('Copied!')">
+                    0xDcAdeDd096528235B05D42321e882e1a10932A8b
+                </div>
+
+                <label style="font-size:0.8rem; color:#ccc;">2. Paste Your Sender Address:</label>
+                <input type="text" id="senderAddr" class="inp-field" placeholder="Wallet Address">
+
+                <button class="submit-req-btn" onclick="submitCreditRequest()">I SENT PAYMENT</button>
+                <button style="width:100%; background:transparent; color:#888; border:none; margin-top:10px; cursor:pointer;" onclick="document.getElementById('buyModal').style.display='none'">CANCEL</button>
             </div>
-            
-            <p style="color:#aaa; font-size:0.8rem; text-align:center; margin-bottom:10px;">2. Fill details below</p>
-            <label style="font-size:0.8rem; color:#ccc;">Amount Sent ($)</label>
-            <input type="number" id="sentAmount" class="inp-field" placeholder="e.g. 2">
-            <label style="font-size:0.8rem; color:#ccc;">Your Sender Address</label>
-            <input type="text" id="senderAddr" class="inp-field" placeholder="Paste your wallet address">
-            <button class="submit-req-btn" onclick="submitCreditRequest()">SUBMIT REQUEST</button>
-            <button style="width:100%; background:transparent; color:#888; border:none; margin-top:10px; cursor:pointer;" onclick="document.getElementById('buyModal').style.display='none'">CANCEL</button>
         </div>
     </div>
 
     <script>
         let userCredits = 0;
+        let selectedPackage = null;
 
         auth.onAuthStateChanged(user => {
             if(user) {
+                // Get User Data
                 db.ref('users/' + user.uid).on('value', snap => {
                     const data = snap.val();
                     userCredits = data.credits || 0;
@@ -128,29 +127,69 @@
                     }
                 });
 
-                db.ref('adminSettings/creditRules').on('value', snap => {
-                    const rules = snap.val() || { rate: 5, bonus: 0 };
-                    let html = `<span style="color:#2ecc71; font-weight:bold;">$1 = ${rules.rate} Credits</span>`;
-                    if(rules.bonus > 0) html += `<span class="bonus-badge">+${rules.bonus}% BONUS</span>`;
-                    document.getElementById('rateDisplay').innerHTML = html;
+                // Get Packages
+                db.ref('adminSettings/packages').on('value', snap => {
+                    const container = document.getElementById('packageContainer');
+                    container.innerHTML = "";
+                    
+                    if(!snap.exists()) {
+                        container.innerHTML = "<p style='text-align:center; color:#666'>No packages available.</p>"; return;
+                    }
+
+                    snap.forEach(child => {
+                        const data = child.val();
+                        
+                        const div = document.createElement('div');
+                        div.className = "pkg-option";
+                        div.innerHTML = `
+                            <div class="pkg-info">
+                                <div>${data.credits} Credits</div>
+                                <div><span class="old-price">$${data.basePrice}</span> $${data.finalPrice}</div>
+                            </div>
+                            <div style="font-size:0.8rem; background:#222; padding:3px 6px; border-radius:4px;">${data.discount}% OFF</div>
+                        `;
+                        div.onclick = () => selectPackage(div, data);
+                        container.appendChild(div);
+                    });
                 });
             } else {
                 window.location.href = 'Login.html';
             }
         });
 
-        function openBuyModal() { document.getElementById('buyModal').style.display = 'flex'; }
-        function submitCreditRequest() {
-            const amount = document.getElementById('sentAmount').value;
-            const sender = document.getElementById('senderAddr').value;
-            if(!amount || !sender) return alert("Fill all fields");
-            db.ref('credit_requests').push({ uid: auth.currentUser.uid, amount: amount, senderAddress: sender, status: 'pending', date: new Date().toISOString() }).then(() => { alert("Request Submitted!"); document.getElementById('buyModal').style.display = 'none'; });
+        function selectPackage(el, data) {
+            document.querySelectorAll('.pkg-option').forEach(d => d.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedPackage = data;
         }
+
+        function openBuyModal() { document.getElementById('buyModal').style.display = 'flex'; }
+
+        function submitCreditRequest() {
+            if(!selectedPackage) return alert("Please Select a Package first!");
+            const sender = document.getElementById('senderAddr').value;
+            if(!sender) return alert("Enter Sender Address");
+
+            const uid = auth.currentUser.uid;
+            db.ref('credit_requests').push({
+                uid: uid,
+                credits: selectedPackage.credits,
+                pricePaid: selectedPackage.finalPrice,
+                senderAddress: sender,
+                status: 'pending',
+                date: new Date().toISOString()
+            }).then(() => {
+                alert("Request Submitted! Admin will verify.");
+                document.getElementById('buyModal').style.display = 'none';
+            });
+        }
+
         function applyWeekly() {
-            if(userCredits < 3) { alert("Insufficient Credits! (Need 3)"); openBuyModal(); return; }
+            if(userCredits < 3) { alert("Insufficient Credits! Need 3 Credits."); openBuyModal(); return; }
             if(confirm("Activate Weekly Plan for 3 Credits?")) {
-                db.ref('users/' + auth.currentUser.uid).update({ credits: userCredits - 3 });
-                db.ref('weekly_requests/' + auth.currentUser.uid).set({ uid: auth.currentUser.uid, status: 'pending', requestTime: Date.now(), type: 'weekly' });
+                const uid = auth.currentUser.uid;
+                db.ref('users/' + uid).update({ credits: userCredits - 3 });
+                db.ref('weekly_requests/' + uid).set({ uid: uid, status: 'pending', requestTime: Date.now(), type: 'weekly' });
                 alert("Request Sent to Admin!");
             }
         }
