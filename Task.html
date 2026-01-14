@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TASK28 - Daily Task</title>
+
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDR38gO9SBcE3qcVvFHlpyE5YdEqo0n2XU",
+            authDomain: "task38-f7daa.firebaseapp.com",
+            databaseURL: "https://task38-f7daa-default-rtdb.firebaseio.com",
+            projectId: "task38-f7daa",
+            storageBucket: "task38-f7daa.firebasestorage.app",
+            messagingSenderId: "655282407518",
+            appId: "1:655282407518:web:637dd6ac82b6c5e6018ccf"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #050505; color: #fff; font-family: 'Montserrat', sans-serif;
+            padding: 20px; min-height: 100vh;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 15px;
+        }
+        .back-btn { color: #d4af37; font-size: 1.5rem; cursor: pointer; }
+        .page-title { font-size: 1.2rem; font-weight: 700; letter-spacing: 2px; color: #d4af37; }
+
+        /* CARDS */
+        .task-card {
+            background: rgba(20, 20, 20, 0.9);
+            border: 1px solid #333; border-radius: 15px;
+            padding: 25px; margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            display: none; /* Hidden by default, shown via JS */
+        }
+        .active-card { display: block; animation: fadeIn 0.5s; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 { font-size: 1.1rem; margin-bottom: 10px; color: #fff; }
+        p { color: #888; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5; }
+
+        /* BUTTONS */
+        .btn-gold {
+            width: 100%; padding: 15px;
+            background: linear-gradient(45deg, #d4af37, #f1c40f);
+            border: none; border-radius: 8px;
+            color: #000; font-weight: 800; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+            transition: 0.3s;
+        }
+        .btn-gold:hover { transform: scale(1.02); }
+
+        /* DATA DISPLAY BOXES */
+        .data-row {
+            background: #111; padding: 12px; margin-bottom: 10px;
+            border-radius: 8px; border: 1px dashed #444;
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; transition: 0.2s;
+        }
+        .data-row:hover { border-color: #d4af37; background: #1a1a1a; }
+        .data-label { color: #888; font-size: 0.8rem; }
+        .data-val { color: #fff; font-weight: 600; font-family: monospace; }
+        .copy-icon { color: #d4af37; }
+
+        /* TIMER */
+        .timer-box {
+            text-align: center; margin: 20px 0;
+            background: #000; padding: 15px; border-radius: 10px;
+            border: 2px solid #a31515;
+        }
+        .timer-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem; color: #ff4d4d; text-shadow: 0 0 10px red;
+        }
+        .timer-label { font-size: 0.8rem; color: #aaa; letter-spacing: 2px; }
+
+        /* INPUTS */
+        input {
+            width: 100%; padding: 12px; margin-bottom: 10px;
+            background: #0a0a0a; border: 1px solid #333;
+            color: #fff; border-radius: 5px; outline: none;
+        }
+        input:focus { border-color: #d4af37; }
+
+        /* STATUS BADGES */
+        .badge {
+            display: inline-block; padding: 5px 10px; border-radius: 5px;
+            font-size: 0.8rem; font-weight: bold; text-transform: uppercase;
+        }
+        .badge-pending { background: #333; color: #aaa; }
+        .badge-review { background: #0984e3; color: white; }
+        .badge-success { background: #00b894; color: black; }
+        .badge-failed { background: #d63031; color: white; }
+
+        /* Loader */
+        .loader { width: 30px; height: 30px; border: 3px solid #333; border-top: 3px solid #d4af37; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <i class="fas fa-chevron-left back-btn" onclick="window.location.href='Home.html'"></i>
+        <div class="page-title">TASK MANAGER</div>
+        <div></div> <!-- Spacer -->
+    </div>
+
+    <!-- VIEW 1: APPLY START -->
+    <div id="view_apply" class="task-card">
+        <h2 style="color: #d4af37;"><i class="fas fa-rocket"></i> APPLY FOR NEW TASK</h2>
+        <p>Click below to request a Gmail Creation Task. Admin will review and send you details within 5 minutes.</p>
+        <div style="background: #111; padding: 10px; border-radius: 5px; margin-bottom: 20px; font-size: 0.85rem; border-left: 3px solid #d4af37;">
+            <i class="fas fa-info-circle"></i> <strong>Note:</strong> You must complete the task within 13 minutes after receiving data.
+        </div>
+        <button class="btn-gold" onclick="applyForTask()">REQUEST TASK NOW</button>
+    </div>
+
+    <!-- VIEW 2: WAITING FOR ADMIN -->
+    <div id="view_waiting" class="task-card" style="text-align: center; padding: 40px;">
+        <div class="loader"></div>
+        <h3 style="margin-top: 20px; color: #d4af37;">WAITING FOR ADMIN...</h3>
+        <p>Please wait. Admin is assigning data for your task.<br>Do not close this page.</p>
+        <span class="badge badge-pending">STATUS: PENDING</span>
+    </div>
+
+    <!-- VIEW 3: ACTIVE WORK SPACE -->
+    <div id="view_work" class="task-card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin: 0;">YOUR DATA IS HERE</h2>
+            <span class="badge badge-success">ACTIVE</span>
+        </div>
+        
+        <!-- Timer -->
+        <div class="timer-box">
+            <div class="timer-label">TIME REMAINING</div>
+            <div class="timer-text" id="timerDisplay">13:00</div>
+        </div>
+
+        <p style="font-size: 0.8rem; text-align: center;">Click on boxes to copy details</p>
+
+        <!-- Data Fields -->
+        <div class="data-row" onclick="copyToClipboard('d_fname')">
+            <div><span class="data-label">First Name:</span> <span id="d_fname" class="data-val">...</span></div>
+            <i class="fas fa-copy copy-icon"></i>
+        </div>
+        <div class="data-row" onclick="copyToClipboard('d_lname')">
+            <div><span class="data-label">Last Name:</span> <span id="d_lname" class="data-val">...</span></div>
+            <i class="fas fa-copy copy-icon"></i>
+        </div>
+        <div class="data-row" onclick="copyToClipboard('d_dob')">
+            <div><span class="data-label">DOB:</span> <span id="d_dob" class="data-val">...</span></div>
+            <i class="fas fa-copy copy-icon"></i>
+        </div>
+        <div class="data-row" onclick="copyToClipboard('d_rec')">
+            <div><span class="data-label">Recovery:</span> <span id="d_rec" class="data-val">...</span></div>
+            <i class="fas fa-copy copy-icon"></i>
+        </div>
+        <div class="data-row" onclick="copyToClipboard('d_pass')">
+            <div><span class="data-label">Password:</span> <span id="d_pass" class="data-val">...</span></div>
+            <i class="fas fa-copy copy-icon"></i>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
+
+        <h3>SUBMIT WORK</h3>
+        <input type="email" id="sub_email" placeholder="Paste Created Gmail Address">
+        <input type="text" id="sub_pass" placeholder="Confirm Password Used">
+        <button class="btn-gold" onclick="submitWork()">SUBMIT TASK</button>
+    </div>
+
+    <!-- VIEW 4: UNDER REVIEW -->
+    <div id="view_review" class="task-card" style="text-align: center;">
+        <i class="fas fa-check-circle" style="font-size: 3rem; color: #0984e3; margin-bottom: 15px;"></i>
+        <h2>SUBMITTED SUCCESSFULLY</h2>
+        <p>Admin is checking your work. If valid, balance will be added.</p>
+        <span class="badge badge-review">UNDER REVIEW</span>
+    </div>
+
+    <!-- VIEW 5: FAILED/EXPIRED -->
+    <div id="view_failed" class="task-card" style="text-align: center;">
+        <i class="fas fa-times-circle" style="font-size: 3rem; color: #d63031; margin-bottom: 15px;"></i>
+        <h2 style="color: #d63031;">TASK FAILED</h2>
+        <p>Time expired or Admin rejected your work.</p>
+        <button class="btn-gold" style="background: #333; color: #fff;" onclick="resetTask()">TRY AGAIN</button>
+    </div>
+
+    <script>
+        let timerInterval;
+
+        // Check Auth
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                initTaskListener(user.uid);
+            } else {
+                window.location.href = 'Login.html';
+            }
+        });
+
+        // Realtime Listener
+        function initTaskListener(uid) {
+            db.ref('tasks/' + uid).on('value', snapshot => {
+                const data = snapshot.val();
+                
+                // Hide All Views First
+                document.querySelectorAll('.task-card').forEach(el => el.classList.remove('active-card'));
+
+                if (!data) {
+                    // No task yet
+                    document.getElementById('view_apply').classList.add('active-card');
+                } else {
+                    // Check Status
+                    if (data.status === 'pending') {
+                        document.getElementById('view_waiting').classList.add('active-card');
+                    
+                    } else if (data.status === 'active') {
+                        document.getElementById('view_work').classList.add('active-card');
+                        // Fill Data
+                        document.getElementById('d_fname').innerText = data.adminData.fname;
+                        document.getElementById('d_lname').innerText = data.adminData.lname;
+                        document.getElementById('d_dob').innerText = data.adminData.dob;
+                        document.getElementById('d_rec').innerText = data.adminData.recovery;
+                        document.getElementById('d_pass').innerText = data.adminData.pass;
+                        // Start Timer
+                        runTimer(data.startTime);
+                    
+                    } else if (data.status === 'review') {
+                        document.getElementById('view_review').classList.add('active-card');
+                        clearInterval(timerInterval);
+                    
+                    } else if (data.status === 'failed' || data.status === 'rejected') {
+                        document.getElementById('view_failed').classList.add('active-card');
+                        clearInterval(timerInterval);
+                    
+                    } else if (data.status === 'completed') {
+                        alert("Task Approved! Payment Received.");
+                        db.ref('tasks/' + uid).remove(); // Clear task so he can apply again
+                    }
+                }
+            });
+        }
+
+        // Apply Function
+        function applyForTask() {
+            const uid = auth.currentUser.uid;
+            db.ref('tasks/' + uid).set({
+                uid: uid,
+                status: 'pending',
+                reqTime: Date.now()
+            });
+        }
+
+        // Timer Logic
+        function runTimer(startTime) {
+            const duration = 13 * 60 * 1000; // 13 Minutes
+            clearInterval(timerInterval);
+
+            timerInterval = setInterval(() => {
+                const now = Date.now();
+                const elapsed = now - startTime;
+                const remaining = duration - elapsed;
+
+                if (remaining <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('timerDisplay').innerText = "EXPIRED";
+                    failTask();
+                } else {
+                    const m = Math.floor(remaining / 60000);
+                    const s = Math.floor((remaining % 60000) / 1000);
+                    document.getElementById('timerDisplay').innerText = 
+                        `${m}:${s < 10 ? '0' : ''}${s}`;
+                }
+            }, 1000);
+        }
+
+        function failTask() {
+            const uid = auth.currentUser.uid;
+            db.ref('tasks/' + uid).update({ status: 'failed' });
+        }
+
+        // Submit Function
+        function submitWork() {
+            const email = document.getElementById('sub_email').value;
+            const pass = document.getElementById('sub_pass').value;
+
+            if(!email || !pass) { alert("Please fill both fields!"); return; }
+
+            const uid = auth.currentUser.uid;
+            db.ref('tasks/' + uid).update({
+                status: 'review',
+                userSubmission: { email: email, pass: pass }
+            });
+        }
+
+        // Copy Helper
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            if(text === "...") return;
+            navigator.clipboard.writeText(text).then(() => {
+                // Visual feedback
+                const el = document.getElementById(elementId).parentElement.parentElement;
+                const originalBg = el.style.background;
+                el.style.background = "#d4af37";
+                setTimeout(() => { el.style.background = "#111"; }, 200);
+            });
+        }
+
+        function resetTask() {
+            const uid = auth.currentUser.uid;
+            db.ref('tasks/' + uid).remove();
+        }
+    </script>
+</body>
+</html>
