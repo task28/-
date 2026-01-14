@@ -6,7 +6,7 @@
     <title>TASK28 - Dashboard</title>
 
     <!-- Google Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <!-- FIREBASE SDK -->
@@ -33,14 +33,11 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background: #050505;
-            color: #fff;
+            background: #050505; color: #fff;
             font-family: 'Montserrat', sans-serif;
-            padding-bottom: 80px; /* Space for scrolling */
-            overflow-x: hidden;
+            padding-bottom: 80px; overflow-x: hidden;
         }
 
-        /* Gold Glow Background */
         .bg-glow {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at 50% 10%, #d4af37 0%, transparent 40%);
@@ -49,37 +46,28 @@
 
         /* HEADER */
         .header {
-            background: rgba(20, 20, 20, 0.9);
-            padding: 20px;
+            background: rgba(20, 20, 20, 0.95);
+            padding: 15px 20px;
             border-bottom: 1px solid rgba(212, 175, 55, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            backdrop-filter: blur(10px);
-            position: sticky; top: 0; z-index: 100;
+            display: flex; align-items: center; gap: 15px;
+            backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100;
         }
-
-        .user-info { display: flex; align-items: center; gap: 15px; }
         
         .avatar {
-            width: 50px; height: 50px;
+            width: 55px; height: 55px;
             background: linear-gradient(45deg, #d4af37, #b8860b);
-            border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 1.5rem; color: #000;
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            font-size: 1.5rem; color: #000; box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
         }
 
-        .user-text h3 { font-size: 1.1rem; font-weight: 700; color: #d4af37; }
+        .user-text { flex: 1; }
+        .user-text h3 { font-size: 1rem; font-weight: 700; color: #d4af37; margin-bottom: 3px; }
         .user-text p { font-size: 0.8rem; color: #aaa; }
 
-        /* PROFILE DETAILS CARD */
+        /* PROFILE CARD */
         .profile-card {
-            margin: 20px;
-            padding: 20px;
-            background: #111;
-            border-radius: 15px;
-            border: 1px solid #333;
+            margin: 20px; padding: 20px;
+            background: #111; border-radius: 15px; border: 1px solid #333;
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
 
@@ -89,204 +77,169 @@
         }
         .profile-row:last-child { border-bottom: none; }
         
-        .p-label { color: #888; font-size: 0.9rem; }
-        .p-value { font-family: monospace; font-size: 1rem; color: #fff; cursor: pointer; transition: 0.3s; }
-        
-        .blur-effect { filter: blur(5px); user-select: none; }
-        .p-value:hover { color: #d4af37; }
+        .p-label { color: #888; font-size: 0.85rem; }
+        .p-value { font-family: monospace; font-size: 0.95rem; color: #fff; cursor: pointer; transition: 0.3s; }
+        .blur-effect { filter: blur(4px); user-select: none; }
+        .p-value:hover { color: #d4af37; filter: blur(0); }
+
+        /* LIVE BALANCE & CREDITS */
+        .balance-section {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 0 20px 20px;
+        }
+        .bal-box {
+            background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
+            padding: 15px; border-radius: 12px; border: 1px solid #d4af37; text-align: center;
+        }
+        .bal-title { font-size: 0.7rem; color: #aaa; text-transform: uppercase; }
+        .bal-num { font-size: 1.2rem; font-weight: 800; color: #fff; margin-top: 5px; font-family: 'Orbitron', sans-serif; }
 
         /* STATS GRID */
         .stats-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
-            padding: 0 20px; margin-bottom: 20px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 20px 20px;
         }
-
         .stat-box {
-            background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
-            padding: 15px; border-radius: 12px;
-            text-align: center; border: 1px solid #333;
-            transition: 0.3s;
+            background: #111; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #333;
         }
-        .stat-box:hover { border-color: #d4af37; transform: translateY(-3px); }
+        .stat-title { font-size: 0.7rem; color: #666; text-transform: uppercase; }
+        .stat-val { font-size: 1.1rem; font-weight: bold; color: #d4af37; margin-top: 5px; }
 
-        .stat-title { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-        .stat-num { font-size: 1.4rem; font-weight: 800; color: #d4af37; margin-top: 5px; }
-
-        /* BANNER (16:9) */
+        /* BANNER */
         .banner-container {
             width: calc(100% - 40px); margin: 0 auto 20px;
-            aspect-ratio: 16/9;
-            background: #222;
-            border-radius: 15px;
-            border: 2px solid #d4af37;
-            overflow: hidden;
+            aspect-ratio: 16/9; background: #1a1a1a;
+            border-radius: 12px; border: 1px solid #333;
             display: flex; justify-content: center; align-items: center;
-            position: relative;
+            color: #444; font-weight: bold; overflow: hidden;
         }
-        
-        .banner-text {
-            color: rgba(212, 175, 55, 0.3); font-weight: 800; font-size: 1.5rem;
-            z-index: 1;
-        }
-        
-        /* Optional: Image styling if you add a real image later */
-        .banner-img { width: 100%; height: 100%; object-fit: cover; position: absolute; }
+        .banner-img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* MENU GRID */
+        /* MENU */
         .menu-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
-            padding: 0 20px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 20px;
         }
-
         .menu-btn {
-            background: #111;
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            text-decoration: none;
-            color: white;
-            border: 1px solid #333;
-            transition: 0.3s;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 10px;
+            background: #111; padding: 20px; border-radius: 12px;
+            text-align: center; text-decoration: none; color: white; border: 1px solid #333;
+            transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 10px;
         }
-
-        .menu-btn i { font-size: 2rem; color: #d4af37; }
-        .menu-btn span { font-weight: 600; font-size: 0.9rem; }
-
-        .menu-btn:hover {
-            background: #d4af37; color: #000; border-color: #d4af37;
-        }
+        .menu-btn i { font-size: 1.8rem; color: #d4af37; }
+        .menu-btn span { font-weight: 600; font-size: 0.85rem; }
+        .menu-btn:hover { background: #d4af37; color: #000; }
         .menu-btn:hover i { color: #000; }
 
-        /* LOGOUT */
         .logout-btn {
             display: block; width: calc(100% - 40px); margin: 30px auto;
-            padding: 15px;
-            background: #a31515;
-            color: white;
-            border: none; border-radius: 10px;
-            font-weight: 700; cursor: pointer;
-            text-transform: uppercase; letter-spacing: 2px;
-            transition: 0.3s;
+            padding: 15px; background: #a31515; color: white;
+            border: none; border-radius: 10px; font-weight: 700; cursor: pointer;
+            text-transform: uppercase;
         }
-        .logout-btn:hover { background: #ff4d4d; }
 
-        /* Loading Overlay */
         #pageLoader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 999;
-            display: flex; justify-content: center; align-items: center;
-            color: #d4af37; font-weight: bold;
+            background: #000; z-index: 999; display: flex; justify-content: center; align-items: center;
+            color: #d4af37; font-weight: bold; font-family: 'Orbitron', sans-serif;
         }
     </style>
 </head>
 <body>
 
-    <div id="pageLoader">LOADING DASHBOARD...</div>
+    <div id="pageLoader">CONNECTING...</div>
     <div class="bg-glow"></div>
 
-    <!-- HEADER -->
     <div class="header">
-        <div class="user-info">
-            <div class="avatar"><i class="fas fa-user-astronaut"></i></div>
-            <div class="user-text">
-                <h3 id="u_name">Loading...</h3>
-                <p>Plan: <span id="u_plan" style="color:#d4af37">Free</span></p>
-            </div>
-        </div>
-        <div>
-            <i class="fas fa-bell" style="color:#d4af37; font-size:1.2rem;"></i>
+        <div class="avatar"><i class="fas fa-user-astronaut"></i></div>
+        <div class="user-text">
+            <h3 id="u_name">Loading...</h3>
+            <p>Plan: <span id="u_plan" style="color:#d4af37">Checking...</span></p>
         </div>
     </div>
 
-    <!-- PROFILE INFO (Hide/Show) -->
+    <!-- Balance & Credits Display (Added) -->
+    <div class="balance-section">
+        <div class="bal-box">
+            <div class="bal-title">WALLET BALANCE</div>
+            <div class="bal-num">$<span id="u_balance">0.00</span></div>
+        </div>
+        <div class="bal-box">
+            <div class="bal-title">AVAILABLE CREDITS</div>
+            <div class="bal-num"><span id="u_credits">0</span> Cr</div>
+        </div>
+    </div>
+
     <div class="profile-card">
         <div class="profile-row">
-            <span class="p-label">Registered Date</span>
-            <span class="p-value blur-effect" onclick="toggleBlur(this)" id="u_date">...</span>
+            <span class="p-label">Registered</span>
+            <span class="p-value blur-effect" onclick="this.classList.toggle('blur-effect')" id="u_date">...</span>
         </div>
         <div class="profile-row">
             <span class="p-label">User UID</span>
-            <span class="p-value blur-effect" onclick="toggleBlur(this)" id="u_uid">...</span>
+            <span class="p-value blur-effect" onclick="this.classList.toggle('blur-effect')" id="u_uid">...</span>
         </div>
     </div>
 
-    <!-- STATS -->
     <div class="stats-grid">
         <div class="stat-box">
-            <div class="stat-title">Team Members</div>
-            <div class="stat-num" id="u_team">0</div>
+            <div class="stat-title">Team</div>
+            <div class="stat-val" id="u_team">0</div>
         </div>
         <div class="stat-box">
-            <div class="stat-title">My Partners</div>
-            <div class="stat-num" id="u_partner">0</div>
+            <div class="stat-title">Partners</div>
+            <div class="stat-val" id="u_partner">0</div>
         </div>
         <div class="stat-box">
-            <div class="stat-title">Total Profit</div>
-            <div class="stat-num" style="color:#4cd137;">$<span id="u_total">0.00</span></div>
+            <div class="stat-title">Total Earned</div>
+            <div class="stat-val" style="color:#2ecc71;">$<span id="u_total">0.00</span></div>
         </div>
         <div class="stat-box">
-            <div class="stat-title">Today Profit</div>
-            <div class="stat-num" style="color:#4cd137;">$<span id="u_today">0.00</span></div>
+            <div class="stat-title">Today Earned</div>
+            <div class="stat-val" style="color:#2ecc71;">$<span id="u_today">0.00</span></div>
         </div>
     </div>
 
-    <!-- 16:9 BANNER -->
     <div class="banner-container">
-        <!-- Image tag can be added here -->
-        <div class="banner-text">TASK28 PROMO BANNER</div>
+        <!-- 16:9 Banner Image Area -->
+        <div style="text-align:center;">
+            <i class="fas fa-ad" style="font-size:2rem; margin-bottom:10px;"></i><br>
+            PREMIUM BANNER
+        </div>
     </div>
 
-    <!-- NAVIGATION MENU -->
     <div class="menu-grid">
-        <a href="Task.html" class="menu-btn">
-            <i class="fas fa-tasks"></i>
-            <span>DAILY TASK</span>
-        </a>
-        <a href="Referral.html" class="menu-btn">
-            <i class="fas fa-share-alt"></i>
-            <span>REFERRAL</span>
-        </a>
-        <a href="Monthly.html" class="menu-btn">
-            <i class="fas fa-calendar-alt"></i>
-            <span>MONTHLY PLAN</span>
-        </a>
-        <a href="Weekly.html" class="menu-btn">
-            <i class="fas fa-calendar-week"></i>
-            <span>WEEKLY PLAN</span>
-        </a>
+        <a href="Task.html" class="menu-btn"><i class="fas fa-tasks"></i><span>TASK</span></a>
+        <a href="Referral.html" class="menu-btn"><i class="fas fa-share-alt"></i><span>REFERRAL</span></a>
+        <a href="Monthly.html" class="menu-btn"><i class="fas fa-calendar-alt"></i><span>MONTHLY</span></a>
+        <a href="Weekly.html" class="menu-btn"><i class="fas fa-calendar-week"></i><span>WEEKLY</span></a>
         <a href="Withdraw.html" class="menu-btn" style="grid-column: span 2; background: linear-gradient(45deg, #111, #222);">
-            <i class="fas fa-wallet" style="color: #fff;"></i>
-            <span style="color:#d4af37;">WITHDRAW BALANCE</span>
+            <i class="fas fa-wallet" style="color: #fff;"></i><span style="color:#d4af37;">WITHDRAW FUNDS</span>
         </a>
     </div>
 
-    <!-- LOGOUT -->
-    <button class="logout-btn" onclick="logout()">
-        <i class="fas fa-sign-out-alt"></i> LOGOUT
-    </button>
+    <button class="logout-btn" onclick="auth.signOut()">LOGOUT</button>
 
     <script>
-        // Toggle Hide/Show Effect
-        function toggleBlur(element) {
-            element.classList.toggle('blur-effect');
-        }
-
-        // Firebase Logic
         auth.onAuthStateChanged((user) => {
             if (user) {
                 const uid = user.uid;
                 
-                // Realtime Data Listener
+                // --- DATA LISTENER ---
                 db.ref('users/' + uid).on('value', (snapshot) => {
                     const data = snapshot.val();
                     
                     if(data) {
-                        // Update UI
+                        // 1. SECURITY CHECK: BANNED USER
+                        if(data.isBanned === true) {
+                            document.body.innerHTML = "<div style='display:flex;justify-content:center;align-items:center;height:100vh;background:black;color:red;font-weight:bold;text-align:center;'>ACCOUNT SUSPENDED<br>CONTACT ADMIN</div>";
+                            setTimeout(() => { auth.signOut(); window.location.href = "Login.html"; }, 3000);
+                            return;
+                        }
+
+                        // 2. Update UI
                         document.getElementById('u_name').innerText = data.name;
-                        document.getElementById('u_plan').innerText = data.plan.toUpperCase();
+                        document.getElementById('u_plan').innerText = (data.plan || "Free").toUpperCase();
                         
+                        document.getElementById('u_balance').innerText = parseFloat(data.balance || 0).toFixed(2);
+                        document.getElementById('u_credits').innerText = data.credits || 0;
+
                         document.getElementById('u_date').innerText = data.regDate;
                         document.getElementById('u_uid').innerText = data.uid;
                         
@@ -302,18 +255,9 @@
                 });
 
             } else {
-                // Not logged in -> Redirect
                 window.location.href = 'Login.html';
             }
         });
-
-        function logout() {
-            if(confirm("Are you sure you want to logout?")) {
-                auth.signOut().then(() => {
-                    window.location.href = 'index.html';
-                });
-            }
-        }
     </script>
 </body>
 </html>
