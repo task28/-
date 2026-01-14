@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TASK28 - Referral</title>
+    <title>Referral & Leaderboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -16,98 +17,171 @@
         const db = firebase.database();
     </script>
     <style>
-        body { background: #050505; color: #fff; font-family: 'Montserrat', sans-serif; padding: 20px; }
+        body { background: #050505; color: #fff; font-family: 'Montserrat', sans-serif; padding: 20px; padding-bottom: 80px;}
         .header { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
         .back-btn { color: #d4af37; font-size: 1.5rem; cursor: pointer; }
         .page-title { font-size: 1.2rem; font-weight: 700; color: #d4af37; }
 
-        .hero { text-align: center; background: linear-gradient(180deg, rgba(212, 175, 55, 0.1), transparent); padding: 30px; border-radius: 15px; border: 1px solid #333; margin-bottom: 25px; }
-        .hero i { font-size: 3rem; color: #d4af37; margin-bottom: 10px; }
-        
-        .copy-card { background: #111; padding: 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; }
-        .lbl { font-size: 0.8rem; color: #aaa; margin-bottom: 8px; display: block; }
-        .inp-grp { display: flex; background: #000; border-radius: 8px; overflow: hidden; border: 1px solid #444; }
-        .inp-grp input { flex: 1; background: transparent; border: none; color: #fff; padding: 12px; outline: none; font-family: monospace; }
-        .btn-copy { background: #d4af37; color: #000; border: none; padding: 0 20px; font-weight: bold; cursor: pointer; }
+        /* Referral Link Box */
+        .copy-card { background: #111; padding: 15px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #333; }
+        .inp-grp { display: flex; background: #000; border-radius: 8px; overflow: hidden; border: 1px solid #444; margin-top: 5px;}
+        .inp-grp input { flex: 1; background: transparent; border: none; color: #fff; padding: 12px; outline: none; }
+        .btn-copy { background: #d4af37; color: #000; border: none; padding: 0 15px; font-weight: bold; cursor: pointer; }
 
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .stat-box { background: #111; padding: 15px; text-align: center; border-radius: 10px; border: 1px solid #333; }
-        .stat-val { font-size: 1.5rem; font-weight: bold; color: #d4af37; }
+        /* LEADERBOARD STYLE */
+        .section-head { color: #d4af37; font-weight: bold; margin: 20px 0 10px; border-left: 4px solid #d4af37; padding-left: 10px; }
+        .leader-row { display: flex; justify-content: space-between; padding: 12px; background: #1a1a1a; margin-bottom: 5px; border-radius: 8px; align-items: center; }
+        .leader-rank { font-weight: 800; color: #555; width: 30px; }
+        .leader-name { flex: 1; color: #eee; font-size: 0.9rem; }
+        .leader-score { color: #2ecc71; font-weight: bold; }
+        .top-1 { border: 1px solid #d4af37; background: rgba(212, 175, 55, 0.1); }
+        .top-1 .leader-rank { color: #d4af37; }
+
+        /* PARTNER LIST STYLE */
+        .partner-card { background: #111; padding: 10px; margin-bottom: 5px; border-radius: 5px; display: flex; justify-content: space-between; font-size: 0.85rem; border-left: 3px solid #333; }
+        .p-active { border-left-color: #2ecc71; } /* Active color */
     </style>
 </head>
 <body>
 
     <div class="header">
         <i class="fas fa-chevron-left back-btn" onclick="window.location.href='Home.html'"></i>
-        <div class="page-title">INVITE</div>
+        <div class="page-title">TEAM & REWARDS</div>
         <div></div>
     </div>
 
-    <div class="hero">
-        <i class="fas fa-gift"></i>
-        <h3>20% Commission</h3>
-        <p style="color:#aaa; font-size:0.9rem;">+ Counts in Monthly/Weekly Targets</p>
-    </div>
-
+    <!-- Referral Link -->
     <div class="copy-card">
-        <span class="lbl">Your Referral Code</span>
+        <div style="font-size:0.8rem; color:#aaa;">My Referral Code</div>
         <div class="inp-grp">
             <input type="text" id="myCode" readonly value="...">
-            <button class="btn-copy" onclick="copyTxt('myCode')">COPY</button>
+            <button class="btn-copy" onclick="copyTxt()">COPY</button>
+        </div>
+        <div style="margin-top:10px; font-size:0.9rem; text-align:center;">
+            My Today's Commission: <span id="myTodayComm" style="color:#d4af37; font-weight:bold;">$0.00</span>
         </div>
     </div>
 
-    <div class="copy-card">
-        <span class="lbl">Share Registration Link</span>
-        <div class="inp-grp">
-            <input type="text" id="myLink" readonly value="...">
-            <button class="btn-copy" onclick="copyTxt('myLink')">COPY</button>
-        </div>
+    <!-- LEADERBOARD -->
+    <div class="section-head"><i class="fas fa-trophy"></i> TODAY'S TOP EARNERS</div>
+    <div id="leaderboardList">
+        <div style="text-align:center; color:#555;">Loading Leaderboard...</div>
     </div>
 
-    <div class="stat-grid">
-        <div class="stat-box">
-            <div class="stat-val" id="totalRef">0</div>
-            <div style="font-size:0.8rem; color:#aaa">Total Team</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-val" id="activeRef">0</div>
-            <div style="font-size:0.8rem; color:#aaa">Active Plans</div>
-        </div>
+    <!-- MY PARTNERS -->
+    <div class="section-head"><i class="fas fa-users"></i> MY PARTNERS</div>
+    <div id="partnerList">
+        <div style="text-align:center; color:#555;">Loading Partners...</div>
     </div>
 
     <script>
-        // BASE URL SETTING
-        const BASE_URL = "https://task28.github.io/-/Registration.html";
+        let myRefCode = "";
 
         auth.onAuthStateChanged(user => {
             if(user) {
-                db.ref('users/' + user.uid).on('value', snap => {
+                const uid = user.uid;
+
+                // 1. Get My Data
+                db.ref('users/' + uid).on('value', snap => {
                     const data = snap.val();
                     if(data) {
-                        const code = data.myRefCode || "ERROR";
+                        myRefCode = data.myRefCode;
+                        document.getElementById('myCode').value = myRefCode;
+                        document.getElementById('myTodayComm').innerText = "$" + parseFloat(data.todayCommission || 0).toFixed(3);
                         
-                        document.getElementById('myCode').value = code;
-                        // Construct Custom Link
-                        document.getElementById('myLink').value = `${BASE_URL}?ref=${code}`;
-                        
-                        document.getElementById('totalRef').innerText = data.teamCount || 0;
-                        
-                        // Active Ref logic requires fetching sub-collection or complex query, 
-                        // for now showing 0 or data.partnerCount if stored.
-                        document.getElementById('activeRef').innerText = data.partnerCount || 0;
+                        // Load My Partners
+                        loadPartners(myRefCode);
                     }
                 });
+
+                // 2. Load Leaderboard (Global)
+                loadLeaderboard();
             } else {
                 window.location.href = "Login.html";
             }
         });
 
-        function copyTxt(id) {
-            const el = document.getElementById(id);
+        function copyTxt() {
+            const el = document.getElementById('myCode');
             el.select();
-            el.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(el.value).then(() => alert("Copied!"));
+            document.execCommand('copy');
+            alert("Code Copied!");
+        }
+
+        // --- PARTNER LIST LOGIC ---
+        function loadPartners(code) {
+            db.ref('users').orderByChild('referredBy').equalTo(code).on('value', snap => {
+                const pList = document.getElementById('partnerList');
+                pList.innerHTML = "";
+                
+                if(!snap.exists()) {
+                    pList.innerHTML = "<div style='text-align:center; padding:10px; color:#444;'>No partners yet.</div>";
+                    return;
+                }
+
+                let count = 0;
+                snap.forEach(child => {
+                    const p = child.val();
+                    const isActive = p.activePlan ? "p-active" : ""; // Check if they have a plan
+                    const status = p.activePlan ? "Active Plan" : "No Plan";
+                    
+                    pList.innerHTML += `
+                        <div class="partner-card ${isActive}">
+                            <div>
+                                <strong style="color:#fff;">${p.name || "User"}</strong><br>
+                                <span style="color:#666;">ID: ${child.key.substring(0,6)}</span>
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="color:#d4af37;">${status}</div>
+                                <div style="color:#aaa; font-size:0.75rem;">Tasks: ${p.totalTasksDone || 0}</div>
+                            </div>
+                        </div>
+                    `;
+                    count++;
+                });
+            });
+        }
+
+        // --- LEADERBOARD LOGIC (SORT BY TODAY COMMISSION) ---
+        function loadLeaderboard() {
+            // Firebase doesn't support easy descending sort, so we fetch and sort in JS
+            db.ref('users').orderByChild('todayCommission').limitToLast(20).on('value', snap => {
+                const list = document.getElementById('leaderboardList');
+                list.innerHTML = "";
+
+                let users = [];
+                snap.forEach(child => {
+                    const u = child.val();
+                    if(u.todayCommission > 0) { // Only show if earned something
+                        users.push({
+                            name: u.name || "Unknown",
+                            score: parseFloat(u.todayCommission)
+                        });
+                    }
+                });
+
+                // Sort Descending (Highest First)
+                users.sort((a, b) => b.score - a.score);
+
+                if(users.length === 0) {
+                    list.innerHTML = "<div style='text-align:center; padding:10px; color:#444;'>No commissions earned today yet.</div>";
+                    return;
+                }
+
+                // Display Top 10
+                users.slice(0, 10).forEach((u, index) => {
+                    const rankClass = index === 0 ? "top-1" : "";
+                    const rankIcon = index === 0 ? '<i class="fas fa-crown"></i>' : (index + 1);
+                    
+                    list.innerHTML += `
+                        <div class="leader-row ${rankClass}">
+                            <div class="leader-rank">${rankIcon}</div>
+                            <div class="leader-name">${u.name}</div>
+                            <div class="leader-score">$${u.score.toFixed(3)}</div>
+                        </div>
+                    `;
+                });
+            });
         }
     </script>
 </body>
