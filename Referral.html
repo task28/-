@@ -4,185 +4,98 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TASK28 - Referral</title>
-
-    <!-- Google Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-    <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDR38gO9SBcE3qcVvFHlpyE5YdEqo0n2XU",
-            authDomain: "task38-f7daa.firebaseapp.com",
-            databaseURL: "https://task38-f7daa-default-rtdb.firebaseio.com",
-            projectId: "task38-f7daa",
-            storageBucket: "task38-f7daa.firebasestorage.app",
-            messagingSenderId: "655282407518",
-            appId: "1:655282407518:web:637dd6ac82b6c5e6018ccf"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyDR38gO9SBcE3qcVvFHlpyE5YdEqo0n2XU", authDomain: "task38-f7daa.firebaseapp.com", databaseURL: "https://task38-f7daa-default-rtdb.firebaseio.com", projectId: "task38-f7daa", storageBucket: "task38-f7daa.firebasestorage.app", messagingSenderId: "655282407518", appId: "1:655282407518:web:637dd6ac82b6c5e6018ccf" };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
     </script>
-
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: #050505; color: #fff; font-family: 'Montserrat', sans-serif;
-            min-height: 100vh; padding: 20px;
-        }
-
-        /* HEADER */
-        .header {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 15px;
-        }
+        body { background: #050505; color: #fff; font-family: 'Montserrat', sans-serif; padding: 20px; }
+        .header { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
         .back-btn { color: #d4af37; font-size: 1.5rem; cursor: pointer; }
-        .page-title { font-size: 1.2rem; font-weight: 700; letter-spacing: 2px; color: #d4af37; }
+        .page-title { font-size: 1.2rem; font-weight: 700; color: #d4af37; }
 
-        /* HERO SECTION */
-        .hero {
-            text-align: center; margin-bottom: 30px;
-            background: linear-gradient(180deg, rgba(212, 175, 55, 0.1) 0%, rgba(0,0,0,0) 100%);
-            padding: 30px; border-radius: 20px; border: 1px solid #333;
-        }
-        .hero i { font-size: 4rem; color: #d4af37; margin-bottom: 15px; text-shadow: 0 0 20px rgba(212, 175, 55, 0.4); }
-        .hero h2 { font-size: 1.5rem; margin-bottom: 10px; }
-        .hero p { color: #888; font-size: 0.9rem; }
-
-        /* COPY BOXES */
-        .copy-card {
-            background: #111; padding: 20px; border-radius: 15px;
-            border: 1px solid #333; margin-bottom: 20px;
-        }
-        .label { font-size: 0.8rem; color: #aaa; margin-bottom: 8px; text-transform: uppercase; }
+        .hero { text-align: center; background: linear-gradient(180deg, rgba(212, 175, 55, 0.1), transparent); padding: 30px; border-radius: 15px; border: 1px solid #333; margin-bottom: 25px; }
+        .hero i { font-size: 3rem; color: #d4af37; margin-bottom: 10px; }
         
-        .input-group {
-            display: flex; background: #000; border: 1px solid #444; border-radius: 8px; overflow: hidden;
-        }
-        .input-group input {
-            flex: 1; background: transparent; border: none; color: #fff;
-            padding: 12px; font-family: monospace; font-size: 1rem; outline: none;
-        }
-        .copy-btn {
-            background: #d4af37; color: #000; border: none; padding: 0 20px;
-            font-weight: bold; cursor: pointer; transition: 0.3s;
-        }
-        .copy-btn:hover { background: #fff; }
+        .copy-card { background: #111; padding: 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; }
+        .lbl { font-size: 0.8rem; color: #aaa; margin-bottom: 8px; display: block; }
+        .inp-grp { display: flex; background: #000; border-radius: 8px; overflow: hidden; border: 1px solid #444; }
+        .inp-grp input { flex: 1; background: transparent; border: none; color: #fff; padding: 12px; outline: none; font-family: monospace; }
+        .btn-copy { background: #d4af37; color: #000; border: none; padding: 0 20px; font-weight: bold; cursor: pointer; }
 
-        /* RULES LIST */
-        .rules-box {
-            background: rgba(20,20,20,0.8); padding: 20px; border-radius: 15px;
-            border-left: 4px solid #d4af37;
-        }
-        .rules-title { color: #d4af37; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .rule-item {
-            display: flex; gap: 15px; margin-bottom: 15px; font-size: 0.9rem; color: #ccc;
-        }
-        .rule-item i { color: #d4af37; margin-top: 3px; }
-
-        /* STATS ROW */
-        .stats-row {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;
-        }
-        .stat-card {
-            background: #111; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #333;
-        }
-        .stat-val { font-size: 1.5rem; color: #d4af37; font-weight: bold; }
-        .stat-lbl { font-size: 0.75rem; color: #666; }
-
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .stat-box { background: #111; padding: 15px; text-align: center; border-radius: 10px; border: 1px solid #333; }
+        .stat-val { font-size: 1.5rem; font-weight: bold; color: #d4af37; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <i class="fas fa-chevron-left back-btn" onclick="window.location.href='Home.html'"></i>
-        <div class="page-title">INVITE FRIENDS</div>
-        <div style="width: 20px;"></div>
+        <div class="page-title">INVITE</div>
+        <div></div>
     </div>
 
     <div class="hero">
         <i class="fas fa-gift"></i>
-        <h2>Earn 20% Commission</h2>
-        <p>Invite your friends to join TASK28 team.</p>
+        <h3>20% Commission</h3>
+        <p style="color:#aaa; font-size:0.9rem;">+ Counts in Monthly/Weekly Targets</p>
     </div>
 
-    <div class="stats-row">
-        <div class="stat-card">
-            <div class="stat-val" id="ref_count">0</div>
-            <div class="stat-lbl">Total Referred</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-val" id="team_earnings">$0.00</div>
-            <div class="stat-lbl">Team Earnings</div>
+    <div class="copy-card">
+        <span class="lbl">Your Referral Code</span>
+        <div class="inp-grp">
+            <input type="text" id="myCode" readonly value="...">
+            <button class="btn-copy" onclick="copyTxt('myCode')">COPY</button>
         </div>
     </div>
 
     <div class="copy-card">
-        <div class="label">Your Referral Code</div>
-        <div class="input-group">
-            <input type="text" id="myCode" readonly value="Loading...">
-            <button class="copy-btn" onclick="copyText('myCode')">COPY</button>
+        <span class="lbl">Share Registration Link</span>
+        <div class="inp-grp">
+            <input type="text" id="myLink" readonly value="...">
+            <button class="btn-copy" onclick="copyTxt('myLink')">COPY</button>
         </div>
     </div>
 
-    <div class="copy-card">
-        <div class="label">Share Referral Link</div>
-        <div class="input-group">
-            <input type="text" id="myLink" readonly value="Loading...">
-            <button class="copy-btn" onclick="copyText('myLink')">COPY</button>
+    <div class="stat-grid">
+        <div class="stat-box">
+            <div class="stat-val" id="totalRef">0</div>
+            <div style="font-size:0.8rem; color:#aaa">Total Team</div>
         </div>
-    </div>
-
-    <div class="rules-box">
-        <div class="rules-title"><i class="fas fa-info-circle"></i> Commission Rules</div>
-        
-        <div class="rule-item">
-            <i class="fas fa-check"></i>
-            <div>
-                <strong>No Direct Bonus:</strong> You will not get money just for registration.
-            </div>
-        </div>
-        <div class="rule-item">
-            <i class="fas fa-chart-line"></i>
-            <div>
-                <strong>Task Commission:</strong> When your referral completes a task and earns, you get <span style="color:#d4af37">20% commission</span> instantly.
-            </div>
-        </div>
-        <div class="rule-item">
-            <i class="fas fa-users"></i>
-            <div>
-                <strong>Build Your Team:</strong> More active members = More daily passive income.
-            </div>
+        <div class="stat-box">
+            <div class="stat-val" id="activeRef">0</div>
+            <div style="font-size:0.8rem; color:#aaa">Active Plans</div>
         </div>
     </div>
 
     <script>
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                // Fetch User Data
-                db.ref('users/' + user.uid).on('value', (snapshot) => {
-                    const data = snapshot.val();
+        // BASE URL SETTING
+        const BASE_URL = "https://task28.github.io/-/Registration.html";
+
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                db.ref('users/' + user.uid).on('value', snap => {
+                    const data = snap.val();
                     if(data) {
                         const code = data.myRefCode || "ERROR";
                         
-                        // Set Code
                         document.getElementById('myCode').value = code;
+                        // Construct Custom Link
+                        document.getElementById('myLink').value = `${BASE_URL}?ref=${code}`;
                         
-                        // Set Link (Auto Detect current website URL)
-                        // Example: https://yoursite.com/Registration.html?ref=TASK1234
-                        const baseUrl = window.location.origin + window.location.pathname.replace('Referral.html', 'Registration.html');
-                        document.getElementById('myLink').value = baseUrl + "?ref=" + code;
-
-                        // Set Stats
-                        document.getElementById('ref_count').innerText = data.teamCount || 0;
-                        // Team earnings is usually calculated separately or stored, using totalProfit as placeholder for now or 0
-                        // Assuming you might add a 'commissionEarned' field later
-                        document.getElementById('team_earnings').innerText = "$" + (data.commissionEarned || 0).toFixed(2);
+                        document.getElementById('totalRef').innerText = data.teamCount || 0;
+                        
+                        // Active Ref logic requires fetching sub-collection or complex query, 
+                        // for now showing 0 or data.partnerCount if stored.
+                        document.getElementById('activeRef').innerText = data.partnerCount || 0;
                     }
                 });
             } else {
@@ -190,20 +103,11 @@
             }
         });
 
-        function copyText(id) {
-            const copyText = document.getElementById(id);
-            copyText.select();
-            copyText.setSelectionRange(0, 99999); /* For mobile devices */
-            navigator.clipboard.writeText(copyText.value).then(() => {
-                const btn = copyText.nextElementSibling;
-                const originalText = btn.innerText;
-                btn.innerText = "COPIED";
-                btn.style.background = "#fff";
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.style.background = "#d4af37";
-                }, 1500);
-            });
+        function copyTxt(id) {
+            const el = document.getElementById(id);
+            el.select();
+            el.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(el.value).then(() => alert("Copied!"));
         }
     </script>
 </body>
