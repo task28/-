@@ -103,7 +103,7 @@
         .stat-title { font-size: 0.7rem; color: #666; text-transform: uppercase; }
         .stat-val { font-size: 1.1rem; font-weight: bold; color: #d4af37; margin-top: 5px; }
 
-        /* BANNER */
+        /* DYNAMIC BANNER */
         .banner-container {
             width: calc(100% - 40px); margin: 0 auto 20px;
             aspect-ratio: 16/9; background: #1a1a1a;
@@ -111,6 +111,8 @@
             display: flex; justify-content: center; align-items: center;
             color: #444; font-weight: bold; overflow: hidden;
         }
+        .banner-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .banner-placeholder { text-align: center; display: none; }
 
         /* MENU */
         .menu-grid {
@@ -188,10 +190,12 @@
         </div>
     </div>
 
-    <div class="banner-container">
-        <div style="text-align:center;">
+    <!-- DYNAMIC BANNER SECTION -->
+    <div class="banner-container" id="bannerBox">
+        <img id="bannerImg" class="banner-img" src="" style="display:none;">
+        <div id="bannerPlace" class="banner-placeholder" style="display:block;">
             <i class="fas fa-ad" style="font-size:2rem; margin-bottom:10px;"></i><br>
-            PREMIUM BANNER
+            TASK28 PROMO
         </div>
     </div>
 
@@ -208,6 +212,23 @@
     <button class="logout-btn" onclick="auth.signOut()">LOGOUT</button>
 
     <script>
+        // Load Banner First
+        db.ref('adminSettings/banner').on('value', snap => {
+            const url = snap.val();
+            const img = document.getElementById('bannerImg');
+            const place = document.getElementById('bannerPlace');
+            
+            if(url) {
+                img.src = url;
+                img.style.display = 'block';
+                place.style.display = 'none';
+            } else {
+                img.style.display = 'none';
+                place.style.display = 'block';
+            }
+        });
+
+        // Load User Data
         auth.onAuthStateChanged((user) => {
             if (user) {
                 const uid = user.uid;
@@ -221,7 +242,6 @@
                             auth.signOut(); return;
                         }
 
-                        // Update fields directly
                         document.getElementById('u_name').innerText = data.name;
                         document.getElementById('u_plan').innerText = (data.plan || "Free").toUpperCase();
                         
