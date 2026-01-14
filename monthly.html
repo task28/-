@@ -2,164 +2,344 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Monthly Plan</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>TASK28 - Monthly Plan</title>
+
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDR38gO9SBcE3qcVvFHlpyE5YdEqo0n2XU",
+            authDomain: "task38-f7daa.firebaseapp.com",
+            databaseURL: "https://task38-f7daa-default-rtdb.firebaseio.com",
+            projectId: "task38-f7daa",
+            storageBucket: "task38-f7daa.firebasestorage.app",
+            messagingSenderId: "655282407518",
+            appId: "1:655282407518:web:637dd6ac82b6c5e6018ccf"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+    </script>
+
     <style>
-        body { background: #050505; color: white; font-family: 'Poppins', sans-serif; padding: 20px; }
-        .header-card { background: linear-gradient(45deg, #1a1a1a, #000); border: 1px solid #FFD700; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
-        .level-card { background: rgba(255,255,255,0.05); border: 1px solid #333; padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .btn-select { background: #FFD700; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; color: #000; }
-        .btn-buy { background: #00e676; color: #000; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px; width: 100%; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #050505; color: #fff; font-family: 'Montserrat', sans-serif;
+            padding: 20px; padding-bottom: 50px;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 15px;
+        }
+        .back-btn { color: #d4af37; font-size: 1.5rem; cursor: pointer; }
+        .page-title { font-size: 1.2rem; font-weight: 700; letter-spacing: 2px; color: #d4af37; }
+
+        /* STATUS CARD */
+        .status-card {
+            background: linear-gradient(135deg, #1a1a1a, #000);
+            padding: 20px; border-radius: 15px; border: 1px solid #d4af37;
+            margin-bottom: 25px; position: relative; overflow: hidden;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+        .status-title { font-size: 0.8rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+        .status-val { font-size: 1.5rem; font-weight: 800; color: #fff; margin-top: 5px; }
+        .status-badge {
+            position: absolute; top: 20px; right: 20px;
+            padding: 5px 10px; border-radius: 5px; font-size: 0.7rem; font-weight: bold;
+            background: #333; color: #aaa;
+        }
+        .badge-active { background: #d4af37; color: #000; }
+        .badge-weekly { background: #e74c3c; color: #fff; }
+
+        /* CREDIT SECTION */
+        .credit-box {
+            background: #111; padding: 15px; border-radius: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px; border: 1px dashed #444;
+        }
+        .credit-info { display: flex; align-items: center; gap: 10px; }
+        .credit-info i { color: #f1c40f; font-size: 1.2rem; }
+        .buy-btn {
+            background: #2ecc71; color: #fff; border: none; padding: 8px 15px;
+            border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.8rem;
+        }
+
+        /* LEVELS GRID */
+        .levels-container {
+            display: grid; grid-template-columns: 1fr; gap: 15px;
+        }
+
+        .level-card {
+            background: #141414; padding: 15px; border-radius: 12px;
+            border-left: 5px solid #333; transition: 0.3s;
+            position: relative;
+        }
+        .level-card:hover { border-left-color: #d4af37; transform: translateX(5px); }
         
-        /* Modal for Payment */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10; align-items: center; justify-content: center; }
-        .modal-box { background: #222; padding: 25px; border-radius: 15px; border: 1px solid #FFD700; text-align: center; max-width: 300px; width: 85%; }
+        .lvl-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .lvl-name { font-weight: 800; font-size: 1.1rem; color: #fff; }
+        .lvl-reward { color: #d4af37; font-weight: bold; font-family: 'Orbitron', sans-serif; }
+        
+        .lvl-req { display: flex; gap: 15px; font-size: 0.85rem; color: #aaa; }
+        .lvl-req span { display: flex; align-items: center; gap: 5px; }
+        .lvl-req i { color: #888; }
+
+        /* Premium Level 6 Style */
+        .level-premium {
+            background: linear-gradient(45deg, #1a1a1a, #2a1f00);
+            border: 1px solid #d4af37; border-left: 5px solid #d4af37;
+        }
+        .level-premium .lvl-name { color: #d4af37; }
+
+        /* ACTION BUTTON */
+        .apply-btn {
+            width: 100%; padding: 18px; margin-top: 30px;
+            background: linear-gradient(45deg, #d4af37, #b8860b);
+            border: none; border-radius: 10px;
+            color: #000; font-weight: 800; font-size: 1.1rem;
+            cursor: pointer; text-transform: uppercase; letter-spacing: 2px;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+        .apply-btn:disabled { background: #333; color: #666; cursor: not-allowed; box-shadow: none; }
+
+        /* BUY MODAL */
+        #buyModal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 999;
+            display: none; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: #1a1a1a; padding: 25px; border-radius: 15px;
+            border: 1px solid #d4af37; width: 90%; max-width: 350px; text-align: center;
+        }
+        .address-box {
+            background: #000; padding: 10px; color: #d4af37;
+            font-family: monospace; margin: 15px 0; word-break: break-all;
+            border: 1px dashed #555;
+        }
+
     </style>
 </head>
 <body>
 
-    <div class="header-card">
-        <h2 style="margin:0; color:#FFD700;">Monthly Salary</h2>
-        <p style="font-size:0.8rem; opacity:0.7;">Duration: 30 Days</p>
-        
-        <div style="margin-top:15px; background:rgba(255,255,255,0.1); padding:10px; border-radius:10px;">
-            <div style="font-size:0.9rem;">Your Monthly Credits: <strong id="myCredits" style="color:#FFD700;">Loading...</strong></div>
-            <div id="buySection" style="display:none;">
-                <button class="btn-buy" onclick="openPayModal()">Buy Credits (0.80 USDT)</button>
+    <div class="header">
+        <i class="fas fa-chevron-left back-btn" onclick="window.location.href='Home.html'"></i>
+        <div class="page-title">MONTHLY PLAN</div>
+        <div></div>
+    </div>
+
+    <!-- STATUS CARD -->
+    <div class="status-card">
+        <span id="statusBadge" class="status-badge">INACTIVE</span>
+        <div class="status-title">Current Status</div>
+        <div class="status-val" id="currentPlan">NO ACTIVE PLAN</div>
+        <p style="font-size:0.8rem; color:#666; margin-top:5px;" id="expiryDate">--</p>
+    </div>
+
+    <!-- CREDITS -->
+    <div class="credit-box">
+        <div class="credit-info">
+            <i class="fas fa-coins"></i>
+            <div>
+                <div style="font-size:0.8rem; color:#aaa;">Available Credits</div>
+                <div style="font-weight:bold;" id="creditVal">0</div>
+            </div>
+        </div>
+        <button class="buy-btn" onclick="openBuyModal()">BUY CREDITS</button>
+    </div>
+
+    <h3 style="color:#fff; margin-bottom:15px; font-size:1rem;">TARGET LEVELS (30 DAYS)</h3>
+
+    <div class="levels-container">
+        <!-- Level 1 -->
+        <div class="level-card">
+            <div class="lvl-header">
+                <span class="lvl-name">LEVEL 1</span>
+                <span class="lvl-reward">$3.30</span>
+            </div>
+            <div class="lvl-req">
+                <span><i class="fas fa-users"></i> 30 Ref</span>
+                <span><i class="fas fa-tasks"></i> 60 Task</span>
+            </div>
+        </div>
+        <!-- Level 2 -->
+        <div class="level-card">
+            <div class="lvl-header">
+                <span class="lvl-name">LEVEL 2</span>
+                <span class="lvl-reward">$5.50</span>
+            </div>
+            <div class="lvl-req">
+                <span><i class="fas fa-users"></i> 50 Ref</span>
+                <span><i class="fas fa-tasks"></i> 100 Task</span>
+            </div>
+        </div>
+        <!-- Level 3 -->
+        <div class="level-card">
+            <div class="lvl-header">
+                <span class="lvl-name">LEVEL 3</span>
+                <span class="lvl-reward">$11.00</span>
+            </div>
+            <div class="lvl-req">
+                <span><i class="fas fa-users"></i> 100 Ref</span>
+                <span><i class="fas fa-tasks"></i> 200 Task</span>
+            </div>
+        </div>
+        <!-- Level 4 -->
+        <div class="level-card">
+            <div class="lvl-header">
+                <span class="lvl-name">LEVEL 4</span>
+                <span class="lvl-reward">$16.50</span>
+            </div>
+            <div class="lvl-req">
+                <span><i class="fas fa-users"></i> 150 Ref</span>
+                <span><i class="fas fa-tasks"></i> 300 Task</span>
+            </div>
+        </div>
+        <!-- Level 5 -->
+        <div class="level-card">
+            <div class="lvl-header">
+                <span class="lvl-name">LEVEL 5</span>
+                <span class="lvl-reward">$22.00</span>
+            </div>
+            <div class="lvl-req">
+                <span><i class="fas fa-users"></i> 200 Ref</span>
+                <span><i class="fas fa-tasks"></i> 400 Task</span>
+            </div>
+        </div>
+        <!-- Level 6 -->
+        <div class="level-card level-premium">
+            <div class="lvl-header">
+                <span class="lvl-name"><i class="fas fa-crown"></i> LEVEL 6</span>
+                <span class="lvl-reward">$36.00</span>
+            </div>
+            <div class="lvl-req">
+                <span><i class="fas fa-users"></i> 300 Ref</span>
+                <span><i class="fas fa-tasks"></i> 600 Task</span>
             </div>
         </div>
     </div>
 
-    <div id="statusMsg" style="color:red; text-align:center; margin-bottom:10px;"></div>
-    <div id="levelsContainer"></div>
-    
-    <a href="home.html" style="display:block; text-align:center; margin-top:20px; color:#aaa; text-decoration:none;">Back to Dashboard</a>
+    <button id="mainBtn" class="apply-btn" onclick="applyMonthly()">ACTIVATE MONTHLY PLAN</button>
+    <p style="text-align:center; color:#555; font-size:0.8rem; margin-top:10px;">Cost: 1 Credit / Month</p>
 
-    <!-- PAYMENT MODAL -->
-    <div id="payModal" class="modal">
-        <div class="modal-box">
-            <h3 style="color:#FFD700;">Buy Monthly Access</h3>
-            <p>Send 0.80 USDT (BEP20) to get access.</p>
-            <div style="background:#333; padding:8px; font-size:0.75rem; word-break:break-all; border-radius:5px; margin:10px 0;">0xYourAdminWalletHere...</div>
-            <button class="btn-select" onclick="confirmPayment()">I Sent Payment</button>
-            <button style="background:transparent; color:#fff; border:none; margin-top:10px;" onclick="closePayModal()">Cancel</button>
+    <!-- BUY MODAL -->
+    <div id="buyModal">
+        <div class="modal-content">
+            <h3 style="color:#d4af37;">BUY CREDITS</h3>
+            <p style="color:#aaa; font-size:0.9rem; margin-top:10px;">Send USDT (BEP20) to admin and wait for approval.</p>
+            
+            <div style="margin: 15px 0;">
+                <p>Prices:</p>
+                <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:#fff;">
+                    <span>5 Credits = $1.00</span>
+                    <span>10 Credits = $1.50</span>
+                </div>
+            </div>
+
+            <div class="address-box" id="adminWallet" onclick="navigator.clipboard.writeText(this.innerText); alert('Copied!')">
+                0x1234...ABCD (Admin Wallet)
+            </div>
+            <p style="font-size:0.7rem; color:#555;">Click address to copy</p>
+            
+            <button class="buy-btn" style="width:100%; margin-top:15px; background:#d4af37; color:black;" onclick="document.getElementById('buyModal').style.display='none'">CLOSE</button>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    <script>
+        let userCredits = 0;
+        let userPlan = "none";
 
-        const firebaseConfig = { apiKey: "AIzaSyB2YLhAvSF12ZZx7LSnbqcCjtS2_8QLt4o", authDomain: "task-f6078.firebaseapp.com", databaseURL: "https://task-f6078-default-rtdb.firebaseio.com", projectId: "task-f6078", storageBucket: "task-f6078.firebasestorage.app", messagingSenderId: "887907470692", appId: "1:887907470692:web:c4142ac9573e19d29d3e71" };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
-
-        const levels = [
-            { id: 1, refs: 30, task: 60, reward: 300 },
-            { id: 2, refs: 50, task: 100, reward: 500 },
-            { id: 3, refs: 100, task: 200, reward: 1000 },
-            { id: 4, refs: 200, task: 400, reward: 2200 },
-            { id: 5, refs: 300, task: 600, reward: 3500 },
-            { id: 6, refs: 400, task: 800, reward: 5000 }
-        ];
-
-        let uid = null;
-        let credits = 0;
-        let hasActiveTarget = false;
-
-        onAuthStateChanged(auth, (user) => {
+        auth.onAuthStateChanged(user => {
             if(user) {
-                uid = user.uid;
-                
-                // 1. Check Existing Target
-                onValue(ref(db, `users/${uid}/target`), (snap) => {
-                    const t = snap.val();
-                    if(t && (t.status === 'pending' || t.status === 'active')) {
-                        hasActiveTarget = true;
-                        document.getElementById('statusMsg').innerText = "⚠️ You already have a Pending or Active target.";
+                // Fetch User Data
+                db.ref('users/' + user.uid).on('value', snap => {
+                    const data = snap.val();
+                    userCredits = data.credits || 0;
+                    userPlan = data.plan || "none";
+                    
+                    document.getElementById('creditVal').innerText = userCredits;
+                    
+                    const badge = document.getElementById('statusBadge');
+                    const cPlan = document.getElementById('currentPlan');
+                    const btn = document.getElementById('mainBtn');
+
+                    if(userPlan === 'monthly') {
+                        badge.innerText = "ACTIVE";
+                        badge.className = "status-badge badge-active";
+                        cPlan.innerText = "MONTHLY PLAN ACTIVE";
+                        cPlan.style.color = "#d4af37";
+                        btn.innerText = "PLAN IS ACTIVE";
+                        btn.disabled = true;
+                    } else if(userPlan === 'weekly') {
+                        badge.innerText = "ERROR";
+                        badge.className = "status-badge badge-weekly";
+                        cPlan.innerText = "WEEKLY PLAN RUNNING";
+                        cPlan.style.color = "#e74c3c";
+                        btn.innerText = "CANNOT ACTIVATE (Weekly Active)";
+                        btn.disabled = true;
+                    } else {
+                        // Check if pending request exists
+                        db.ref('monthly_requests/' + user.uid).once('value', rSnap => {
+                            if(rSnap.exists()) {
+                                badge.innerText = "PENDING";
+                                cPlan.innerText = "WAITING APPROVAL";
+                                btn.innerText = "REQUEST SENT";
+                                btn.disabled = true;
+                            } else {
+                                badge.innerText = "INACTIVE";
+                                cPlan.innerText = "NO PLAN SELECTED";
+                                btn.innerText = "ACTIVATE MONTHLY PLAN (1 CREDIT)";
+                                btn.disabled = false;
+                            }
+                        });
                     }
-                    loadData();
                 });
 
-                // 2. Load Credits (Initialize to 2 if not set)
-                onValue(ref(db, `users/${uid}/credits/monthly`), (snap) => {
-                    if(!snap.exists()) {
-                        update(ref(db, `users/${uid}/credits`), { monthly: 2 });
-                        credits = 2;
-                    } else {
-                        credits = snap.val();
-                    }
-                    document.getElementById('myCredits').innerText = credits;
-                    document.getElementById('buySection').style.display = credits > 0 ? 'none' : 'block';
-                    loadData();
+                // Get Admin Wallet
+                db.ref('adminSettings/wallet').once('value', s => {
+                    if(s.val()) document.getElementById('adminWallet').innerText = s.val();
                 });
+            } else {
+                window.location.href = 'Login.html';
             }
         });
 
-        function loadData() {
-            const container = document.getElementById('levelsContainer');
-            container.innerHTML = "";
-            
-            levels.forEach(l => {
-                let btnState = `onclick="applyLevel(${l.id})"`;
-                let btnTxt = "SELECT";
-                let btnStyle = "";
+        function applyMonthly() {
+            if(userCredits < 1) {
+                alert("Insufficient Credits! Please buy credits.");
+                openBuyModal();
+                return;
+            }
 
-                if(hasActiveTarget || credits < 1) {
-                    btnTxt = "LOCKED";
-                    btnStyle = "background:#555; cursor:not-allowed;";
-                    btnState = "";
-                }
-
-                container.innerHTML += `
-                <div class="level-card">
-                    <div>
-                        <div style="color:#FFD700; font-weight:bold;">Level ${l.id}</div>
-                        <div style="font-size:0.75rem; color:#ccc;">${l.refs} Ref | ${l.task} Task</div>
-                    </div>
-                    <div style="text-align:right;">
-                        <div style="font-weight:bold; color:#00e676;">${l.reward} TK</div>
-                        <button class="btn-select" style="${btnStyle}" ${btnState}>${btnTxt}</button>
-                    </div>
-                </div>`;
-            });
+            if(confirm("Use 1 Credit to apply for Monthly Plan?")) {
+                const uid = auth.currentUser.uid;
+                
+                // Deduct Credit & Send Request
+                db.ref('users/' + uid).update({ credits: userCredits - 1 }).then(() => {
+                    db.ref('monthly_requests/' + uid).set({
+                        uid: uid,
+                        status: 'pending',
+                        requestTime: Date.now(),
+                        type: 'monthly'
+                    });
+                    alert("Request Sent! Wait for Admin Approval.");
+                    location.reload();
+                });
+            }
         }
 
-        window.applyLevel = (lvlId) => {
-            if(credits < 1) return alert("No Credits left!");
-            if(!confirm(`Use 1 Monthly Credit to apply for Level ${lvlId}? \nAdmin approval required.`)) return;
-
-            const selected = levels.find(l => l.id === lvlId);
-
-            // Deduct Credit & Set Pending Target
-            const updates = {};
-            updates[`users/${uid}/credits/monthly`] = credits - 1;
-            updates[`users/${uid}/target`] = {
-                type: 'monthly',
-                level: lvlId,
-                status: 'pending', // Pending Admin Approval
-                reqRef: selected.refs,
-                reqTask: selected.task,
-                currentRef: 0,
-                currentTask: 0,
-                requestDate: Date.now()
-            };
-
-            update(ref(db), updates).then(() => {
-                alert("Application Sent! Please wait for Admin Approval.");
-                window.location.href = "home.html";
-            });
-        }
-
-        // Payment Simulation
-        window.openPayModal = () => document.getElementById('payModal').style.display = 'flex';
-        window.closePayModal = () => document.getElementById('payModal').style.display = 'none';
-        window.confirmPayment = () => {
-            alert("Payment request sent to Admin. Credits will be added upon verification.");
-            closePayModal();
+        function openBuyModal() {
+            document.getElementById('buyModal').style.display = 'flex';
         }
     </script>
 </body>
