@@ -37,16 +37,13 @@
 
         /* LEVEL CARDS */
         .levels-container { display: grid; grid-template-columns: 1fr; gap: 15px; }
-        .level-card { background: #141414; padding: 15px; border-radius: 12px; border-left: 5px solid #333; position: relative; }
-        .level-card.locked { opacity: 0.5; pointer-events: none; }
-        
+        .level-card { background: #141414; padding: 15px; border-radius: 12px; border-left: 5px solid #333; }
         .lvl-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; }
         .lvl-req { font-size: 0.85rem; color: #aaa; margin-bottom: 10px; }
         
         .select-btn { width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .select-btn:hover { background: #d4af37; color: #000; border-color: #d4af37; }
 
-        /* Credits Display */
         .credit-info { text-align: center; margin-bottom: 20px; color: #ccc; font-size: 0.9rem; }
         .credit-val { color: #d4af37; font-weight: bold; font-size: 1.1rem; }
     </style>
@@ -60,21 +57,28 @@
     </div>
 
     <div class="credit-info">
-        My Credits: <span id="myCredits" class="credit-val">Loading...</span>
+        My Credits: <span id="myCredits" class="credit-val">...</span>
     </div>
 
-    <!-- TARGET DASHBOARD (Active hole dekhabe) -->
+    <!-- TARGET DASHBOARD -->
     <div id="targetDashboard">
         <div class="dash-title">CURRENT ACTIVE PLAN</div>
         <div class="dash-level" id="activeLevelName">LEVEL 1</div>
         <div class="timer" id="timerDisplay">00 Days 00:00:00</div>
 
         <div class="progress-row">
-            <div class="p-label"><span>Referrals</span> <span id="refProg">0 / 30</span></div>
+            <div class="p-label">
+                <span>Qualified Referrals</span> 
+                <span id="refProg">0 / 0</span>
+            </div>
             <div class="p-bar-bg"><div class="p-bar-fill" id="refBar"></div></div>
+            <small style="color:#555; font-size:0.6rem;">*Counts when ref completes 2 tasks</small>
         </div>
         <div class="progress-row">
-            <div class="p-label"><span>Tasks</span> <span id="taskProg">0 / 60</span></div>
+            <div class="p-label">
+                <span>Plan Tasks</span> 
+                <span id="taskProg">0 / 0</span>
+            </div>
             <div class="p-bar-bg"><div class="p-bar-fill" id="taskBar"></div></div>
         </div>
         <div style="text-align:center; margin-top:10px; font-size:0.8rem; color:#2ecc71;">
@@ -83,13 +87,10 @@
     </div>
 
     <!-- LEVEL SELECTION LIST -->
-    <div id="levelList" class="levels-container">
-        <!-- JS will generate cards -->
-    </div>
+    <div id="levelList" class="levels-container"></div>
 
     <script>
-        // CONFIGURATION
-        const COST = 1; // 1 Credit per activation
+        const COST = 1; 
         const DURATION_DAYS = 30; 
         
         const levels = [
@@ -106,12 +107,10 @@
 
         auth.onAuthStateChanged(user => {
             if(user) {
-                const uid = user.uid;
-                
-                db.ref('users/' + uid).on('value', snap => {
+                db.ref('users/' + user.uid).on('value', snap => {
                     const data = snap.val();
                     userCredits = data.credits || 0;
-                    activePlan = data.activePlan || null; // Object { type: 'monthly', level: 1, end: ... }
+                    activePlan = data.activePlan || null; 
 
                     document.getElementById('myCredits').innerText = userCredits;
                     renderUI(data);
@@ -125,21 +124,20 @@
             const dashboard = document.getElementById('targetDashboard');
             const list = document.getElementById('levelList');
             
-            // Check if ANY plan is active
             if (activePlan) {
                 // HIDE LIST, SHOW DASHBOARD
                 list.style.display = 'none';
                 dashboard.style.display = 'block';
                 
-                // Show Details
                 if(activePlan.type === 'monthly') {
                     const lvlData = levels.find(l => l.id == activePlan.levelId);
                     document.getElementById('activeLevelName').innerText = lvlData.name;
                     document.getElementById('rewardAmt').innerText = lvlData.reward;
 
-                    // Progress
-                    const curRef = userData.teamCount || 0; 
-                    const curTask = userData.totalTasksDone || 0; // Ensure you track total tasks in DB
+                    // --- PREMIUM PROMPT LOGIC DISPLAY ---
+                    // We use activePlan.currentRef (Qualified) instead of userData.teamCount (Total)
+                    const curRef = activePlan.currentRef || 0;
+                    const curTask = activePlan.currentTask || 0; 
 
                     document.getElementById('refProg').innerText = `${curRef} / ${lvlData.ref}`;
                     document.getElementById('taskProg').innerText = `${curTask} / ${lvlData.task}`;
@@ -147,14 +145,13 @@
                     document.getElementById('refBar').style.width = Math.min((curRef/lvlData.ref)*100, 100) + "%";
                     document.getElementById('taskBar').style.width = Math.min((curTask/lvlData.task)*100, 100) + "%";
 
-                    // Timer
                     startTimer(activePlan.endTime);
                 } else {
-                    dashboard.innerHTML = "<h3 style='text-align:center'>WEEKLY PLAN ACTIVE</h3><p style='text-align:center'>Go to Weekly page to track.</p>";
+                    dashboard.innerHTML = "<h3 style='text-align:center; color:#aaa; margin-top:20px;'>WEEKLY PLAN ACTIVE</h3><button class='select-btn' style='margin-top:10px;' onclick='window.location.href=\"Weekly.html\"'>GO TO WEEKLY</button>";
                 }
 
             } else {
-                // SHOW LIST, HIDE DASHBOARD
+                // SHOW LIST
                 dashboard.style.display = 'none';
                 list.style.display = 'grid';
                 list.innerHTML = "";
@@ -181,7 +178,7 @@
 
         function activateLevel(lvlId) {
             if(userCredits < COST) {
-                alert("Not enough credits! Go to Withdraw page or Home to buy.");
+                alert("Not enough credits!");
                 return;
             }
 
@@ -190,23 +187,21 @@
                 const now = Date.now();
                 const endTime = now + (DURATION_DAYS * 24 * 60 * 60 * 1000);
 
-                // Update DB
                 const planData = {
                     type: 'monthly',
                     levelId: lvlId,
                     startTime: now,
                     endTime: endTime,
-                    startRef: 0, // Logic to track new refs only needs more backend code, simplistic approach here
-                    targetRef: levels[lvlId-1].ref,
-                    targetTask: levels[lvlId-1].task
+                    currentRef: 0,  // Logic starts at 0
+                    currentTask: 0 // Logic starts at 0
                 };
 
                 db.ref('users/' + uid).update({
                     credits: userCredits - COST,
                     activePlan: planData,
-                    plan: 'monthly' // Legacy support
+                    plan: 'monthly'
                 }).then(() => {
-                    alert("Level Activated! Start working.");
+                    alert("Level Activated! Start inviting and working.");
                 });
             }
         }
@@ -215,15 +210,12 @@
             setInterval(() => {
                 const now = Date.now();
                 const diff = endTime - now;
-
                 if (diff <= 0) {
                     document.getElementById('timerDisplay').innerText = "EXPIRED";
-                    // Logic to check pass/fail can be here or admin side
                 } else {
                     const d = Math.floor(diff / (1000 * 60 * 60 * 24));
                     const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                    document.getElementById('timerDisplay').innerText = `${d}d ${h}h ${m}m`;
+                    document.getElementById('timerDisplay').innerText = `${d}d ${h}h`;
                 }
             }, 1000);
         }
