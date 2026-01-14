@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TASK28 - Monthly Target</title>
+    <title>TASK28 - Weekly Target</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -24,35 +24,29 @@
         .back-btn { color: #d4af37; font-size: 1.5rem; cursor: pointer; }
         .page-title { font-size: 1.2rem; font-weight: 700; color: #d4af37; }
 
-        /* LIVE TARGET DASHBOARD */
         #targetDashboard { background: #111; padding: 20px; border-radius: 12px; border: 1px solid #d4af37; margin-bottom: 30px; display: none; }
-        .dash-title { font-size: 0.9rem; color: #aaa; text-align: center; margin-bottom: 10px; }
-        .dash-level { font-size: 1.5rem; color: #fff; text-align: center; font-weight: bold; margin-bottom: 5px; }
-        .timer { text-align: center; color: #e74c3c; font-family: monospace; font-size: 1.1rem; margin-bottom: 15px; }
-        
-        .progress-row { margin-bottom: 10px; }
-        .p-label { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 3px; }
-        .p-bar-bg { width: 100%; height: 8px; background: #333; border-radius: 4px; overflow: hidden; }
-        .p-bar-fill { height: 100%; background: #d4af37; width: 0%; transition: 0.5s; }
+        .dash-level { font-size: 1.5rem; color: #fff; text-align: center; font-weight: bold; }
+        .timer { text-align: center; color: #e74c3c; font-family: monospace; margin: 10px 0 20px; }
+        .progress-row { margin-bottom: 15px; }
+        .p-label { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px; }
+        .p-bar-bg { width: 100%; height: 10px; background: #333; border-radius: 5px; overflow: hidden; }
+        .p-bar-fill { height: 100%; background: #2ecc71; width: 0%; transition: 0.5s; }
 
-        /* LEVEL CARDS */
         .levels-container { display: grid; grid-template-columns: 1fr; gap: 15px; }
         .level-card { background: #141414; padding: 15px; border-radius: 12px; border-left: 5px solid #333; }
-        .lvl-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; }
-        .lvl-req { font-size: 0.85rem; color: #aaa; margin-bottom: 10px; }
-        
-        .select-btn { width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .select-btn:hover { background: #d4af37; color: #000; border-color: #d4af37; }
-
-        .credit-info { text-align: center; margin-bottom: 20px; color: #ccc; font-size: 0.9rem; }
-        .credit-val { color: #d4af37; font-weight: bold; font-size: 1.1rem; }
+        .lvl-header { display: flex; justify-content: space-between; font-weight: bold; }
+        .lvl-req { font-size: 0.85rem; color: #aaa; margin: 10px 0; }
+        .select-btn { width: 100%; padding: 12px; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .select-btn:hover { background: #d4af37; color: #000; }
+        .credit-info { text-align: center; margin-bottom: 20px; color: #ccc; }
+        .credit-val { color: #d4af37; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <i class="fas fa-chevron-left back-btn" onclick="window.location.href='Home.html'"></i>
-        <div class="page-title">MONTHLY PLAN</div>
+        <div class="page-title">WEEKLY PLAN</div>
         <div></div>
     </div>
 
@@ -60,46 +54,38 @@
         My Credits: <span id="myCredits" class="credit-val">...</span>
     </div>
 
-    <!-- TARGET DASHBOARD -->
+    <!-- DASHBOARD -->
     <div id="targetDashboard">
-        <div class="dash-title">CURRENT ACTIVE PLAN</div>
+        <div style="text-align:center; color:#aaa; font-size:0.8rem;">ACTIVE PLAN</div>
         <div class="dash-level" id="activeLevelName">LEVEL 1</div>
-        <div class="timer" id="timerDisplay">00 Days 00:00:00</div>
+        <div class="timer" id="timerDisplay">Loading...</div>
 
         <div class="progress-row">
-            <div class="p-label">
-                <span>Qualified Referrals</span> 
-                <span id="refProg">0 / 0</span>
-            </div>
+            <div class="p-label"><span>Qualified Referrals</span> <span id="refProg">0/0</span></div>
             <div class="p-bar-bg"><div class="p-bar-fill" id="refBar"></div></div>
             <small style="color:#555; font-size:0.6rem;">*Counts when ref completes 2 tasks</small>
         </div>
         <div class="progress-row">
-            <div class="p-label">
-                <span>Plan Tasks</span> 
-                <span id="taskProg">0 / 0</span>
-            </div>
+            <div class="p-label"><span>Plan Tasks</span> <span id="taskProg">0/0</span></div>
             <div class="p-bar-bg"><div class="p-bar-fill" id="taskBar"></div></div>
         </div>
-        <div style="text-align:center; margin-top:10px; font-size:0.8rem; color:#2ecc71;">
-            Reward: $<span id="rewardAmt">0</span>
-        </div>
+        <div style="text-align:center; font-size:0.9rem;">Reward: $<span id="rewardAmt" style="color:#d4af37">0</span></div>
     </div>
 
-    <!-- LEVEL SELECTION LIST -->
+    <!-- LIST -->
     <div id="levelList" class="levels-container"></div>
 
     <script>
-        const COST = 1; 
-        const DURATION_DAYS = 30; 
+        const COST = 1;
+        const DURATION_DAYS = 7;
         
         const levels = [
-            { id: 1, name: "Level 1", ref: 30, task: 60, reward: 3.3 },
-            { id: 2, name: "Level 2", ref: 50, task: 100, reward: 5.5 },
-            { id: 3, name: "Level 3", ref: 100, task: 200, reward: 11 },
-            { id: 4, name: "Level 4", ref: 150, task: 300, reward: 16.5 },
-            { id: 5, name: "Level 5", ref: 200, task: 400, reward: 22 },
-            { id: 6, name: "Level 6", ref: 300, task: 600, reward: 36 }
+            { id: 1, name: "Level 1", ref: 10, task: 20, reward: 1.2 },
+            { id: 2, name: "Level 2", ref: 20, task: 40, reward: 2.4 },
+            { id: 3, name: "Level 3", ref: 30, task: 60, reward: 3.6 },
+            { id: 4, name: "Level 4", ref: 40, task: 80, reward: 4.8 },
+            { id: 5, name: "Level 5", ref: 100, task: 150, reward: 9.0 },
+            { id: 6, name: "Level 6", ref: 200, task: 350, reward: 21.0 }
         ];
 
         let userCredits = 0;
@@ -110,8 +96,7 @@
                 db.ref('users/' + user.uid).on('value', snap => {
                     const data = snap.val();
                     userCredits = data.credits || 0;
-                    activePlan = data.activePlan || null; 
-
+                    activePlan = data.activePlan || null;
                     document.getElementById('myCredits').innerText = userCredits;
                     renderUI(data);
                 });
@@ -125,33 +110,29 @@
             const list = document.getElementById('levelList');
             
             if (activePlan) {
-                // HIDE LIST, SHOW DASHBOARD
                 list.style.display = 'none';
                 dashboard.style.display = 'block';
                 
-                if(activePlan.type === 'monthly') {
-                    const lvlData = levels.find(l => l.id == activePlan.levelId);
-                    document.getElementById('activeLevelName').innerText = lvlData.name;
-                    document.getElementById('rewardAmt').innerText = lvlData.reward;
+                if(activePlan.type === 'weekly') {
+                    const lvl = levels.find(l => l.id == activePlan.levelId);
+                    document.getElementById('activeLevelName').innerText = lvl.name;
+                    document.getElementById('rewardAmt').innerText = lvl.reward;
 
-                    // --- PREMIUM PROMPT LOGIC DISPLAY ---
-                    // We use activePlan.currentRef (Qualified) instead of userData.teamCount (Total)
+                    // USING ACTIVE PLAN DATA SPECIFICALLY
                     const curRef = activePlan.currentRef || 0;
-                    const curTask = activePlan.currentTask || 0; 
+                    const curTask = activePlan.currentTask || 0;
 
-                    document.getElementById('refProg').innerText = `${curRef} / ${lvlData.ref}`;
-                    document.getElementById('taskProg').innerText = `${curTask} / ${lvlData.task}`;
+                    document.getElementById('refProg').innerText = `${curRef} / ${lvl.ref}`;
+                    document.getElementById('taskProg').innerText = `${curTask} / ${lvl.task}`;
                     
-                    document.getElementById('refBar').style.width = Math.min((curRef/lvlData.ref)*100, 100) + "%";
-                    document.getElementById('taskBar').style.width = Math.min((curTask/lvlData.task)*100, 100) + "%";
+                    document.getElementById('refBar').style.width = Math.min((curRef/lvl.ref)*100, 100) + "%";
+                    document.getElementById('taskBar').style.width = Math.min((curTask/lvl.task)*100, 100) + "%";
 
                     startTimer(activePlan.endTime);
                 } else {
-                    dashboard.innerHTML = "<h3 style='text-align:center; color:#aaa; margin-top:20px;'>WEEKLY PLAN ACTIVE</h3><button class='select-btn' style='margin-top:10px;' onclick='window.location.href=\"Weekly.html\"'>GO TO WEEKLY</button>";
+                    dashboard.innerHTML = "<h3 style='text-align:center; color:#aaa; margin-top:20px;'>MONTHLY PLAN ACTIVE</h3><button class='select-btn' style='margin-top:10px;' onclick='window.location.href=\"Monthly.html\"'>GO TO MONTHLY</button>";
                 }
-
             } else {
-                // SHOW LIST
                 dashboard.style.display = 'none';
                 list.style.display = 'grid';
                 list.innerHTML = "";
@@ -160,16 +141,9 @@
                     const div = document.createElement('div');
                     div.className = "level-card";
                     div.innerHTML = `
-                        <div class="lvl-header">
-                            <span>${lvl.name}</span>
-                            <span style="color:#d4af37">$${lvl.reward}</span>
-                        </div>
-                        <div class="lvl-req">
-                            Target: ${lvl.ref} Referrals • ${lvl.task} Tasks
-                        </div>
-                        <button class="select-btn" onclick="activateLevel(${lvl.id})">
-                            UNLOCK (1 Credit)
-                        </button>
+                        <div class="lvl-header"><span>${lvl.name}</span> <span style="color:#d4af37">$${lvl.reward}</span></div>
+                        <div class="lvl-req">${lvl.ref} Refs • ${lvl.task} Tasks</div>
+                        <button class="select-btn" onclick="activateLevel(${lvl.id})">UNLOCK (1 Credit)</button>
                     `;
                     list.appendChild(div);
                 });
@@ -177,32 +151,26 @@
         }
 
         function activateLevel(lvlId) {
-            if(userCredits < COST) {
-                alert("Not enough credits!");
-                return;
-            }
-
-            if(confirm(`Use 1 Credit to start ${levels[lvlId-1].name}?`)) {
+            if(userCredits < COST) { alert("Need 1 Credit!"); return; }
+            if(confirm(`Start ${levels[lvlId-1].name} for 7 Days?`)) {
                 const uid = auth.currentUser.uid;
                 const now = Date.now();
                 const endTime = now + (DURATION_DAYS * 24 * 60 * 60 * 1000);
 
                 const planData = {
-                    type: 'monthly',
+                    type: 'weekly',
                     levelId: lvlId,
                     startTime: now,
                     endTime: endTime,
-                    currentRef: 0,  // Logic starts at 0
-                    currentTask: 0 // Logic starts at 0
+                    currentRef: 0,
+                    currentTask: 0
                 };
 
                 db.ref('users/' + uid).update({
                     credits: userCredits - COST,
                     activePlan: planData,
-                    plan: 'monthly'
-                }).then(() => {
-                    alert("Level Activated! Start inviting and working.");
-                });
+                    plan: 'weekly'
+                }).then(() => alert("Weekly Plan Activated!"));
             }
         }
 
