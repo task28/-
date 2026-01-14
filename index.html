@@ -3,33 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome - Loading</title>
+    <title>TASK28 - Initializing</title>
+
+    <!-- Google Fonts for Premium Look -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDR38gO9SBcE3qcVvFHlpyE5YdEqo0n2XU",
+            authDomain: "task38-f7daa.firebaseapp.com",
+            databaseURL: "https://task38-f7daa-default-rtdb.firebaseio.com",
+            projectId: "task38-f7daa",
+            storageBucket: "task38-f7daa.firebasestorage.app",
+            messagingSenderId: "655282407518",
+            appId: "1:655282407518:web:637dd6ac82b6c5e6018ccf"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+    </script>
+
     <style>
-        body { margin: 0; padding: 0; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); height: 100vh; display: flex; justify-content: center; align-items: center; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; }
-        .loader-container { text-align: center; }
-        .logo { font-size: 3rem; font-weight: bold; margin-bottom: 20px; background: -webkit-linear-gradient(#ffd700, #ff8c00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.1); border-top: 5px solid #ffd700; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        p { margin-top: 20px; letter-spacing: 2px; opacity: 0.7; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        /* Glassmorphism Card Container */
+        .loader-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            padding: 40px;
+            z-index: 2;
+        }
+
+        /* Animated Background Particles (Optional Decoration) */
+        .bg-glow {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: #d4af37;
+            filter: blur(150px);
+            opacity: 0.15;
+            border-radius: 50%;
+            z-index: 1;
+            animation: pulse 4s infinite;
+        }
+
+        /* Logo Styling - Metallic Gold Gradient */
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            position: relative;
+        }
+
+        .subtitle {
+            font-size: 0.8rem;
+            color: #888;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+        }
+
+        /* Progress Bar Design */
+        .progress-wrapper {
+            width: 100%;
+            height: 4px;
+            background: #222;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #d4af37, #f1c40f);
+            border-radius: 10px;
+            box-shadow: 0 0 15px #d4af37;
+            animation: load 3s ease-in-out forwards;
+        }
+
+        .status-text {
+            margin-top: 15px;
+            font-size: 0.75rem;
+            color: #666;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Animations */
+        @keyframes load {
+            0% { width: 0%; }
+            40% { width: 45%; }
+            70% { width: 70%; }
+            100% { width: 100%; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.1; }
+            50% { transform: scale(1.2); opacity: 0.2; }
+            100% { transform: scale(1); opacity: 0.1; }
+        }
+
+        .fade-out {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
     </style>
 </head>
 <body>
-    <div class="loader-container">
-        <div class="logo">TASK PRO</div>
-        <div class="spinner"></div>
-        <p>LOADING...</p>
+
+    <!-- Glow Effect Background -->
+    <div class="bg-glow"></div>
+
+    <div class="loader-container" id="mainContainer">
+        <div class="logo">TASK28</div>
+        <div class="subtitle">Premium Earning Platform</div>
+
+        <div class="progress-wrapper">
+            <div class="progress-bar"></div>
+        </div>
+        
+        <div class="status-text" id="status">Initializing Secure Connection...</div>
     </div>
 
-    <script type="module">
+    <script>
+        const statusText = document.getElementById('status');
+        const container = document.getElementById('mainContainer');
+
+        // Typing Effect simulation
+        setTimeout(() => { statusText.innerText = "Verifying Assets..."; }, 1000);
+        setTimeout(() => { statusText.innerText = "Syncing Database..."; }, 2000);
+        setTimeout(() => { statusText.innerText = "Loading Complete."; }, 2800);
+
+        // Redirect Logic
         setTimeout(() => {
-            // Check if user is already logged in (simulated logic here, usually handled by auth state)
-            const user = localStorage.getItem('user'); 
-            if(user) {
-                window.location.href = 'home.html';
-            } else {
-                window.location.href = 'register_login.html';
-            }
-        }, 3000); // 3 seconds loading
+            // Fade out animation
+            container.classList.add('fade-out');
+            
+            setTimeout(() => {
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        if(user.email === "rafsanvai388@gmail.com") {
+                            window.location.href = "Admin_home.html";
+                        } else {
+                            window.location.href = "Home.html";
+                        }
+                    } else {
+                        window.location.href = "Login.html";
+                    }
+                });
+            }, 500); // Wait for fade out
+        }, 3200);
     </script>
+
 </body>
 </html>
