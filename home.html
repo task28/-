@@ -1,227 +1,318 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-
-    const firebaseConfig = { apiKey: "AIzaSyB2YLhAvSF12ZZx7LSnbqcCjtS2_8QLt4o", authDomain: "task-f6078.firebaseapp.com", databaseURL: "https://task-f6078-default-rtdb.firebaseio.com", projectId: "task-f6078", storageBucket: "task-f6078.firebasestorage.app", messagingSenderId: "887907470692", appId: "1:887907470692:web:c4142ac9573e19d29d3e71" };
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    // সাইট স্ট্যাটাস চেক করা হচ্ছে
-    onValue(ref(db, 'settings/siteStatus'), (snap) => {
-        const isOn = snap.val(); 
-        // যদি সাইট OFF (false) থাকে, তাহলে Maintenance পেজে পাঠিয়ে দাও
-        if (isOn === false) {
-            window.location.href = "maintenance.html";
-        }
-    });
-</script>
     <meta charset="UTF-8">
-    <title>Premium Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>TASK28 - Dashboard</title>
+
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDR38gO9SBcE3qcVvFHlpyE5YdEqo0n2XU",
+            authDomain: "task38-f7daa.firebaseapp.com",
+            databaseURL: "https://task38-f7daa-default-rtdb.firebaseio.com",
+            projectId: "task38-f7daa",
+            storageBucket: "task38-f7daa.firebasestorage.app",
+            messagingSenderId: "655282407518",
+            appId: "1:655282407518:web:637dd6ac82b6c5e6018ccf"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+    </script>
+
     <style>
-        :root { --bg-dark: #0a0a0a; --card-bg: rgba(20, 20, 20, 0.6); --gold: #FFD700; --gold-glow: rgba(255, 215, 0, 0.3); --text-main: #ffffff; }
-        body { margin: 0; padding: 20px; background: radial-gradient(circle at top right, #1a1a2e, #000000); color: var(--text-main); font-family: 'Poppins', sans-serif; min-height: 100vh; padding-bottom: 80px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* HEADER & CREDITS */
-        .header-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .credit-pill { background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(255,215,0,0.3); display: flex; align-items: center; gap: 5px; margin-left: 5px; }
-        .credit-pill i { color: var(--gold); }
+        body {
+            background: #050505;
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            padding-bottom: 80px; /* Space for scrolling */
+            overflow-x: hidden;
+        }
 
-        /* ACTIVE TARGET DASHBOARD */
-        .active-dashboard { background: linear-gradient(135deg, rgba(255,215,0,0.05), rgba(0,0,0,0.8)); border: 1px solid var(--gold); border-radius: 20px; padding: 20px; margin-bottom: 25px; box-shadow: 0 0 15px var(--gold-glow); display: none; /* Hidden by default */ }
-        .status-badge { display: inline-block; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px; }
-        .st-pending { background: #ff9800; color: #000; }
-        .st-active { background: #00e676; color: #000; }
+        /* Gold Glow Background */
+        .bg-glow {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 10%, #d4af37 0%, transparent 40%);
+            opacity: 0.1; pointer-events: none; z-index: -1;
+        }
+
+        /* HEADER */
+        .header {
+            background: rgba(20, 20, 20, 0.9);
+            padding: 20px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
+            position: sticky; top: 0; z-index: 100;
+        }
+
+        .user-info { display: flex; align-items: center; gap: 15px; }
         
-        .timer-box { font-size: 1.5rem; font-weight: bold; color: #fff; text-align: center; margin: 15px 0; font-family: monospace; }
-        .progress-row { margin-bottom: 10px; }
-        .p-label { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px; color: #ccc; }
-        .p-bar-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; }
-        .p-bar-fill { height: 100%; background: var(--gold); width: 0%; transition: 0.5s; }
+        .avatar {
+            width: 50px; height: 50px;
+            background: linear-gradient(45deg, #d4af37, #b8860b);
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.5rem; color: #000;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
 
-        /* TARGET BUTTONS */
-        .target-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
-        .target-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 20px 10px; border-radius: 15px; text-align: center; cursor: pointer; transition: 0.3s; position: relative; }
-        .target-btn:hover { border-color: var(--gold); }
-        .target-btn.disabled { opacity: 0.4; pointer-events: none; filter: grayscale(1); }
-        .target-btn i { font-size: 2rem; color: var(--gold); margin-bottom: 10px; display: block; }
+        .user-text h3 { font-size: 1.1rem; font-weight: 700; color: #d4af37; }
+        .user-text p { font-size: 0.8rem; color: #aaa; }
+
+        /* PROFILE DETAILS CARD */
+        .profile-card {
+            margin: 20px;
+            padding: 20px;
+            background: #111;
+            border-radius: 15px;
+            border: 1px solid #333;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .profile-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-bottom: 1px solid #222;
+        }
+        .profile-row:last-child { border-bottom: none; }
         
+        .p-label { color: #888; font-size: 0.9rem; }
+        .p-value { font-family: monospace; font-size: 1rem; color: #fff; cursor: pointer; transition: 0.3s; }
+        
+        .blur-effect { filter: blur(5px); user-select: none; }
+        .p-value:hover { color: #d4af37; }
+
+        /* STATS GRID */
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+            padding: 0 20px; margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
+            padding: 15px; border-radius: 12px;
+            text-align: center; border: 1px solid #333;
+            transition: 0.3s;
+        }
+        .stat-box:hover { border-color: #d4af37; transform: translateY(-3px); }
+
+        .stat-title { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-num { font-size: 1.4rem; font-weight: 800; color: #d4af37; margin-top: 5px; }
+
+        /* BANNER (16:9) */
+        .banner-container {
+            width: calc(100% - 40px); margin: 0 auto 20px;
+            aspect-ratio: 16/9;
+            background: #222;
+            border-radius: 15px;
+            border: 2px solid #d4af37;
+            overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+            position: relative;
+        }
+        
+        .banner-text {
+            color: rgba(212, 175, 55, 0.3); font-weight: 800; font-size: 1.5rem;
+            z-index: 1;
+        }
+        
+        /* Optional: Image styling if you add a real image later */
+        .banner-img { width: 100%; height: 100%; object-fit: cover; position: absolute; }
+
         /* MENU GRID */
-        .grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .menu-item { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s; }
-        .menu-item i { font-size: 1.8rem; color: var(--gold); margin-bottom: 10px; display: block; }
+        .menu-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+            padding: 0 20px;
+        }
+
+        .menu-btn {
+            background: #111;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            text-decoration: none;
+            color: white;
+            border: 1px solid #333;
+            transition: 0.3s;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 10px;
+        }
+
+        .menu-btn i { font-size: 2rem; color: #d4af37; }
+        .menu-btn span { font-weight: 600; font-size: 0.9rem; }
+
+        .menu-btn:hover {
+            background: #d4af37; color: #000; border-color: #d4af37;
+        }
+        .menu-btn:hover i { color: #000; }
+
+        /* LOGOUT */
+        .logout-btn {
+            display: block; width: calc(100% - 40px); margin: 30px auto;
+            padding: 15px;
+            background: #a31515;
+            color: white;
+            border: none; border-radius: 10px;
+            font-weight: 700; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 2px;
+            transition: 0.3s;
+        }
+        .logout-btn:hover { background: #ff4d4d; }
+
+        /* Loading Overlay */
+        #pageLoader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 999;
+            display: flex; justify-content: center; align-items: center;
+            color: #d4af37; font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
-    <div class="header-box">
-        <div style="font-weight:bold; font-size:1.2rem;">TASK PRO</div>
-        <div style="display:flex;">
-            <div class="credit-pill"><i class="fas fa-calendar-week"></i> <span id="wkCredit">0</span></div>
-            <div class="credit-pill"><i class="fas fa-calendar-alt"></i> <span id="moCredit">0</span></div>
+    <div id="pageLoader">LOADING DASHBOARD...</div>
+    <div class="bg-glow"></div>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="user-info">
+            <div class="avatar"><i class="fas fa-user-astronaut"></i></div>
+            <div class="user-text">
+                <h3 id="u_name">Loading...</h3>
+                <p>Plan: <span id="u_plan" style="color:#d4af37">Free</span></p>
+            </div>
+        </div>
+        <div>
+            <i class="fas fa-bell" style="color:#d4af37; font-size:1.2rem;"></i>
         </div>
     </div>
 
-    <!-- ACTIVE / PENDING TARGET DASHBOARD -->
-    <div id="activeDash" class="active-dashboard">
-        <div style="display:flex; justify-content:space-between;">
-            <span id="targetName" style="font-weight:bold; color:var(--gold);">Target Loading...</span>
-            <span id="targetStatus" class="status-badge st-pending">Checking...</span>
+    <!-- PROFILE INFO (Hide/Show) -->
+    <div class="profile-card">
+        <div class="profile-row">
+            <span class="p-label">Registered Date</span>
+            <span class="p-value blur-effect" onclick="toggleBlur(this)" id="u_date">...</span>
         </div>
-        
-        <!-- Timer Section -->
-        <div id="timerSection">
-            <div class="timer-box" id="countDown">00d 00h 00m</div>
-            <div style="text-align:center; font-size:0.75rem; color:#aaa; margin-bottom:15px;">Time Remaining</div>
-        </div>
-
-        <!-- Waiting Message -->
-        <div id="pendingMsg" style="display:none; text-align:center; margin: 15px 0; color: #ff9800; font-size: 0.9rem;">
-            <i class="fas fa-hourglass-half"></i> Awaiting Admin Approval...<br>
-            <span style="font-size:0.75rem; opacity:0.7;">Timer & Counting starts after active.</span>
-        </div>
-
-        <!-- Progress Bars -->
-        <div class="progress-row">
-            <div class="p-label"><span>Referrals</span> <span id="refScore">0 / 0</span></div>
-            <div class="p-bar-bg"><div class="p-bar-fill" id="refBar"></div></div>
-        </div>
-        <div class="progress-row">
-            <div class="p-label"><span>Tasks</span> <span id="taskScore">0 / 0</span></div>
-            <div class="p-bar-bg"><div class="p-bar-fill" id="taskBar"></div></div>
+        <div class="profile-row">
+            <span class="p-label">User UID</span>
+            <span class="p-value blur-effect" onclick="toggleBlur(this)" id="u_uid">...</span>
         </div>
     </div>
 
-    <!-- SELECTION BUTTONS -->
-    <div class="target-grid">
-        <div class="target-btn" id="btnMonthly" onclick="window.location.href='monthly.html'">
+    <!-- STATS -->
+    <div class="stats-grid">
+        <div class="stat-box">
+            <div class="stat-title">Team Members</div>
+            <div class="stat-num" id="u_team">0</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-title">My Partners</div>
+            <div class="stat-num" id="u_partner">0</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-title">Total Profit</div>
+            <div class="stat-num" style="color:#4cd137;">$<span id="u_total">0.00</span></div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-title">Today Profit</div>
+            <div class="stat-num" style="color:#4cd137;">$<span id="u_today">0.00</span></div>
+        </div>
+    </div>
+
+    <!-- 16:9 BANNER -->
+    <div class="banner-container">
+        <!-- Image tag can be added here -->
+        <div class="banner-text">TASK28 PROMO BANNER</div>
+    </div>
+
+    <!-- NAVIGATION MENU -->
+    <div class="menu-grid">
+        <a href="Task.html" class="menu-btn">
+            <i class="fas fa-tasks"></i>
+            <span>DAILY TASK</span>
+        </a>
+        <a href="Referral.html" class="menu-btn">
+            <i class="fas fa-share-alt"></i>
+            <span>REFERRAL</span>
+        </a>
+        <a href="Monthly.html" class="menu-btn">
             <i class="fas fa-calendar-alt"></i>
-            <div style="font-weight:bold;">Monthly Target</div>
-            <div style="font-size:0.7rem; color:#aaa;">30 Days | Big Rewards</div>
-        </div>
-        <div class="target-btn" id="btnWeekly" onclick="window.location.href='weekly.html'">
+            <span>MONTHLY PLAN</span>
+        </a>
+        <a href="Weekly.html" class="menu-btn">
             <i class="fas fa-calendar-week"></i>
-            <div style="font-weight:bold;">Weekly Target</div>
-            <div style="font-size:0.7rem; color:#aaa;">7 Days | Quick Earn</div>
-        </div>
+            <span>WEEKLY PLAN</span>
+        </a>
+        <a href="Withdraw.html" class="menu-btn" style="grid-column: span 2; background: linear-gradient(45deg, #111, #222);">
+            <i class="fas fa-wallet" style="color: #fff;"></i>
+            <span style="color:#d4af37;">WITHDRAW BALANCE</span>
+        </a>
     </div>
 
-    <!-- MAIN MENU -->
-    <div class="grid-menu">
-        <div class="menu-item" onclick="window.location.href='balance.html'"><i class="fas fa-wallet"></i><span>My Wallet</span></div>
-        <div class="menu-item" onclick="window.location.href='referral.html'"><i class="fas fa-users"></i><span>Referral</span></div>
-        <div class="menu-item" onclick="window.location.href='withdraw.html'"><i class="fas fa-hand-holding-usd"></i><span>Withdraw</span></div>
-        <div class="menu-item" onclick="window.location.href='task_1.html'"><i class="fas fa-check-circle"></i><span>Daily Task</span></div>
-    </div>
+    <!-- LOGOUT -->
+    <button class="logout-btn" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> LOGOUT
+    </button>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    <script>
+        // Toggle Hide/Show Effect
+        function toggleBlur(element) {
+            element.classList.toggle('blur-effect');
+        }
 
-        const firebaseConfig = { apiKey: "AIzaSyB2YLhAvSF12ZZx7LSnbqcCjtS2_8QLt4o", authDomain: "task-f6078.firebaseapp.com", databaseURL: "https://task-f6078-default-rtdb.firebaseio.com", projectId: "task-f6078", storageBucket: "task-f6078.firebasestorage.app", messagingSenderId: "887907470692", appId: "1:887907470692:web:c4142ac9573e19d29d3e71" };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
-
-        onAuthStateChanged(auth, (user) => {
+        // Firebase Logic
+        auth.onAuthStateChanged((user) => {
             if (user) {
                 const uid = user.uid;
                 
-                // 1. Monitor Credits
-                onValue(ref(db, `users/${uid}/credits`), (snap) => {
-                    const c = snap.val() || {};
-                    document.getElementById('wkCredit').innerText = c.weekly || 0;
-                    document.getElementById('moCredit').innerText = c.monthly || 0;
-                });
-
-                // 2. Monitor Active/Pending Target
-                onValue(ref(db, `users/${uid}/target`), (snap) => {
-                    const target = snap.val();
-                    const dash = document.getElementById('activeDash');
-                    const btnM = document.getElementById('btnMonthly');
-                    const btnW = document.getElementById('btnWeekly');
-
-                    if (target && (target.status === 'pending' || target.status === 'active')) {
-                        // User has a target -> Lock buttons, Show Dash
-                        btnM.classList.add('disabled');
-                        btnW.classList.add('disabled');
-                        dash.style.display = 'block';
-                        updateDashboard(target);
-                    } else {
-                        // No active target -> Unlock buttons, Hide Dash
-                        btnM.classList.remove('disabled');
-                        btnW.classList.remove('disabled');
-                        dash.style.display = 'none';
+                // Realtime Data Listener
+                db.ref('users/' + uid).on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    
+                    if(data) {
+                        // Update UI
+                        document.getElementById('u_name').innerText = data.name;
+                        document.getElementById('u_plan').innerText = data.plan.toUpperCase();
+                        
+                        document.getElementById('u_date').innerText = data.regDate;
+                        document.getElementById('u_uid').innerText = data.uid;
+                        
+                        document.getElementById('u_team').innerText = data.teamCount || 0;
+                        document.getElementById('u_partner').innerText = data.partnerCount || 0;
+                        
+                        document.getElementById('u_total').innerText = parseFloat(data.totalProfit || 0).toFixed(2);
+                        document.getElementById('u_today').innerText = parseFloat(data.todayProfit || 0).toFixed(2);
+                        
+                        // Hide Loader
+                        document.getElementById('pageLoader').style.display = 'none';
                     }
                 });
-            } else { window.location.href = "register_login.html"; }
+
+            } else {
+                // Not logged in -> Redirect
+                window.location.href = 'Login.html';
+            }
         });
 
-        let timerInterval;
-
-        function updateDashboard(t) {
-            const nameEl = document.getElementById('targetName');
-            const statusEl = document.getElementById('targetStatus');
-            const pendingMsg = document.getElementById('pendingMsg');
-            const timerSec = document.getElementById('timerSection');
-
-            // Set Title
-            nameEl.innerText = (t.type === 'monthly' ? "Monthly" : "Weekly") + ` Level ${t.level}`;
-
-            // Logic for Status
-            if(t.status === 'pending') {
-                statusEl.className = 'status-badge st-pending';
-                statusEl.innerText = "PENDING";
-                pendingMsg.style.display = 'block';
-                timerSec.style.display = 'none'; // No timer yet
-            } else {
-                statusEl.className = 'status-badge st-active';
-                statusEl.innerText = "ACTIVE";
-                pendingMsg.style.display = 'none';
-                timerSec.style.display = 'block';
-                startTimer(t.endTime);
+        function logout() {
+            if(confirm("Are you sure you want to logout?")) {
+                auth.signOut().then(() => {
+                    window.location.href = 'index.html';
+                });
             }
-
-            // Update Progress (New referrals only)
-            const curRef = t.currentRef || 0;
-            const curTask = t.currentTask || 0;
-            
-            document.getElementById('refScore').innerText = `${curRef} / ${t.reqRef}`;
-            document.getElementById('taskScore').innerText = `${curTask} / ${t.reqTask}`;
-
-            const refPct = Math.min((curRef / t.reqRef) * 100, 100);
-            const taskPct = Math.min((curTask / t.reqTask) * 100, 100);
-            
-            document.getElementById('refBar').style.width = refPct + "%";
-            document.getElementById('taskBar').style.width = taskPct + "%";
-        }
-
-        function startTimer(endTime) {
-            if(timerInterval) clearInterval(timerInterval);
-            
-            const updateTime = () => {
-                const now = Date.now();
-                const dist = endTime - now;
-                
-                if(dist < 0) {
-                    document.getElementById('countDown').innerText = "EXPIRED";
-                    return;
-                }
-
-                const d = Math.floor(dist / (1000 * 60 * 60 * 24));
-                const h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
-                
-                document.getElementById('countDown').innerText = `${d}d ${h}h ${m}m`;
-            };
-            
-            updateTime();
-            timerInterval = setInterval(updateTime, 60000); // Update every minute
         }
     </script>
 </body>
