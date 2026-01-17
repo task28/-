@@ -3,221 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TASK28 - Monthly Target</title>
+    <title>TASK28 - Monthly Plans</title>
+    
+    <!-- Google Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
+    <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        const firebaseConfig = { apiKey: "AIzaSyDR38gO9SBcE3qcVvFHlpyE5YdEqo0n2XU", authDomain: "task38-f7daa.firebaseapp.com", databaseURL: "https://task38-f7daa-default-rtdb.firebaseio.com", projectId: "task38-f7daa", storageBucket: "task38-f7daa.firebasestorage.app", messagingSenderId: "655282407518", appId: "1:655282407518:web:637dd6ac82b6c5e6018ccf" };
+        const firebaseConfig = {
+            apiKey: "AIzaSyDuxSz3j5xMYDw5U9kLA0cjkpOE82D06MI",
+            authDomain: "part-1-f6d87.firebaseapp.com",
+            databaseURL: "https://part-1-f6d87-default-rtdb.firebaseio.com",
+            projectId: "part-1-f6d87",
+            storageBucket: "part-1-f6d87.firebasestorage.app",
+            messagingSenderId: "682699403122",
+            appId: "1:682699403122:web:038ffca84d489a6c0db7eb"
+        };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
     </script>
 
     <style>
-        body { background: #050505; color: #fff; font-family: 'Montserrat', sans-serif; padding: 20px; padding-bottom: 60px; }
-        .header { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
-        .back-btn { color: #d4af37; font-size: 1.5rem; cursor: pointer; }
-        .page-title { font-size: 1.2rem; font-weight: 700; color: #d4af37; }
-
-        /* LIVE TARGET DASHBOARD */
-        #targetDashboard { background: #111; padding: 20px; border-radius: 12px; border: 1px solid #d4af37; margin-bottom: 30px; display: none; }
-        .dash-title { font-size: 0.9rem; color: #aaa; text-align: center; margin-bottom: 10px; }
-        .dash-level { font-size: 1.5rem; color: #fff; text-align: center; font-weight: bold; margin-bottom: 5px; }
-        .timer { text-align: center; color: #e74c3c; font-family: monospace; font-size: 1.1rem; margin-bottom: 15px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        .progress-row { margin-bottom: 10px; }
-        .p-label { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 3px; }
-        .p-bar-bg { width: 100%; height: 8px; background: #333; border-radius: 4px; overflow: hidden; }
-        .p-bar-fill { height: 100%; background: #d4af37; width: 0%; transition: 0.5s; }
+        body { 
+            background: #050505; color: #fff; 
+            font-family: 'Montserrat', sans-serif; 
+            padding-bottom: 60px; 
+        }
 
-        /* LEVEL CARDS */
-        .levels-container { display: grid; grid-template-columns: 1fr; gap: 15px; }
-        .level-card { background: #141414; padding: 15px; border-radius: 12px; border-left: 5px solid #333; }
-        .lvl-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; }
-        .lvl-req { font-size: 0.85rem; color: #aaa; margin-bottom: 10px; }
-        
-        .select-btn { width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .select-btn:hover { background: #d4af37; color: #000; border-color: #d4af37; }
+        /* Header */
+        .header { 
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px; background: rgba(10, 10, 10, 0.95);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .back-btn { color: #fff; font-size: 1.2rem; cursor: pointer; }
+        .page-title { color: #d4af37; font-weight: 800; letter-spacing: 1px; font-size: 1.1rem; }
 
-        .credit-info { text-align: center; margin-bottom: 20px; color: #ccc; font-size: 0.9rem; }
-        .credit-val { color: #d4af37; font-weight: bold; font-size: 1.1rem; }
+        /* Container */
+        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+
+        .info-text {
+            text-align: center; color: #888; font-size: 0.85rem; margin-bottom: 25px;
+        }
+
+        /* Plan Cards */
+        .plan-grid { display: grid; gap: 15px; }
+
+        .plan-card { 
+            background: linear-gradient(145deg, #1a1a1a, #0d0d0d); 
+            padding: 20px; border-radius: 15px; 
+            border: 1px solid #333; position: relative; overflow: hidden;
+            transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .plan-card:hover { border-color: #d4af37; transform: scale(1.02); }
+
+        .p-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .p-name { font-size: 1.1rem; font-weight: 800; color: #fff; }
+        .p-price { color: #d4af37; font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 1.1rem; }
+
+        .p-desc { font-size: 0.85rem; color: #aaa; margin-bottom: 15px; line-height: 1.5; }
+
+        .telegram-btn { 
+            width: 100%; padding: 12px; 
+            background: #0088cc; /* Telegram Blue */
+            border: none; border-radius: 8px; color: #fff; 
+            font-weight: bold; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .telegram-btn:hover { background: #0099e6; }
+        .telegram-btn i { font-size: 1.2rem; }
+
+        /* Special Gold Border for High Plans */
+        .gold-plan { border: 1px solid #d4af37; background: rgba(212, 175, 55, 0.05); }
+
     </style>
 </head>
 <body>
 
     <div class="header">
         <i class="fas fa-chevron-left back-btn" onclick="window.location.href='Home.html'"></i>
-        <div class="page-title">MONTHLY PLAN</div>
-        <div></div>
+        <div class="page-title">MONTHLY PLANS</div>
+        <div style="width:20px;"></div>
     </div>
 
-    <div class="credit-info">
-        My Credits: <span id="myCredits" class="credit-val">...</span>
-    </div>
+    <div class="container">
+        <p class="info-text">Choose a 30-day plan. Tap apply to send your details to Admin via Telegram.</p>
 
-    <!-- TARGET DASHBOARD -->
-    <div id="targetDashboard">
-        <div class="dash-title">CURRENT ACTIVE PLAN</div>
-        <div class="dash-level" id="activeLevelName">LEVEL 1</div>
-        <div class="timer" id="timerDisplay">00 Days 00:00:00</div>
-
-        <div class="progress-row">
-            <div class="p-label">
-                <span>Qualified Referrals</span> 
-                <span id="refProg">0 / 0</span>
-            </div>
-            <div class="p-bar-bg"><div class="p-bar-fill" id="refBar"></div></div>
-            <small style="color:#555; font-size:0.6rem;">*Counts when ref completes 2 tasks</small>
-        </div>
-        <div class="progress-row">
-            <div class="p-label">
-                <span>Plan Tasks</span> 
-                <span id="taskProg">0 / 0</span>
-            </div>
-            <div class="p-bar-bg"><div class="p-bar-fill" id="taskBar"></div></div>
-        </div>
-        <div style="text-align:center; margin-top:10px; font-size:0.8rem; color:#2ecc71;">
-            Reward: $<span id="rewardAmt">0</span>
+        <div class="plan-grid" id="planList">
+            <!-- Plans will load here -->
         </div>
     </div>
-
-    <!-- LEVEL SELECTION LIST -->
-    <div id="levelList" class="levels-container"></div>
 
     <script>
-        const COST = 1; 
-        const DURATION_DAYS = 30; 
-        
-        const levels = [
-            { id: 1, name: "Level 1", ref: 30, task: 60, reward: 3.3 },
-            { id: 2, name: "Level 2", ref: 50, task: 100, reward: 5.5 },
-            { id: 3, name: "Level 3", ref: 100, task: 200, reward: 11 },
-            { id: 4, name: "Level 4", ref: 150, task: 300, reward: 16.5 },
-            { id: 5, name: "Level 5", ref: 200, task: 400, reward: 22 },
-            { id: 6, name: "Level 6", ref: 300, task: 600, reward: 36 }
+        // *** ADMIN TELEGRAM USERNAME UPDATED ***
+        const ADMIN_TELEGRAM = "RAFSAN_ART_CREATOR"; 
+
+        const monthlyPlans = [
+            { id: 1, name: "Monthly Basic", price: "2 Credits", desc: "Valid for 30 days. Daily 25 Tasks. Standard Support." },
+            { id: 2, name: "Monthly Gold", price: "5 Credits", desc: "Valid for 30 days. Daily 50 Tasks. Faster Withdrawals." },
+            { id: 3, name: "Monthly Platinum", price: "10 Credits", desc: "Valid for 30 days. Daily 100 Tasks. Priority Support.", isGold: true },
+            { id: 4, name: "Monthly Diamond", price: "20 Credits", desc: "Valid for 30 days. Daily 200 Tasks. VIP Manager.", isGold: true }
         ];
 
-        let userCredits = 0;
-        let activePlan = null;
+        let userData = {};
 
         auth.onAuthStateChanged(user => {
             if(user) {
                 db.ref('users/' + user.uid).on('value', snap => {
-                    const data = snap.val();
-                    userCredits = data.credits || 0;
-                    activePlan = data.activePlan || null; 
-
-                    document.getElementById('myCredits').innerText = userCredits;
-                    renderUI(data);
+                    userData = snap.val();
+                    renderPlans();
                 });
             } else {
                 window.location.href = 'Login.html';
             }
         });
 
-        function renderUI(userData) {
-            const dashboard = document.getElementById('targetDashboard');
-            const list = document.getElementById('levelList');
-            
-            if (activePlan) {
-                // HIDE LIST, SHOW DASHBOARD
-                list.style.display = 'none';
-                dashboard.style.display = 'block';
+        function renderPlans() {
+            const list = document.getElementById('planList');
+            list.innerHTML = "";
+
+            monthlyPlans.forEach(plan => {
+                const specialClass = plan.isGold ? 'gold-plan' : '';
                 
-                if(activePlan.type === 'monthly') {
-                    const lvlData = levels.find(l => l.id == activePlan.levelId);
-                    document.getElementById('activeLevelName').innerText = lvlData.name;
-                    document.getElementById('rewardAmt').innerText = lvlData.reward;
-
-                    // --- PREMIUM PROMPT LOGIC DISPLAY ---
-                    // We use activePlan.currentRef (Qualified) instead of userData.teamCount (Total)
-                    const curRef = activePlan.currentRef || 0;
-                    const curTask = activePlan.currentTask || 0; 
-
-                    document.getElementById('refProg').innerText = `${curRef} / ${lvlData.ref}`;
-                    document.getElementById('taskProg').innerText = `${curTask} / ${lvlData.task}`;
-                    
-                    document.getElementById('refBar').style.width = Math.min((curRef/lvlData.ref)*100, 100) + "%";
-                    document.getElementById('taskBar').style.width = Math.min((curTask/lvlData.task)*100, 100) + "%";
-
-                    startTimer(activePlan.endTime);
-                } else {
-                    dashboard.innerHTML = "<h3 style='text-align:center; color:#aaa; margin-top:20px;'>WEEKLY PLAN ACTIVE</h3><button class='select-btn' style='margin-top:10px;' onclick='window.location.href=\"Weekly.html\"'>GO TO WEEKLY</button>";
-                }
-
-            } else {
-                // SHOW LIST
-                dashboard.style.display = 'none';
-                list.style.display = 'grid';
-                list.innerHTML = "";
-
-                levels.forEach(lvl => {
-                    const div = document.createElement('div');
-                    div.className = "level-card";
-                    div.innerHTML = `
-                        <div class="lvl-header">
-                            <span>${lvl.name}</span>
-                            <span style="color:#d4af37">$${lvl.reward}</span>
+                const html = `
+                    <div class="plan-card ${specialClass}">
+                        <div class="p-header">
+                            <div class="p-name">${plan.name}</div>
+                            <div class="p-price">${plan.price}</div>
                         </div>
-                        <div class="lvl-req">
-                            Target: ${lvl.ref} Referrals • ${lvl.task} Tasks
-                        </div>
-                        <button class="select-btn" onclick="activateLevel(${lvl.id})">
-                            UNLOCK (1 Credit)
+                        <div class="p-desc">${plan.desc}</div>
+                        <button class="telegram-btn" onclick="contactAdmin('${plan.name}', '${plan.price}')">
+                            <i class="fab fa-telegram-plane"></i> Apply via Telegram
                         </button>
-                    `;
-                    list.appendChild(div);
-                });
-            }
+                    </div>
+                `;
+                list.innerHTML += html;
+            });
         }
 
-        function activateLevel(lvlId) {
-            if(userCredits < COST) {
-                alert("Not enough credits!");
-                return;
-            }
+        function contactAdmin(planName, price) {
+            if(!userData.email) return alert("Loading user data...");
 
-            if(confirm(`Use 1 Credit to start ${levels[lvlId-1].name}?`)) {
-                const uid = auth.currentUser.uid;
-                const now = Date.now();
-                const endTime = now + (DURATION_DAYS * 24 * 60 * 60 * 1000);
+            // Message Format
+            const text = `
+💎 *MONTHLY PLAN REQUEST*
+--------------------------
+👤 *User:* ${userData.name}
+📧 *Email:* ${userData.email}
+🆔 *UID:* ${userData.uid}
+--------------------------
+📦 *Plan:* ${planName}
+💰 *Price:* ${price}
+--------------------------
+Please verify and activate my plan.
+            `.trim();
 
-                const planData = {
-                    type: 'monthly',
-                    levelId: lvlId,
-                    startTime: now,
-                    endTime: endTime,
-                    currentRef: 0,  // Logic starts at 0
-                    currentTask: 0 // Logic starts at 0
-                };
-
-                db.ref('users/' + uid).update({
-                    credits: userCredits - COST,
-                    activePlan: planData,
-                    plan: 'monthly'
-                }).then(() => {
-                    alert("Level Activated! Start inviting and working.");
-                });
-            }
-        }
-
-        function startTimer(endTime) {
-            setInterval(() => {
-                const now = Date.now();
-                const diff = endTime - now;
-                if (diff <= 0) {
-                    document.getElementById('timerDisplay').innerText = "EXPIRED";
-                } else {
-                    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-                    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    document.getElementById('timerDisplay').innerText = `${d}d ${h}h`;
-                }
-            }, 1000);
+            const encodedText = encodeURIComponent(text);
+            const url = `https://t.me/${ADMIN_TELEGRAM}?text=${encodedText}`;
+            
+            window.open(url, '_blank');
         }
     </script>
 </body>
