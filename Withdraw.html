@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TASK28 - Withdraw</title>
+    <title>TASK28 - Withdraw Funds</title>
 
     <!-- Google Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
@@ -15,14 +15,15 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
+        // FIREBASE CONFIGURATION
         const firebaseConfig = {
-            apiKey: "AIzaSyDR38gO9SBcE3qcVvFHlpyE5YdEqo0n2XU",
-            authDomain: "task38-f7daa.firebaseapp.com",
-            databaseURL: "https://task38-f7daa-default-rtdb.firebaseio.com",
-            projectId: "task38-f7daa",
-            storageBucket: "task38-f7daa.firebasestorage.app",
-            messagingSenderId: "655282407518",
-            appId: "1:655282407518:web:637dd6ac82b6c5e6018ccf"
+            apiKey: "AIzaSyDuxSz3j5xMYDw5U9kLA0cjkpOE82D06MI",
+            authDomain: "part-1-f6d87.firebaseapp.com",
+            databaseURL: "https://part-1-f6d87-default-rtdb.firebaseio.com",
+            projectId: "part-1-f6d87",
+            storageBucket: "part-1-f6d87.firebasestorage.app",
+            messagingSenderId: "682699403122",
+            appId: "1:682699403122:web:038ffca84d489a6c0db7eb"
         };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -31,144 +32,185 @@
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            background: #050505; color: #fff; font-family: 'Montserrat', sans-serif;
-            padding: 20px; min-height: 100vh;
+            background-color: #050505;
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            padding-bottom: 40px;
+            overflow-x: hidden;
+        }
+
+        /* Background Glow */
+        .bg-glow {
+            position: fixed; top: -10%; right: -10%; width: 80%; height: 80%;
+            background: radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.1) 0%, transparent 60%);
+            z-index: -1; pointer-events: none;
         }
 
         /* HEADER */
         .header {
+            padding: 20px;
             display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(10, 10, 10, 0.9);
+            position: sticky; top: 0; z-index: 100;
         }
-        .back-btn { color: #d4af37; font-size: 1.5rem; cursor: pointer; }
-        .page-title { font-size: 1.2rem; font-weight: 700; letter-spacing: 2px; color: #d4af37; }
+        .back-btn { font-size: 1.2rem; color: #fff; cursor: pointer; }
+        .page-title { font-size: 1.1rem; font-weight: 700; color: #d4af37; letter-spacing: 2px; }
 
-        /* BALANCE CARD */
-        .balance-card {
-            background: linear-gradient(135deg, #111, #000);
-            padding: 30px; border-radius: 20px; border: 1px solid #d4af37;
-            text-align: center; margin-bottom: 30px;
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.15);
+        /* WALLET CARD */
+        .wallet-card {
+            margin: 20px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #000 100%);
+            border-radius: 20px; padding: 25px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative; overflow: hidden;
         }
-        .bal-label { font-size: 0.9rem; color: #aaa; text-transform: uppercase; letter-spacing: 2px; }
+        .wallet-card::before {
+            content: ''; position: absolute; width: 100px; height: 100px;
+            background: rgba(212, 175, 55, 0.2); filter: blur(50px); top: -20px; left: -20px;
+        }
+
+        .bal-label { color: #888; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
         .bal-amount {
-            font-family: 'Orbitron', sans-serif; font-size: 3rem; color: #fff;
-            margin: 10px 0; text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            font-family: 'Orbitron', sans-serif; font-size: 2.8rem;
+            color: #fff; margin: 10px 0; font-weight: 700;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
         }
-        .min-text { font-size: 0.8rem; color: #d4af37; background: rgba(212,175,55,0.1); padding: 5px 10px; border-radius: 20px; display: inline-block; }
+        .min-info { font-size: 0.75rem; color: #d4af37; background: rgba(212, 175, 55, 0.1); padding: 5px 10px; border-radius: 20px; display: inline-block; }
 
-        /* FORM */
-        .form-group { margin-bottom: 20px; }
-        .form-label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: #ccc; }
+        /* FORM SECTION */
+        .form-container { padding: 0 20px; }
+        
+        .input-group { margin-bottom: 20px; }
+        .label { display: block; margin-bottom: 8px; font-size: 0.85rem; color: #aaa; }
         
         .input-box {
-            position: relative; background: #111; border: 1px solid #333; border-radius: 10px;
+            display: flex; align-items: center;
+            background: #111; border: 1px solid #333;
+            border-radius: 12px; padding: 0 15px;
+            transition: 0.3s;
         }
-        .input-box i {
-            position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #d4af37;
-        }
-        .input-box input, .input-box select {
-            width: 100%; background: transparent; border: none; padding: 15px 15px 15px 45px;
-            color: #fff; font-size: 1rem; outline: none; font-family: 'Montserrat', sans-serif;
-            appearance: none; /* Remove default arrow */
-        }
+        .input-box:focus-within { border-color: #d4af37; box-shadow: 0 0 10px rgba(212, 175, 55, 0.1); }
         
-        /* Custom Arrow for Select */
-        .select-arrow {
-            position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
-            color: #666; pointer-events: none;
+        .input-icon { color: #d4af37; font-size: 1.1rem; margin-right: 10px; }
+        
+        .input-field, .select-field {
+            width: 100%; background: transparent; border: none;
+            padding: 15px 0; color: #fff; font-size: 1rem;
+            font-family: 'Montserrat', sans-serif; outline: none;
         }
+        .select-field { cursor: pointer; }
+        option { background: #000; color: #fff; }
 
         .withdraw-btn {
-            width: 100%; padding: 18px;
-            background: linear-gradient(45deg, #d4af37, #b8860b);
-            border: none; border-radius: 10px; margin-top: 10px;
-            color: #000; font-weight: 800; font-size: 1.1rem;
-            cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
-            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2); transition: 0.3s;
+            width: 100%; padding: 16px;
+            background: linear-gradient(90deg, #b8860b, #d4af37, #f1c40f);
+            border: none; border-radius: 12px;
+            color: #000; font-weight: 800; font-size: 1rem;
+            text-transform: uppercase; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+            transition: 0.3s; margin-top: 10px;
         }
-        .withdraw-btn:hover { transform: translateY(-2px); }
+        .withdraw-btn:active { transform: scale(0.98); }
 
-        /* HISTORY */
-        .history-section { margin-top: 40px; }
-        .h-title { font-size: 1rem; color: #fff; margin-bottom: 15px; border-left: 4px solid #d4af37; padding-left: 10px; }
+        /* HISTORY SECTION */
+        .history-container { margin-top: 40px; padding: 0 20px; }
+        .h-header { font-size: 1rem; color: #fff; margin-bottom: 15px; border-left: 4px solid #d4af37; padding-left: 10px; font-weight: 700; }
         
-        .history-item {
-            background: #111; padding: 15px; border-radius: 10px; margin-bottom: 10px;
-            display: flex; justify-content: space-between; align-items: center;
-            border: 1px solid #222;
+        .history-list { display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px; }
+        
+        .h-item {
+            background: rgba(20, 20, 20, 0.6);
+            border: 1px solid #222; border-radius: 10px;
+            padding: 15px; display: flex; justify-content: space-between; align-items: center;
         }
-        .h-left div { font-size: 0.8rem; color: #666; }
-        .h-left strong { font-size: 1.1rem; color: #fff; }
+        .h-left h4 { font-size: 1rem; color: #fff; margin-bottom: 3px; }
+        .h-left p { font-size: 0.75rem; color: #666; }
         
-        .badge { padding: 5px 10px; border-radius: 5px; font-size: 0.7rem; font-weight: bold; }
-        .b-pending { background: #333; color: #aaa; }
-        .b-paid { background: #27ae60; color: #fff; }
-        .b-rejected { background: #c0392b; color: #fff; }
+        .badge { font-size: 0.7rem; padding: 4px 8px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
+        .b-pending { background: rgba(255, 255, 0, 0.1); color: #f1c40f; border: 1px solid #f1c40f; }
+        .b-paid { background: rgba(0, 255, 0, 0.1); color: #2ecc71; border: 1px solid #2ecc71; }
+        .b-rejected { background: rgba(255, 0, 0, 0.1); color: #e74c3c; border: 1px solid #e74c3c; }
 
     </style>
 </head>
 <body>
 
+    <div class="bg-glow"></div>
+
     <div class="header">
         <i class="fas fa-chevron-left back-btn" onclick="window.location.href='Home.html'"></i>
         <div class="page-title">WITHDRAW</div>
-        <div></div>
+        <div style="width: 20px;"></div>
     </div>
 
-    <div class="balance-card">
+    <!-- BALANCE CARD -->
+    <div class="wallet-card">
         <div class="bal-label">Available Balance</div>
         <div class="bal-amount">$<span id="myBal">0.00</span></div>
-        <div class="min-text">Minimum Withdraw: $2.00</div>
+        <div class="min-info"><i class="fas fa-info-circle"></i> Min Withdraw: $2.00</div>
     </div>
 
-    <!-- Payment Method Selection -->
-    <div class="form-group">
-        <label class="form-label">Select Payment Method</label>
-        <div class="input-box">
-            <i class="fas fa-university"></i>
-            <select id="methodSelect" onchange="updateUI()">
-                <option value="USDT">USDT (BEP20)</option>
-                <option value="SHOPPING28">SHOPPING28 ID</option>
-            </select>
-            <i class="fas fa-chevron-down select-arrow"></i>
+    <!-- FORM -->
+    <div class="form-container">
+        
+        <div class="input-group">
+            <label class="label">Select Method</label>
+            <div class="input-box">
+                <i class="fas fa-university input-icon"></i>
+                <select class="select-field" id="methodSelect" onchange="updateUI()">
+                    <option value="USDT">USDT (BEP20)</option>
+                    <option value="SHOPPING28">SHOPPING28 ID</option>
+                </select>
+                <i class="fas fa-chevron-down" style="color:#666; font-size:0.8rem;"></i>
+            </div>
         </div>
-    </div>
 
-    <!-- Dynamic Input Field -->
-    <div class="form-group">
-        <label class="form-label" id="destLabel">Wallet Address</label>
-        <div class="input-box">
-            <i class="fas fa-wallet" id="destIcon"></i>
-            <input type="text" id="destination" placeholder="Paste USDT (BEP20) Address">
+        <div class="input-group">
+            <label class="label" id="destLabel">Wallet Address</label>
+            <div class="input-box">
+                <i class="fas fa-wallet input-icon" id="destIcon"></i>
+                <input type="text" class="input-field" id="destination" placeholder="Paste Address Here">
+            </div>
         </div>
-    </div>
 
-    <div class="form-group">
-        <label class="form-label">Amount (USD)</label>
-        <div class="input-box">
-            <i class="fas fa-dollar-sign"></i>
-            <input type="number" id="amount" placeholder="0.00">
+        <div class="input-group">
+            <label class="label">Amount (USD)</label>
+            <div class="input-box">
+                <i class="fas fa-dollar-sign input-icon"></i>
+                <input type="number" class="input-field" id="amount" placeholder="0.00">
+            </div>
         </div>
+
+        <button class="withdraw-btn" onclick="submitWithdraw()">REQUEST WITHDRAW</button>
     </div>
 
-    <button class="withdraw-btn" onclick="submitWithdraw()">REQUEST WITHDRAW</button>
-
-    <div class="history-section">
-        <div class="h-title">Recent Transactions</div>
-        <div id="historyList">
-            <!-- Items loaded via JS -->
+    <!-- HISTORY -->
+    <div class="history-container">
+        <div class="h-header">Recent Transactions</div>
+        <div class="history-list" id="historyList">
             <div style="text-align:center; color:#444; font-size:0.9rem; padding:20px;">Loading History...</div>
         </div>
     </div>
 
     <script>
         let currentBalance = 0;
+        let minWithdraw = 2; // Default
 
+        // 1. Auth & Data Load
         auth.onAuthStateChanged(user => {
             if(user) {
-                // Get Balance
+                // Get Admin Settings (Min Withdraw)
+                db.ref('adminSettings/minWithdraw').on('value', snap => {
+                    if(snap.exists()) minWithdraw = parseFloat(snap.val());
+                    document.querySelector('.min-info').innerHTML = `<i class="fas fa-info-circle"></i> Min Withdraw: $${minWithdraw.toFixed(2)}`;
+                });
+
+                // Get User Balance
                 db.ref('users/' + user.uid).on('value', snap => {
                     const data = snap.val();
                     currentBalance = parseFloat(data.balance || 0);
@@ -178,11 +220,11 @@
                 // Load History
                 loadHistory(user.uid);
             } else {
-                window.location.href = "Login.html";
+                window.location.href = "registration_login.html";
             }
         });
 
-        // Change UI based on Dropdown Selection
+        // 2. UI Updates
         function updateUI() {
             const method = document.getElementById('methodSelect').value;
             const label = document.getElementById('destLabel');
@@ -190,67 +232,77 @@
             const input = document.getElementById('destination');
 
             if(method === "USDT") {
-                label.innerText = "Wallet Address";
-                icon.className = "fas fa-wallet";
-                input.placeholder = "Paste USDT (BEP20) Address";
+                label.innerText = "Wallet Address (BEP20)";
+                icon.className = "fas fa-wallet input-icon";
+                input.placeholder = "Paste USDT Address";
             } else {
                 label.innerText = "Shopping28 User ID";
-                icon.className = "fas fa-id-card";
-                input.placeholder = "Enter Your Shopping28 ID";
+                icon.className = "fas fa-id-card input-icon";
+                input.placeholder = "Enter User ID";
             }
         }
 
+        // 3. Submit Logic
         function submitWithdraw() {
             const method = document.getElementById('methodSelect').value;
-            const dest = document.getElementById('destination').value;
+            const dest = document.getElementById('destination').value.trim();
             const amount = parseFloat(document.getElementById('amount').value);
 
             if(!amount || !dest) {
                 alert("Please fill all fields."); return;
             }
 
-            if(amount < 2) {
-                alert("Minimum withdraw is $2.00"); return;
+            if(amount < minWithdraw) {
+                alert(`Minimum withdraw amount is $${minWithdraw}`); return;
             }
 
             if(amount > currentBalance) {
                 alert("Insufficient Balance!"); return;
             }
 
-            // Process Request
-            if(confirm(`Confirm withdraw of $${amount} via ${method}?`)) {
+            // Confirm & Process
+            if(confirm(`Withdraw $${amount} via ${method}?`)) {
                 const uid = auth.currentUser.uid;
+                const btn = document.querySelector('.withdraw-btn');
+                btn.innerText = "PROCESSING...";
+                btn.style.opacity = "0.7";
                 
-                // 1. Deduct Balance
+                // Deduct Balance First
                 db.ref('users/' + uid).update({
                     balance: currentBalance - amount
                 }).then(() => {
-                    // 2. Create Request
-                    let methodText = (method === "USDT") ? "USDT (BEP20)" : "SHOPPING28 ID";
-
-                    db.ref('withdrawals').push({
+                    // Create Request
+                    const reqId = db.ref('withdrawals').push().key;
+                    db.ref('withdrawals/' + reqId).set({
                         uid: uid,
                         amount: amount,
-                        destination: dest, // Address or ShopID
-                        method: methodText,
+                        destination: dest,
+                        method: method,
                         status: "pending",
                         date: new Date().toISOString()
+                    }).then(() => {
+                        alert("Request Submitted Successfully!");
+                        document.getElementById('amount').value = "";
+                        document.getElementById('destination').value = "";
+                        btn.innerText = "REQUEST WITHDRAW";
+                        btn.style.opacity = "1";
                     });
-                    
-                    alert("Request Submitted Successfully!");
-                    document.getElementById('amount').value = "";
-                    document.getElementById('destination').value = "";
+                }).catch(err => {
+                    alert("Error: " + err.message);
+                    btn.innerText = "REQUEST WITHDRAW";
+                    btn.style.opacity = "1";
                 });
             }
         }
 
+        // 4. Load History
         function loadHistory(uid) {
             db.ref('withdrawals').orderByChild('uid').equalTo(uid).on('value', snap => {
                 const list = document.getElementById('historyList');
                 list.innerHTML = "";
                 
                 if(!snap.exists()) {
-                    list.innerHTML = '<div style="text-align:center; color:#444;">No transactions yet.</div>';
+                    list.innerHTML = '<div style="text-align:center; color:#444;">No transactions found.</div>';
                     return;
                 }
 
@@ -264,16 +316,16 @@
                     if(item.status === "rejected") badgeClass = "b-rejected";
 
                     const date = item.date.split('T')[0];
-                    const methodShort = item.method.includes("USDT") ? "USDT" : "SHOP ID";
+                    const methodShort = item.method === "USDT" ? "USDT" : "ID";
 
                     const html = `
-                        <div class="history-item">
+                        <div class="h-item">
                             <div class="h-left">
-                                <strong>$${parseFloat(item.amount).toFixed(2)}</strong>
-                                <div>${methodShort}: ${item.destination}</div>
-                                <div style="font-size:0.7rem; color:#444;">${date}</div>
+                                <h4>$${parseFloat(item.amount).toFixed(2)}</h4>
+                                <p>${methodShort}: ${item.destination.substring(0, 15)}...</p>
+                                <p style="font-size:0.65rem; margin-top:2px;">${date}</p>
                             </div>
-                            <span class="badge ${badgeClass}">${item.status.toUpperCase()}</span>
+                            <span class="badge ${badgeClass}">${item.status}</span>
                         </div>
                     `;
                     list.innerHTML += html;
