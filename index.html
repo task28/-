@@ -169,9 +169,7 @@
             
             setTimeout(() => {
                 auth.onAuthStateChanged((user) => {
-                    if (user) {
-                        if(user.email === "rafsanvai388@gmail.com") {
-                            window.location.href = "Admin_home.html";
+                    if (user) 
                         } else {
                             window.location.href = "Home.html";
                         }
