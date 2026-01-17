@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TASK28 - Access Portal</title>
 
     <!-- Google Fonts -->
@@ -139,10 +139,60 @@
 
         .msg-box { color: #ff4d4d; font-size: 0.75rem; margin-top: 10px; display: none; }
         
-        /* Mobile Responsive */
+        /* MOBILE SWITCH BUTTON (Only visible on mobile) */
+        .mobile-switch {
+            display: none;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        .mobile-switch span {
+            color: #d4af37; font-weight: bold; cursor: pointer; text-decoration: underline;
+        }
+
+        /* MOBILE RESPONSIVE CSS */
         @media (max-width: 768px) {
-            .container { width: 95%; min-height: 650px; }
-            .form-container { padding: 0 20px; }
+            body { overflow-y: auto; height: auto; padding: 20px 0; }
+            .container {
+                width: 100%;
+                min-height: 100vh; /* Full Height on Mobile */
+                border-radius: 0;
+                box-shadow: none;
+                border: none;
+                background: #000;
+            }
+            .form-container {
+                width: 100%; /* Full Width */
+                padding: 40px 20px;
+                position: absolute;
+                top: 0; left: 0;
+                height: auto;
+                min-height: 100%;
+            }
+
+            /* Hide the Slider Overlay on Mobile */
+            .overlay-container { display: none; }
+
+            /* Show Mobile Switch Links */
+            .mobile-switch { display: block; }
+
+            /* Adjust Visibility Logic for Mobile */
+            .sign-in-container { opacity: 1; z-index: 2; transform: none; }
+            .sign-up-container { opacity: 0; z-index: 1; transform: none; pointer-events: none; }
+
+            /* When Right Panel Active (Sign Up Mode) */
+            .container.right-panel-active .sign-in-container {
+                opacity: 0; pointer-events: none; transform: none;
+            }
+            .container.right-panel-active .sign-up-container {
+                opacity: 1; z-index: 5; pointer-events: all; transform: none; animation: fadeIn 0.5s;
+            }
+
+            @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+            
+            h1 { font-size: 1.8rem; }
+            input { padding: 15px; font-size: 1rem; }
+            button { width: 100%; padding: 15px; font-size: 1rem; }
         }
     </style>
 </head>
@@ -167,6 +217,11 @@
             
             <button class="btn-submit" onclick="handleRegister(this)">Sign Up</button>
             <div id="regMsg" class="msg-box">Error message</div>
+
+            <!-- Mobile Only Switch -->
+            <div class="mobile-switch">
+                Already have an account? <span onclick="switchToLogin()">Sign In</span>
+            </div>
         </div>
 
         <!-- SIGN IN FORM -->
@@ -183,9 +238,14 @@
             
             <button class="btn-submit" onclick="handleLogin(this)">Sign In</button>
             <div id="loginMsg" class="msg-box">Error message</div>
+
+            <!-- Mobile Only Switch -->
+            <div class="mobile-switch">
+                Don't have an account? <span onclick="switchToSignup()">Create Account</span>
+            </div>
         </div>
 
-        <!-- OVERLAY (SIDE PANEL) -->
+        <!-- OVERLAY (SIDE PANEL - HIDDEN ON MOBILE) -->
         <div class="overlay-container">
             <div class="overlay">
                 <div class="overlay-panel overlay-left">
@@ -207,14 +267,21 @@
         const signInButton = document.getElementById('signIn');
         const container = document.getElementById('container');
 
-        // Toggle Animation
+        // PC Toggle Animation
         signUpButton.addEventListener('click', () => {
             container.classList.add("right-panel-active");
         });
-
         signInButton.addEventListener('click', () => {
             container.classList.remove("right-panel-active");
         });
+
+        // Mobile Toggle Functions
+        function switchToSignup() {
+            container.classList.add("right-panel-active");
+        }
+        function switchToLogin() {
+            container.classList.remove("right-panel-active");
+        }
 
         // 1. Check URL for Referral Code
         window.onload = function() {
