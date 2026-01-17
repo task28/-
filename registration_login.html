@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TASK28 - Access Portal</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDuxSz3j5xMYDw5U9kLA0cjkpOE82D06MI",
+            authDomain: "part-1-f6d87.firebaseapp.com",
+            databaseURL: "https://part-1-f6d87-default-rtdb.firebaseio.com",
+            projectId: "part-1-f6d87",
+            storageBucket: "part-1-f6d87.firebasestorage.app",
+            messagingSenderId: "682699403122",
+            appId: "1:682699403122:web:038ffca84d489a6c0db7eb"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+    </script>
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background: #050505;
+            background-image: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000000 100%);
+            display: flex; justify-content: center; align-items: center;
+            font-family: 'Montserrat', sans-serif; height: 100vh; color: #fff; overflow: hidden;
+        }
+
+        /* Gold Glow Background */
+        .bg-glow {
+            position: absolute; width: 600px; height: 600px;
+            background: #d4af37; filter: blur(200px); opacity: 0.1;
+            z-index: 0; pointer-events: none; animation: pulse 6s infinite alternate;
+        }
+
+        @keyframes pulse { from { opacity: 0.05; transform: scale(0.8); } to { opacity: 0.15; transform: scale(1.1); } }
+
+        /* Container */
+        .container {
+            background: rgba(20, 20, 20, 0.85);
+            border-radius: 20px;
+            box-shadow: 0 14px 28px rgba(0,0,0,0.5), 0 10px 10px rgba(0,0,0,0.5);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            position: relative; overflow: hidden;
+            width: 850px; max-width: 100%; min-height: 580px;
+            z-index: 1; backdrop-filter: blur(10px);
+        }
+
+        .form-container {
+            position: absolute; top: 0; height: 100%; transition: all 0.6s ease-in-out;
+            padding: 0 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+        }
+
+        /* Sign Up Form Position */
+        .sign-up-container { left: 0; width: 50%; opacity: 0; z-index: 1; }
+        
+        /* Sign In Form Position */
+        .sign-in-container { left: 0; width: 50%; z-index: 2; }
+
+        /* Active State Animation */
+        .container.right-panel-active .sign-in-container { transform: translateX(100%); opacity: 0; }
+        .container.right-panel-active .sign-up-container { transform: translateX(100%); opacity: 1; z-index: 5; animation: show 0.6s; }
+
+        @keyframes show { 0%, 49.99% { opacity: 0; z-index: 1; } 50%, 100% { opacity: 1; z-index: 5; } }
+
+        /* Overlay (The Sliding Part) */
+        .overlay-container {
+            position: absolute; top: 0; left: 50%; width: 50%; height: 100%;
+            overflow: hidden; transition: transform 0.6s ease-in-out; z-index: 100;
+        }
+
+        .container.right-panel-active .overlay-container { transform: translateX(-100%); }
+
+        .overlay {
+            background: linear-gradient(to right, #b8860b, #d4af37, #f1c40f, #b8860b);
+            background-repeat: no-repeat; background-size: cover; background-position: 0 0;
+            color: #000; position: relative; left: -100%; height: 100%; width: 200%;
+            transform: translateX(0); transition: transform 0.6s ease-in-out;
+        }
+
+        .container.right-panel-active .overlay { transform: translateX(50%); }
+
+        .overlay-panel {
+            position: absolute; display: flex; align-items: center; justify-content: center;
+            flex-direction: column; padding: 0 40px; text-align: center; top: 0; height: 100%; width: 50%; transform: translateX(0); transition: transform 0.6s ease-in-out;
+        }
+
+        .overlay-left { transform: translateX(-20%); }
+        .container.right-panel-active .overlay-left { transform: translateX(0); }
+        .overlay-right { right: 0; transform: translateX(0); }
+        .container.right-panel-active .overlay-right { transform: translateX(20%); }
+
+        /* Elements Styling */
+        h1 { font-family: 'Orbitron', sans-serif; margin-bottom: 10px; color: #d4af37; }
+        h1.light { color: #000; }
+        
+        p { font-size: 0.9rem; line-height: 20px; letter-spacing: 0.5px; margin: 20px 0 30px; }
+        p.light { color: #222; font-weight: 600; }
+
+        .social-container { margin: 20px 0; }
+        .social-container a {
+            border: 1px solid #d4af37; border-radius: 50%; display: inline-flex;
+            justify-content: center; align-items: center; margin: 0 5px; height: 40px; width: 40px;
+            color: #d4af37; text-decoration: none; transition: 0.3s;
+        }
+        .social-container a:hover { background: #d4af37; color: #000; }
+
+        input {
+            background: #111; border: 1px solid #333; padding: 12px 15px;
+            margin: 8px 0; width: 100%; color: #fff; border-radius: 5px; outline: none;
+        }
+        input:focus { border-color: #d4af37; }
+
+        button {
+            border-radius: 20px; border: 1px solid #d4af37; background: #d4af37;
+            color: #000; font-size: 12px; font-weight: bold; padding: 12px 45px;
+            letter-spacing: 1px; text-transform: uppercase; transition: transform 80ms ease-in; cursor: pointer;
+        }
+        button:active { transform: scale(0.95); }
+        button:focus { outline: none; }
+        
+        button.ghost { background: transparent; border-color: #000; color: #000; }
+        button.ghost:hover { background: #000; color: #d4af37; border-color: #000; }
+
+        .btn-submit { margin-top: 10px; width: 100%; box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3); }
+
+        .msg-box { color: #ff4d4d; font-size: 0.75rem; margin-top: 10px; display: none; }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container { width: 95%; min-height: 650px; }
+            .form-container { padding: 0 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow"></div>
+
+    <div class="container" id="container">
+        
+        <!-- SIGN UP FORM -->
+        <div class="form-container sign-up-container">
+            <h1 style="font-size: 1.5rem;">Create Account</h1>
+            <div class="social-container">
+                <a href="#"><i class="fas fa-gift"></i></a>
+                <span style="font-size:0.7rem; color:#888; margin-left:10px;">Get 2 Credits Free!</span>
+            </div>
+            <input type="text" id="r_name" placeholder="Full Name" />
+            <input type="email" id="r_email" placeholder="Email" />
+            <input type="password" id="r_pass" placeholder="Password (Min 6 chars)" />
+            <input type="text" id="r_refCode" placeholder="Referral Code (Required)" />
+            <input type="text" id="r_bonusCode" placeholder="Bonus Code (Optional)" />
+            
+            <button class="btn-submit" onclick="handleRegister(this)">Sign Up</button>
+            <div id="regMsg" class="msg-box">Error message</div>
+        </div>
+
+        <!-- SIGN IN FORM -->
+        <div class="form-container sign-in-container">
+            <h1>Sign In</h1>
+            <div class="social-container">
+                <a href="#"><i class="fab fa-google"></i></a>
+                <a href="#"><i class="fas fa-fingerprint"></i></a>
+            </div>
+            <p style="color:#888; margin: 0 0 20px;">Use your registered email</p>
+            <input type="email" id="l_email" placeholder="Email" />
+            <input type="password" id="l_pass" placeholder="Password" />
+            <a href="#" style="color:#aaa; font-size:0.8rem; text-decoration:none; margin:10px 0;">Forgot your password?</a>
+            
+            <button class="btn-submit" onclick="handleLogin(this)">Sign In</button>
+            <div id="loginMsg" class="msg-box">Error message</div>
+        </div>
+
+        <!-- OVERLAY (SIDE PANEL) -->
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel overlay-left">
+                    <h1 class="light">Welcome Back!</h1>
+                    <p class="light">To keep connected with us please login with your personal info</p>
+                    <button class="ghost" id="signIn">Sign In</button>
+                </div>
+                <div class="overlay-panel overlay-right">
+                    <h1 class="light">Hello, Earner!</h1>
+                    <p class="light">Enter your personal details and start your journey with us</p>
+                    <button class="ghost" id="signUp">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const signUpButton = document.getElementById('signUp');
+        const signInButton = document.getElementById('signIn');
+        const container = document.getElementById('container');
+
+        // Toggle Animation
+        signUpButton.addEventListener('click', () => {
+            container.classList.add("right-panel-active");
+        });
+
+        signInButton.addEventListener('click', () => {
+            container.classList.remove("right-panel-active");
+        });
+
+        // 1. Check URL for Referral Code
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const ref = urlParams.get('ref');
+            if(ref) {
+                // If ref code exists, switch to Sign Up & fill code
+                container.classList.add("right-panel-active");
+                document.getElementById('r_refCode').value = ref;
+                document.getElementById('r_refCode').readOnly = true;
+            }
+        };
+
+        // 2. REGISTER LOGIC
+        function handleRegister(btn) {
+            const name = document.getElementById('r_name').value;
+            const email = document.getElementById('r_email').value;
+            const pass = document.getElementById('r_pass').value;
+            const refCode = document.getElementById('r_refCode').value.trim();
+            const bonusCode = document.getElementById('r_bonusCode').value.trim().toUpperCase();
+            const msgBox = document.getElementById('regMsg');
+
+            if(!name || !email || !pass || !refCode) {
+                showError(msgBox, "All fields (except Bonus) are required."); return;
+            }
+            if(pass.length < 6) {
+                showError(msgBox, "Password must be at least 6 characters."); return;
+            }
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            btn.style.opacity = "0.7";
+
+            // Check Bonus Code First
+            db.ref('bonusCodes/' + bonusCode).once('value').then(snap => {
+                let startBal = 0;
+                let startCred = 2; // Default Credit
+
+                if(bonusCode && snap.exists()) {
+                    const bData = snap.val();
+                    if(bData.type === 'balance') startBal = parseFloat(bData.amount);
+                    if(bData.type === 'credit') startCred += parseInt(bData.amount);
+                } else if(bonusCode && !snap.exists()) {
+                    showError(msgBox, "Invalid Bonus Code"); 
+                    resetBtn(btn, "Sign Up"); return;
+                }
+
+                // Create User
+                auth.createUserWithEmailAndPassword(email, pass).then((cred) => {
+                    const uid = cred.user.uid;
+                    const myCode = "TASK" + Math.floor(100000 + Math.random() * 900000);
+                    const today = new Date().toISOString().split('T')[0];
+
+                    db.ref('users/' + uid).set({
+                        name: name, email: email, password: pass, uid: uid,
+                        balance: startBal, credits: startCred, 
+                        todayProfit: 0, totalProfit: 0, teamCount: 0, partnerCount: 0,
+                        regDate: today, myRefCode: myCode, referredBy: refCode, plan: "free"
+                    }).then(() => {
+                        updateReferrer(refCode);
+                        alert("Account Created! 2 Credits Added.");
+                        window.location.href = "Home.html";
+                    });
+
+                }).catch(err => {
+                    showError(msgBox, err.message);
+                    resetBtn(btn, "Sign Up");
+                });
+            });
+        }
+
+        function updateReferrer(code) {
+            db.ref('users').orderByChild('myRefCode').equalTo(code).once('value', snap => {
+                if(snap.exists()) {
+                    snap.forEach(u => {
+                        const refUid = u.key;
+                        const data = u.val();
+                        let updates = { teamCount: (data.teamCount || 0) + 1 };
+                        
+                        if(data.activePlan) {
+                            updates['activePlan/currentRef'] = (data.activePlan.currentRef || 0) + 1;
+                        }
+                        db.ref('users/' + refUid).update(updates);
+                    });
+                }
+            });
+        }
+
+        // 3. LOGIN LOGIC
+        function handleLogin(btn) {
+            const email = document.getElementById('l_email').value;
+            const pass = document.getElementById('l_pass').value;
+            const msgBox = document.getElementById('loginMsg');
+
+            if(!email || !pass) { showError(msgBox, "Please fill all fields."); return; }
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+            btn.style.opacity = "0.7";
+
+            auth.signInWithEmailAndPassword(email, pass)
+                .then(() => {
+                    if(email === "rafsanvai388@gmail.com") {
+                        window.location.href = "Admin_home.html";
+                    } else {
+                        window.location.href = "Home.html";
+                    }
+                })
+                .catch((error) => {
+                    showError(msgBox, "Invalid Email or Password");
+                    resetBtn(btn, "Sign In");
+                });
+        }
+
+        function showError(el, msg) {
+            el.innerText = msg; el.style.display = 'block';
+        }
+        function resetBtn(btn, txt) {
+            btn.innerHTML = txt; btn.style.opacity = "1";
+        }
+
+    </script>
+</body>
+</html>
