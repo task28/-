@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TASK28 - Daily Task</title>
+    <title>TASK28 - Task Manager</title>
 
     <!-- Google Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
@@ -16,13 +16,13 @@
 
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyDR38gO9SBcE3qcVvFHlpyE5YdEqo0n2XU",
-            authDomain: "task38-f7daa.firebaseapp.com",
-            databaseURL: "https://task38-f7daa-default-rtdb.firebaseio.com",
-            projectId: "task38-f7daa",
-            storageBucket: "task38-f7daa.firebasestorage.app",
-            messagingSenderId: "655282407518",
-            appId: "1:655282407518:web:637dd6ac82b6c5e6018ccf"
+            apiKey: "AIzaSyDuxSz3j5xMYDw5U9kLA0cjkpOE82D06MI",
+            authDomain: "part-1-f6d87.firebaseapp.com",
+            databaseURL: "https://part-1-f6d87-default-rtdb.firebaseio.com",
+            projectId: "part-1-f6d87",
+            storageBucket: "part-1-f6d87.firebasestorage.app",
+            messagingSenderId: "682699403122",
+            appId: "1:682699403122:web:038ffca84d489a6c0db7eb"
         };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -31,179 +31,239 @@
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            background: #050505; color: #fff; font-family: 'Montserrat', sans-serif;
-            padding: 20px; min-height: 100vh;
+            background-color: #050505;
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            padding-bottom: 40px;
+            overflow-x: hidden;
+        }
+
+        /* Background Glow */
+        .bg-glow {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 10%, rgba(212, 175, 55, 0.15) 0%, transparent 50%);
+            z-index: -1; pointer-events: none;
         }
 
         /* HEADER */
         .header {
+            padding: 20px;
             display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 15px;
+            background: rgba(10, 10, 10, 0.9);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
         }
-        .back-btn { color: #d4af37; font-size: 1.5rem; cursor: pointer; }
-        .page-title { font-size: 1.2rem; font-weight: 700; letter-spacing: 2px; color: #d4af37; }
+        .back-btn { font-size: 1.2rem; color: #fff; cursor: pointer; }
+        .page-title { font-size: 1.1rem; font-weight: 700; color: #d4af37; letter-spacing: 2px; }
+
+        /* MAIN CONTAINER */
+        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
 
         /* CARDS */
         .task-card {
-            background: rgba(20, 20, 20, 0.9);
-            border: 1px solid #333; border-radius: 15px;
-            padding: 25px; margin-bottom: 20px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            display: none; /* Hidden by default, shown via JS */
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 15px; padding: 30px 20px;
+            text-align: center; display: none; /* Hidden by default */
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            animation: fadeIn 0.5s ease;
         }
-        .active-card { display: block; animation: fadeIn 0.5s; }
+        .active-card { display: block; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        h2 { font-size: 1.1rem; margin-bottom: 10px; color: #fff; }
-        p { color: #888; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5; }
+        /* ICONS & TITLES */
+        .status-icon { font-size: 3.5rem; margin-bottom: 20px; display: block; }
+        .t-title { font-size: 1.2rem; font-weight: 800; color: #fff; margin-bottom: 10px; }
+        .t-desc { color: #888; font-size: 0.9rem; margin-bottom: 25px; line-height: 1.6; }
 
         /* BUTTONS */
         .btn-gold {
             width: 100%; padding: 15px;
-            background: linear-gradient(45deg, #d4af37, #f1c40f);
-            border: none; border-radius: 8px;
-            color: #000; font-weight: 800; cursor: pointer;
-            text-transform: uppercase; letter-spacing: 1px;
-            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+            background: linear-gradient(135deg, #d4af37, #b8860b);
+            border: none; border-radius: 10px;
+            color: #000; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 1px; cursor: pointer;
+            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
             transition: 0.3s;
         }
-        .btn-gold:hover { transform: scale(1.02); }
+        .btn-gold:hover { transform: translateY(-2px); }
+        .btn-gold:active { transform: scale(0.98); }
 
-        /* DATA DISPLAY BOXES */
-        .data-row {
-            background: #111; padding: 12px; margin-bottom: 10px;
-            border-radius: 8px; border: 1px dashed #444;
-            display: flex; justify-content: space-between; align-items: center;
-            cursor: pointer; transition: 0.2s;
-        }
-        .data-row:hover { border-color: #d4af37; background: #1a1a1a; }
-        .data-label { color: #888; font-size: 0.8rem; }
-        .data-val { color: #fff; font-weight: 600; font-family: monospace; }
-        .copy-icon { color: #d4af37; }
-
-        /* TIMER */
+        /* --- WORK SPACE STYLES --- */
+        
+        /* Timer */
         .timer-box {
-            text-align: center; margin: 20px 0;
-            background: #000; padding: 15px; border-radius: 10px;
-            border: 2px solid #a31515;
+            background: #000; border: 1px solid #d4af37;
+            padding: 15px; border-radius: 10px; margin-bottom: 20px;
+            position: relative; overflow: hidden;
         }
-        .timer-text {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 2.5rem; color: #ff4d4d; text-shadow: 0 0 10px red;
+        .timer-val {
+            font-family: 'Orbitron', sans-serif; font-size: 2.5rem;
+            color: #ff4d4d; text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
         }
-        .timer-label { font-size: 0.8rem; color: #aaa; letter-spacing: 2px; }
+        .timer-label { font-size: 0.7rem; color: #aaa; letter-spacing: 2px; margin-bottom: 5px; }
 
-        /* INPUTS */
-        input {
-            width: 100%; padding: 12px; margin-bottom: 10px;
-            background: #0a0a0a; border: 1px solid #333;
-            color: #fff; border-radius: 5px; outline: none;
+        /* Data Rows */
+        .data-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px; }
+        
+        .data-item {
+            background: #151515; border: 1px dashed #444;
+            padding: 12px 15px; border-radius: 8px;
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; transition: 0.2s; text-align: left;
         }
-        input:focus { border-color: #d4af37; }
+        .data-item:hover { border-color: #d4af37; background: #1a1a1a; }
+        .data-item:active { background: #d4af37; color: #000; }
+        
+        .d-label { font-size: 0.75rem; color: #666; display: block; margin-bottom: 2px; }
+        .d-val { font-family: monospace; font-size: 1rem; color: #fff; font-weight: 600; }
+        .data-item:active .d-val, .data-item:active .d-label { color: #000; }
+
+        /* Submission Form */
+        .sub-title { text-align: left; font-size: 0.9rem; color: #d4af37; margin-bottom: 10px; font-weight: bold; }
+        
+        .input-field {
+            width: 100%; padding: 15px; background: #0a0a0a;
+            border: 1px solid #333; border-radius: 8px;
+            color: #fff; margin-bottom: 10px; outline: none; font-family: monospace;
+        }
+        .input-field:focus { border-color: #d4af37; }
+
+        /* LOADER */
+        .loader {
+            width: 40px; height: 40px; border: 4px solid #333;
+            border-top: 4px solid #d4af37; border-radius: 50%;
+            animation: spin 1s linear infinite; margin: 0 auto 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* STATUS BADGES */
-        .badge {
-            display: inline-block; padding: 5px 10px; border-radius: 5px;
-            font-size: 0.8rem; font-weight: bold; text-transform: uppercase;
-        }
+        .badge { display: inline-block; padding: 5px 12px; border-radius: 5px; font-size: 0.8rem; font-weight: bold; margin-top: 10px; }
         .badge-pending { background: #333; color: #aaa; }
-        .badge-review { background: #0984e3; color: white; }
-        .badge-success { background: #00b894; color: black; }
-        .badge-failed { background: #d63031; color: white; }
-
-        /* Loader */
-        .loader { width: 30px; height: 30px; border: 3px solid #333; border-top: 3px solid #d4af37; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .badge-success { background: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; }
+        .badge-fail { background: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #e74c3c; }
 
     </style>
 </head>
 <body>
 
+    <div class="bg-glow"></div>
+
     <div class="header">
         <i class="fas fa-chevron-left back-btn" onclick="window.location.href='Home.html'"></i>
-        <div class="page-title">TASK MANAGER</div>
-        <div></div> <!-- Spacer -->
+        <div class="page-title">TASK ZONE</div>
+        <div style="width:20px;"></div>
     </div>
 
-    <!-- VIEW 1: APPLY START -->
-    <div id="view_apply" class="task-card">
-        <h2 style="color: #d4af37;"><i class="fas fa-rocket"></i> APPLY FOR NEW TASK</h2>
-        <p>Click below to request a Gmail Creation Task. Admin will review and send you details within 5 minutes.</p>
-        <div style="background: #111; padding: 10px; border-radius: 5px; margin-bottom: 20px; font-size: 0.85rem; border-left: 3px solid #d4af37;">
-            <i class="fas fa-info-circle"></i> <strong>Note:</strong> You must complete the task within 13 minutes after receiving data.
-        </div>
-        <button class="btn-gold" onclick="applyForTask()">REQUEST TASK NOW</button>
-    </div>
+    <div class="container">
 
-    <!-- VIEW 2: WAITING FOR ADMIN -->
-    <div id="view_waiting" class="task-card" style="text-align: center; padding: 40px;">
-        <div class="loader"></div>
-        <h3 style="margin-top: 20px; color: #d4af37;">WAITING FOR ADMIN...</h3>
-        <p>Please wait. Admin is assigning data for your task.<br>Do not close this page.</p>
-        <span class="badge badge-pending">STATUS: PENDING</span>
-    </div>
-
-    <!-- VIEW 3: ACTIVE WORK SPACE -->
-    <div id="view_work" class="task-card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2 style="margin: 0;">YOUR DATA IS HERE</h2>
-            <span class="badge badge-success">ACTIVE</span>
-        </div>
-        
-        <!-- Timer -->
-        <div class="timer-box">
-            <div class="timer-label">TIME REMAINING</div>
-            <div class="timer-text" id="timerDisplay">13:00</div>
+        <!-- 1. APPLY VIEW -->
+        <div id="view_apply" class="task-card">
+            <i class="fas fa-rocket status-icon" style="color: #d4af37;"></i>
+            <div class="t-title">READY FOR NEW TASK?</div>
+            <div class="t-desc">
+                Request a Gmail creation task. You will have <b>13 minutes</b> to complete it. 
+                Ensure you have stable internet.
+            </div>
+            <button class="btn-gold" onclick="applyForTask()">REQUEST TASK</button>
         </div>
 
-        <p style="font-size: 0.8rem; text-align: center;">Click on boxes to copy details</p>
-
-        <!-- Data Fields -->
-        <div class="data-row" onclick="copyToClipboard('d_fname')">
-            <div><span class="data-label">First Name:</span> <span id="d_fname" class="data-val">...</span></div>
-            <i class="fas fa-copy copy-icon"></i>
-        </div>
-        <div class="data-row" onclick="copyToClipboard('d_lname')">
-            <div><span class="data-label">Last Name:</span> <span id="d_lname" class="data-val">...</span></div>
-            <i class="fas fa-copy copy-icon"></i>
-        </div>
-        <div class="data-row" onclick="copyToClipboard('d_dob')">
-            <div><span class="data-label">DOB:</span> <span id="d_dob" class="data-val">...</span></div>
-            <i class="fas fa-copy copy-icon"></i>
-        </div>
-        <div class="data-row" onclick="copyToClipboard('d_rec')">
-            <div><span class="data-label">Recovery:</span> <span id="d_rec" class="data-val">...</span></div>
-            <i class="fas fa-copy copy-icon"></i>
-        </div>
-        <div class="data-row" onclick="copyToClipboard('d_pass')">
-            <div><span class="data-label">Password:</span> <span id="d_pass" class="data-val">...</span></div>
-            <i class="fas fa-copy copy-icon"></i>
+        <!-- 2. WAITING VIEW -->
+        <div id="view_waiting" class="task-card">
+            <div class="loader"></div>
+            <div class="t-title">FINDING TASK...</div>
+            <div class="t-desc">Please wait while our admin assigns a task to you.<br>Do not close this window.</div>
+            <span class="badge badge-pending">STATUS: QUEUED</span>
         </div>
 
-        <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
+        <!-- 3. WORK VIEW (MAIN) -->
+        <div id="view_work" class="task-card" style="text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="color:#fff;">TASK DETAILS</h3>
+                <span class="badge badge-success" style="margin:0;">ACTIVE</span>
+            </div>
 
-        <h3>SUBMIT WORK</h3>
-        <input type="email" id="sub_email" placeholder="Paste Created Gmail Address">
-        <input type="text" id="sub_pass" placeholder="Confirm Password Used">
-        <button class="btn-gold" onclick="submitWork()">SUBMIT TASK</button>
-    </div>
+            <!-- Timer -->
+            <div class="timer-box" style="text-align: center;">
+                <div class="timer-label">TIME REMAINING</div>
+                <div class="timer-val" id="timerDisplay">13:00</div>
+            </div>
 
-    <!-- VIEW 4: UNDER REVIEW -->
-    <div id="view_review" class="task-card" style="text-align: center;">
-        <i class="fas fa-check-circle" style="font-size: 3rem; color: #0984e3; margin-bottom: 15px;"></i>
-        <h2>SUBMITTED SUCCESSFULLY</h2>
-        <p>Admin is checking your work. If valid, balance will be added.</p>
-        <span class="badge badge-review">UNDER REVIEW</span>
-    </div>
+            <p style="text-align:center; font-size:0.75rem; color:#666; margin-bottom:15px;">Tap on any field to copy</p>
 
-    <!-- VIEW 5: FAILED/EXPIRED -->
-    <div id="view_failed" class="task-card" style="text-align: center;">
-        <i class="fas fa-times-circle" style="font-size: 3rem; color: #d63031; margin-bottom: 15px;"></i>
-        <h2 style="color: #d63031;">TASK FAILED</h2>
-        <p>Time expired or Admin rejected your work.</p>
-        <button class="btn-gold" style="background: #333; color: #fff;" onclick="resetTask()">TRY AGAIN</button>
+            <!-- Data Fields -->
+            <div class="data-grid">
+                <div class="data-item" onclick="copyToClipboard('d_fname')">
+                    <div>
+                        <span class="d-label">First Name</span>
+                        <span class="d-val" id="d_fname">...</span>
+                    </div>
+                    <i class="fas fa-copy" style="color:#d4af37"></i>
+                </div>
+                <div class="data-item" onclick="copyToClipboard('d_lname')">
+                    <div>
+                        <span class="d-label">Last Name</span>
+                        <span class="d-val" id="d_lname">...</span>
+                    </div>
+                    <i class="fas fa-copy" style="color:#d4af37"></i>
+                </div>
+                <div class="data-item" onclick="copyToClipboard('d_dob')">
+                    <div>
+                        <span class="d-label">Date of Birth</span>
+                        <span class="d-val" id="d_dob">...</span>
+                    </div>
+                    <i class="fas fa-copy" style="color:#d4af37"></i>
+                </div>
+                <div class="data-item" onclick="copyToClipboard('d_rec')">
+                    <div>
+                        <span class="d-label">Recovery Email</span>
+                        <span class="d-val" id="d_rec">...</span>
+                    </div>
+                    <i class="fas fa-copy" style="color:#d4af37"></i>
+                </div>
+                <div class="data-item" onclick="copyToClipboard('d_pass')">
+                    <div>
+                        <span class="d-label">Password</span>
+                        <span class="d-val" id="d_pass">...</span>
+                    </div>
+                    <i class="fas fa-copy" style="color:#d4af37"></i>
+                </div>
+            </div>
+
+            <hr style="border:0; border-top:1px solid #333; margin: 20px 0;">
+
+            <div class="sub-title">SUBMIT WORK</div>
+            <input type="email" id="sub_email" class="input-field" placeholder="Paste Created Gmail (example@gmail.com)">
+            <input type="text" id="sub_pass" class="input-field" placeholder="Confirm Password Used">
+            
+            <button class="btn-gold" onclick="submitWork()">SUBMIT FOR REVIEW</button>
+        </div>
+
+        <!-- 4. REVIEW VIEW -->
+        <div id="view_review" class="task-card">
+            <i class="fas fa-check-circle status-icon" style="color: #2ecc71;"></i>
+            <div class="t-title">SUBMITTED!</div>
+            <div class="t-desc">
+                Your task is under review. Admin will check the details shortly. 
+                Payment will be added automatically if approved.
+            </div>
+            <span class="badge badge-success">UNDER REVIEW</span>
+        </div>
+
+        <!-- 5. FAILED VIEW -->
+        <div id="view_failed" class="task-card">
+            <i class="fas fa-times-circle status-icon" style="color: #e74c3c;"></i>
+            <div class="t-title" style="color: #e74c3c;">TASK FAILED</div>
+            <div class="t-desc">
+                Either the time expired or the task was rejected by admin.
+                Please try again carefully.
+            </div>
+            <button class="btn-gold" style="background: #333; color: #fff;" onclick="resetTask()">TRY AGAIN</button>
+        </div>
+
     </div>
 
     <script>
@@ -214,7 +274,7 @@
             if(user) {
                 initTaskListener(user.uid);
             } else {
-                window.location.href = 'Login.html';
+                window.location.href = 'registration_login.html';
             }
         });
 
@@ -237,11 +297,13 @@
                     } else if (data.status === 'active') {
                         document.getElementById('view_work').classList.add('active-card');
                         // Fill Data
-                        document.getElementById('d_fname').innerText = data.adminData.fname;
-                        document.getElementById('d_lname').innerText = data.adminData.lname;
-                        document.getElementById('d_dob').innerText = data.adminData.dob;
-                        document.getElementById('d_rec').innerText = data.adminData.recovery;
-                        document.getElementById('d_pass').innerText = data.adminData.pass;
+                        if(data.adminData) {
+                            document.getElementById('d_fname').innerText = data.adminData.fname;
+                            document.getElementById('d_lname').innerText = data.adminData.lname;
+                            document.getElementById('d_dob').innerText = data.adminData.dob;
+                            document.getElementById('d_rec').innerText = data.adminData.recovery;
+                            document.getElementById('d_pass').innerText = data.adminData.pass;
+                        }
                         // Start Timer
                         runTimer(data.startTime);
                     
@@ -254,7 +316,7 @@
                         clearInterval(timerInterval);
                     
                     } else if (data.status === 'completed') {
-                        alert("Task Approved! Payment Received.");
+                        alert("Great Job! Task Approved & Payment Received.");
                         db.ref('tasks/' + uid).remove(); // Clear task so he can apply again
                     }
                 }
@@ -283,7 +345,7 @@
 
                 if (remaining <= 0) {
                     clearInterval(timerInterval);
-                    document.getElementById('timerDisplay').innerText = "EXPIRED";
+                    document.getElementById('timerDisplay').innerText = "00:00";
                     failTask();
                 } else {
                     const m = Math.floor(remaining / 60000);
@@ -318,11 +380,8 @@
             const text = document.getElementById(elementId).innerText;
             if(text === "...") return;
             navigator.clipboard.writeText(text).then(() => {
-                // Visual feedback
-                const el = document.getElementById(elementId).parentElement.parentElement;
-                const originalBg = el.style.background;
-                el.style.background = "#d4af37";
-                setTimeout(() => { el.style.background = "#111"; }, 200);
+                // Notifying user (optional visual feedback is handled in CSS active state)
+                // alert("Copied: " + text); 
             });
         }
 
