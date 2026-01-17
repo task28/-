@@ -16,13 +16,13 @@
 
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyDR38gO9SBcE3qcVvFHlpyE5YdEqo0n2XU",
-            authDomain: "task38-f7daa.firebaseapp.com",
-            databaseURL: "https://task38-f7daa-default-rtdb.firebaseio.com",
-            projectId: "task38-f7daa",
-            storageBucket: "task38-f7daa.firebasestorage.app",
-            messagingSenderId: "655282407518",
-            appId: "1:655282407518:web:637dd6ac82b6c5e6018ccf"
+            apiKey: "AIzaSyDuxSz3j5xMYDw5U9kLA0cjkpOE82D06MI",
+            authDomain: "part-1-f6d87.firebaseapp.com",
+            databaseURL: "https://part-1-f6d87-default-rtdb.firebaseio.com",
+            projectId: "part-1-f6d87",
+            storageBucket: "part-1-f6d87.firebasestorage.app",
+            messagingSenderId: "682699403122",
+            appId: "1:682699403122:web:038ffca84d489a6c0db7eb"
         };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -33,186 +33,244 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background: #050505; color: #fff;
+            background-color: #050505;
+            color: #fff;
             font-family: 'Montserrat', sans-serif;
-            padding-bottom: 80px; overflow-x: hidden;
+            padding-bottom: 90px;
+            overflow-x: hidden;
         }
 
+        /* Gold Glow Background */
         .bg-glow {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 10%, #d4af37 0%, transparent 40%);
-            opacity: 0.1; pointer-events: none; z-index: -1;
+            position: fixed; top: -20%; left: -20%; width: 140%; height: 140%;
+            background: radial-gradient(circle at 50% 20%, rgba(212, 175, 55, 0.15) 0%, transparent 60%);
+            z-index: -1; pointer-events: none;
         }
 
         /* HEADER */
         .header {
-            background: rgba(20, 20, 20, 0.95);
-            padding: 15px 20px;
-            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
-            display: flex; align-items: center; gap: 15px;
-            backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100;
+            padding: 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky; top: 0; z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
+
+        .user-info h2 { font-size: 1.1rem; font-weight: 800; color: #fff; }
+        .user-info p { font-size: 0.8rem; color: #d4af37; letter-spacing: 1px; }
         
         .avatar {
-            width: 55px; height: 55px;
-            background: linear-gradient(45deg, #d4af37, #b8860b);
-            border-radius: 50%; display: flex; justify-content: center; align-items: center;
-            font-size: 1.5rem; color: #000; box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
-        }
-
-        .user-text { flex: 1; }
-        .user-text h3 { font-size: 1rem; font-weight: 700; color: #d4af37; margin-bottom: 3px; }
-        .user-text p { font-size: 0.8rem; color: #aaa; }
-
-        /* PROFILE CARD */
-        .profile-card {
-            margin: 20px; padding: 20px;
-            background: #111; border-radius: 15px; border: 1px solid #333;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-        }
-
-        .profile-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 0; border-bottom: 1px solid #222;
-        }
-        .profile-row:last-child { border-bottom: none; }
-        
-        .p-label { color: #888; font-size: 0.85rem; }
-        .p-value { font-family: monospace; font-size: 0.95rem; color: #fff; cursor: pointer; transition: 0.3s; }
-        .blur-effect { filter: blur(4px); user-select: none; }
-        .p-value:hover { color: #d4af37; filter: blur(0); }
-
-        /* LIVE BALANCE & CREDITS */
-        .balance-section {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 0 20px 20px;
-        }
-        .bal-box {
-            background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
-            padding: 15px; border-radius: 12px; border: 1px solid #d4af37; text-align: center;
-        }
-        .bal-title { font-size: 0.7rem; color: #aaa; text-transform: uppercase; }
-        .bal-num { font-size: 1.2rem; font-weight: 800; color: #fff; margin-top: 5px; font-family: 'Orbitron', sans-serif; }
-
-        /* STATS GRID */
-        .stats-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 20px 20px;
-        }
-        .stat-box {
-            background: #111; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #333;
-        }
-        .stat-title { font-size: 0.7rem; color: #666; text-transform: uppercase; }
-        .stat-val { font-size: 1.1rem; font-weight: bold; color: #d4af37; margin-top: 5px; }
-
-        /* DYNAMIC BANNER */
-        .banner-container {
-            width: calc(100% - 40px); margin: 0 auto 20px;
-            aspect-ratio: 16/9; background: #1a1a1a;
-            border-radius: 12px; border: 1px solid #333;
+            width: 45px; height: 45px;
+            background: linear-gradient(135deg, #d4af37, #b8860b);
+            border-radius: 50%;
             display: flex; justify-content: center; align-items: center;
-            color: #444; font-weight: bold; overflow: hidden;
+            font-size: 1.2rem; color: #000;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
         }
-        .banner-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .banner-placeholder { text-align: center; display: none; }
 
-        /* MENU */
-        .menu-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 20px;
+        /* WALLET CARD (PREMIUM LOOK) */
+        .wallet-card {
+            margin: 20px;
+            background: linear-gradient(160deg, #1a1a1a 0%, #000 100%);
+            border-radius: 20px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .menu-btn {
-            background: #111; padding: 20px; border-radius: 12px;
-            text-align: center; text-decoration: none; color: white; border: 1px solid #333;
-            transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 10px;
-        }
-        .menu-btn i { font-size: 1.8rem; color: #d4af37; }
-        .menu-btn span { font-weight: 600; font-size: 0.85rem; }
-        .menu-btn:hover { background: #d4af37; color: #000; }
-        .menu-btn:hover i { color: #000; }
 
+        .wallet-card::before {
+            content: ''; position: absolute; top: -50px; right: -50px;
+            width: 150px; height: 150px; background: rgba(212, 175, 55, 0.1);
+            border-radius: 50%; filter: blur(40px);
+        }
+
+        .w-label { font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .w-balance { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; color: #fff; margin: 5px 0 15px; font-weight: 700; text-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
+        
+        .w-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
+        .cr-box { display: flex; align-items: center; gap: 8px; }
+        .cr-val { font-weight: 700; color: #d4af37; font-size: 1.1rem; }
+
+        /* MENU GRID */
+        .grid-menu {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+            padding: 0 20px; margin-bottom: 20px;
+        }
+
+        .menu-item {
+            background: rgba(20, 20, 20, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .menu-item:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: #d4af37;
+            transform: translateY(-3px);
+        }
+
+        .menu-item i { font-size: 1.8rem; color: #d4af37; margin-bottom: 10px; }
+        .menu-item span { display: block; font-size: 0.85rem; font-weight: 600; }
+
+        /* STATS BAR */
+        .stats-bar {
+            display: flex; justify-content: space-between;
+            margin: 0 20px 20px;
+            background: #111; padding: 15px; border-radius: 12px;
+            border: 1px solid #222;
+        }
+        .stat { text-align: center; width: 33%; position: relative; }
+        .stat:not(:last-child)::after {
+            content: ''; position: absolute; right: 0; top: 10%; height: 80%;
+            width: 1px; background: #333;
+        }
+        .stat h4 { font-size: 1rem; color: #fff; margin-bottom: 2px; }
+        .stat p { font-size: 0.7rem; color: #888; text-transform: uppercase; }
+
+        /* BANNER */
+        .banner-box {
+            width: calc(100% - 40px); margin: 0 auto 20px;
+            aspect-ratio: 16/7; background: #1a1a1a;
+            border-radius: 15px; overflow: hidden;
+            border: 1px solid #333; position: relative;
+        }
+        .banner-box img { width: 100%; height: 100%; object-fit: cover; }
+        .banner-text {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: #444; font-weight: bold; text-align: center; display: none;
+        }
+
+        /* USER DETAILS LIST */
+        .details-list {
+            margin: 0 20px 30px;
+            background: #111; border-radius: 15px;
+            padding: 10px 20px; border: 1px solid #222;
+        }
+        .d-row {
+            display: flex; justify-content: space-between; padding: 12px 0;
+            border-bottom: 1px solid #222; font-size: 0.9rem;
+        }
+        .d-row:last-child { border: none; }
+        .d-label { color: #888; }
+        .d-val { color: #fff; font-family: monospace; }
+
+        /* LOGOUT */
         .logout-btn {
-            display: block; width: calc(100% - 40px); margin: 30px auto;
-            padding: 15px; background: #a31515; color: white;
-            border: none; border-radius: 10px; font-weight: 700; cursor: pointer;
-            text-transform: uppercase;
+            display: block; width: calc(100% - 40px); margin: 0 auto;
+            padding: 15px; background: rgba(255, 0, 0, 0.1);
+            color: #ff4d4d; border: 1px solid #ff4d4d;
+            border-radius: 12px; font-weight: bold; cursor: pointer;
+            text-transform: uppercase; transition: 0.3s;
         }
+        .logout-btn:hover { background: #ff4d4d; color: #fff; }
+
     </style>
 </head>
 <body>
-    
+
     <div class="bg-glow"></div>
 
+    <!-- HEADER -->
     <div class="header">
-        <div class="avatar"><i class="fas fa-user-astronaut"></i></div>
-        <div class="user-text">
-            <h3 id="u_name">Loading...</h3>
-            <p>Plan: <span id="u_plan" style="color:#d4af37">...</span></p>
+        <div class="user-info">
+            <h2 id="u_name">Loading...</h2>
+            <p>PLAN: <span id="u_plan">...</span></p>
+        </div>
+        <div class="avatar"><i class="fas fa-user"></i></div>
+    </div>
+
+    <!-- PREMIUM WALLET CARD -->
+    <div class="wallet-card">
+        <div class="w-label">Total Balance</div>
+        <div class="w-balance">$<span id="u_balance">0.00</span></div>
+        
+        <div class="w-footer">
+            <div class="cr-box">
+                <i class="fas fa-coins" style="color: #d4af37;"></i>
+                <span class="cr-val"><span id="u_credits">0</span> Credits</span>
+            </div>
+            <div class="w-label" style="font-size: 0.7rem;">TASK28 WALLET</div>
         </div>
     </div>
 
-    <!-- Balance & Credits -->
-    <div class="balance-section">
-        <div class="bal-box">
-            <div class="bal-title">WALLET BALANCE</div>
-            <div class="bal-num">$<span id="u_balance">0.00</span></div>
+    <!-- QUICK STATS -->
+    <div class="stats-bar">
+        <div class="stat">
+            <h4 id="u_team">0</h4>
+            <p>Team</p>
         </div>
-        <div class="bal-box">
-            <div class="bal-title">AVAILABLE CREDITS</div>
-            <div class="bal-num"><span id="u_credits">0</span> Cr</div>
+        <div class="stat">
+            <h4 id="u_partner">0</h4>
+            <p>Partners</p>
         </div>
-    </div>
-
-    <div class="profile-card">
-        <div class="profile-row">
-            <span class="p-label">Registered</span>
-            <span class="p-value blur-effect" onclick="this.classList.toggle('blur-effect')" id="u_date">...</span>
-        </div>
-        <div class="profile-row">
-            <span class="p-label">User UID</span>
-            <span class="p-value blur-effect" onclick="this.classList.toggle('blur-effect')" id="u_uid">...</span>
+        <div class="stat">
+            <h4 style="color: #2ecc71;">$<span id="u_today">0.00</span></h4>
+            <p>Today</p>
         </div>
     </div>
 
-    <div class="stats-grid">
-        <div class="stat-box">
-            <div class="stat-title">Team</div>
-            <div class="stat-val" id="u_team">0</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-title">Partners</div>
-            <div class="stat-val" id="u_partner">0</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-title">Total Earned</div>
-            <div class="stat-val" style="color:#2ecc71;">$<span id="u_total">0.00</span></div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-title">Today Earned</div>
-            <div class="stat-val" style="color:#2ecc71;">$<span id="u_today">0.00</span></div>
+    <!-- BANNER -->
+    <div class="banner-box">
+        <img id="bannerImg" src="" style="display: none;">
+        <div class="banner-text" id="bannerPlace">
+            <i class="fas fa-crown" style="font-size: 2rem; margin-bottom: 5px;"></i><br>
+            PREMIUM ADS AREA
         </div>
     </div>
 
-    <!-- DYNAMIC BANNER SECTION -->
-    <div class="banner-container" id="bannerBox">
-        <img id="bannerImg" class="banner-img" src="" style="display:none;">
-        <div id="bannerPlace" class="banner-placeholder" style="display:block;">
-            <i class="fas fa-ad" style="font-size:2rem; margin-bottom:10px;"></i><br>
-            TASK28 PROMO
-        </div>
-    </div>
-
-    <div class="menu-grid">
-        <a href="Task.html" class="menu-btn"><i class="fas fa-tasks"></i><span>TASK</span></a>
-        <a href="Referral.html" class="menu-btn"><i class="fas fa-share-alt"></i><span>REFERRAL</span></a>
-        <a href="Monthly.html" class="menu-btn"><i class="fas fa-calendar-alt"></i><span>MONTHLY</span></a>
-        <a href="Weekly.html" class="menu-btn"><i class="fas fa-calendar-week"></i><span>WEEKLY</span></a>
-        <a href="Withdraw.html" class="menu-btn" style="grid-column: span 2; background: linear-gradient(45deg, #111, #222);">
-            <i class="fas fa-wallet" style="color: #fff;"></i><span style="color:#d4af37;">WITHDRAW FUNDS</span>
+    <!-- MAIN MENU -->
+    <div class="grid-menu">
+        <a href="Task.html" class="menu-item">
+            <i class="fas fa-tasks"></i>
+            <span>Daily Task</span>
+        </a>
+        <a href="Referral.html" class="menu-item">
+            <i class="fas fa-share-alt"></i>
+            <span>Refer & Earn</span>
+        </a>
+        <a href="Monthly.html" class="menu-item">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Monthly Plan</span>
+        </a>
+        <a href="Weekly.html" class="menu-item">
+            <i class="fas fa-calendar-week"></i>
+            <span>Weekly Plan</span>
+        </a>
+        <a href="Withdraw.html" class="menu-item" style="grid-column: span 2; background: linear-gradient(90deg, #111, #1a1a1a);">
+            <i class="fas fa-wallet" style="color: #fff;"></i>
+            <span style="color: #d4af37;">WITHDRAW FUNDS</span>
         </a>
     </div>
 
-    <button class="logout-btn" onclick="auth.signOut()">LOGOUT</button>
+    <!-- USER DETAILS -->
+    <div class="details-list">
+        <div class="d-row">
+            <span class="d-label">Joined On</span>
+            <span class="d-val" id="u_date">...</span>
+        </div>
+        <div class="d-row">
+            <span class="d-label">User ID</span>
+            <span class="d-val" id="u_uid">...</span>
+        </div>
+        <div class="d-row">
+            <span class="d-label">Total Earned</span>
+            <span class="d-val" style="color:#2ecc71;">$<span id="u_total">0.00</span></span>
+        </div>
+    </div>
+
+    <button class="logout-btn" onclick="auth.signOut()">LOGOUT ACCOUNT</button>
 
     <script>
-        // Load Banner First
+        // Banner Logic
         db.ref('adminSettings/banner').on('value', snap => {
             const url = snap.val();
             const img = document.getElementById('bannerImg');
@@ -249,7 +307,7 @@
                         document.getElementById('u_credits').innerText = data.credits || 0;
 
                         document.getElementById('u_date').innerText = data.regDate;
-                        document.getElementById('u_uid').innerText = data.uid;
+                        document.getElementById('u_uid').innerText = data.uid.substring(0,8) + "...";
                         
                         document.getElementById('u_team').innerText = data.teamCount || 0;
                         document.getElementById('u_partner').innerText = data.partnerCount || 0;
@@ -260,7 +318,7 @@
                 });
 
             } else {
-                window.location.href = 'Login.html';
+                window.location.href = 'registration_login.html';
             }
         });
     </script>
