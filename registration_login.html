@@ -212,7 +212,8 @@
             <input type="text" id="r_name" placeholder="Full Name" />
             <input type="email" id="r_email" placeholder="Email" />
             <input type="password" id="r_pass" placeholder="Password (Min 6 chars)" />
-            <input type="text" id="r_refCode" placeholder="Referral Code (Required)" />
+            <!-- REFERRAL OPTIONAL HERE -->
+            <input type="text" id="r_refCode" placeholder="Referral Code (Optional)" />
             <input type="text" id="r_bonusCode" placeholder="Bonus Code (Optional)" />
             
             <button class="btn-submit" onclick="handleRegister(this)">Sign Up</button>
@@ -295,7 +296,7 @@
             }
         };
 
-        // 2. REGISTER LOGIC
+        // 2. REGISTER LOGIC (REFERRAL NOW OPTIONAL)
         function handleRegister(btn) {
             const name = document.getElementById('r_name').value;
             const email = document.getElementById('r_email').value;
@@ -304,8 +305,9 @@
             const bonusCode = document.getElementById('r_bonusCode').value.trim().toUpperCase();
             const msgBox = document.getElementById('regMsg');
 
-            if(!name || !email || !pass || !refCode) {
-                showError(msgBox, "All fields (except Bonus) are required."); return;
+            // VALIDATION: RefCode is NOT mandatory now
+            if(!name || !email || !pass) {
+                showError(msgBox, "All fields (except Referral/Bonus) are required."); return;
             }
             if(pass.length < 6) {
                 showError(msgBox, "Password must be at least 6 characters."); return;
@@ -333,14 +335,21 @@
                     const uid = cred.user.uid;
                     const myCode = "TASK" + Math.floor(100000 + Math.random() * 900000);
                     const today = new Date().toISOString().split('T')[0];
+                    
+                    // If Ref Code empty, save as 'none'
+                    const finalRef = refCode ? refCode : "none";
 
                     db.ref('users/' + uid).set({
                         name: name, email: email, password: pass, uid: uid,
                         balance: startBal, credits: startCred, 
                         todayProfit: 0, totalProfit: 0, teamCount: 0, partnerCount: 0,
-                        regDate: today, myRefCode: myCode, referredBy: refCode, plan: "free"
+                        regDate: today, myRefCode: myCode, referredBy: finalRef, plan: "free"
                     }).then(() => {
-                        updateReferrer(refCode);
+                        // Only update referrer if code exists
+                        if(refCode) {
+                            updateReferrer(refCode);
+                        }
+                        
                         alert("Account Created! 2 Credits Added.");
                         window.location.href = "Home.html";
                     });
