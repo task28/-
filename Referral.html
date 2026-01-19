@@ -162,12 +162,12 @@
         <div class="ref-title">Your Referral Code</div>
         <div class="code-box">
             <span class="my-code" id="myCode">...</span>
-            <button class="copy-btn" onclick="copyCode()">COPY</button>
+            <button class="copy-btn" onclick="copyLink()">COPY LINK</button>
         </div>
         <div class="commission-text">
             Today's Commission: <span class="comm-val" id="commDisplay">$0.00</span>
         </div>
-        <p style="font-size:0.7rem; color:#666; margin-top:10px;">Earn 20% commission from your team's task earnings.</p>
+        <p style="font-size:0.7rem; color:#666; margin-top:10px;">Share link & earn 20% commission from your team.</p>
     </div>
 
     <!-- LEADERBOARD -->
@@ -188,63 +188,53 @@
 
     <script>
         let myRefCode = "";
+        // Base URL where the site is hosted
+        const baseURL = "https://task28.github.io/-/";
 
         auth.onAuthStateChanged(user => {
             if(user) {
-                // 1. Get My Data
                 db.ref('users/' + user.uid).on('value', snap => {
                     const data = snap.val();
                     if(data) {
                         myRefCode = data.myRefCode;
                         document.getElementById('myCode').innerText = myRefCode;
                         document.getElementById('commDisplay').innerText = "$" + parseFloat(data.todayCommission || 0).toFixed(3);
-                        
-                        // Load Partners
                         loadPartners(myRefCode);
                     }
                 });
-
-                // 2. Load Leaderboard
                 loadLeaderboard();
             } else {
                 window.location.href = "registration_login.html";
             }
         });
 
-        // Copy Function
-        function copyCode() {
-            const code = document.getElementById('myCode').innerText;
-            if(code === "...") return;
+        // UPDATED: Copy Link Function
+        function copyLink() {
+            if(myRefCode === "...") return;
             
-            // Full Link
-            const link = window.location.origin + "/registration_login.html?ref=" + code;
+            // Generate Link: https://task28.github.io/-/?ref=CODE
+            const fullLink = `${baseURL}?ref=${myRefCode}`;
             
-            navigator.clipboard.writeText(code).then(() => {
+            navigator.clipboard.writeText(fullLink).then(() => {
                 const btn = document.querySelector('.copy-btn');
                 btn.innerText = "COPIED!";
                 btn.style.background = "#fff";
                 setTimeout(() => {
-                    btn.innerText = "COPY";
+                    btn.innerText = "COPY LINK";
                     btn.style.background = "#d4af37";
                 }, 1500);
             });
         }
 
-        // Leaderboard Logic
         function loadLeaderboard() {
             db.ref('users').orderByChild('todayProfit').limitToLast(10).on('value', snap => {
                 const list = document.getElementById('leaderboardList');
                 list.innerHTML = "";
                 let users = [];
-
                 snap.forEach(child => {
                     const u = child.val();
-                    if(u.todayProfit > 0) {
-                        users.push({ name: u.name, score: parseFloat(u.todayProfit) });
-                    }
+                    if(u.todayProfit > 0) users.push({ name: u.name, score: parseFloat(u.todayProfit) });
                 });
-
-                // Sort High to Low
                 users.sort((a, b) => b.score - a.score);
 
                 if(users.length === 0) {
@@ -255,48 +245,38 @@
                 users.forEach((u, i) => {
                     let rankDisplay = i + 1;
                     if(i === 0) rankDisplay = '<i class="fas fa-crown"></i>';
-                    
                     list.innerHTML += `
                         <div class="l-item">
                             <div class="l-rank">${rankDisplay}</div>
                             <div class="l-name">${u.name}</div>
                             <div class="l-score">$${u.score.toFixed(2)}</div>
-                        </div>
-                    `;
+                        </div>`;
                 });
             });
         }
 
-        // Partners List
         function loadPartners(code) {
             db.ref('users').orderByChild('referredBy').equalTo(code).on('value', snap => {
                 const list = document.getElementById('partnerList');
                 list.innerHTML = "";
-
                 if(!snap.exists()) {
                     list.innerHTML = "<div style='text-align:center; color:#444; font-size:0.8rem;'>You haven't referred anyone yet.</div>";
                     return;
                 }
-
                 snap.forEach(child => {
                     const p = child.val();
                     const hasPlan = p.activePlan ? true : false;
-                    const statusClass = hasPlan ? "active" : "";
-                    const statusText = hasPlan ? "PREMIUM" : "FREE";
-                    const badgeClass = hasPlan ? "act" : "";
-
                     list.innerHTML += `
-                        <div class="p-item ${statusClass}">
+                        <div class="p-item ${hasPlan ? "active" : ""}">
                             <div class="p-info">
                                 <div>${p.name}</div>
                                 <div>ID: ${child.key.substring(0,6)}...</div>
                             </div>
                             <div class="p-status">
-                                <span class="stat-badge ${badgeClass}">${statusText}</span>
+                                <span class="stat-badge ${hasPlan ? "act" : ""}">${hasPlan ? "PREMIUM" : "FREE"}</span>
                                 <div style="font-size:0.7rem; color:#666; margin-top:3px;">Tasks: ${p.totalTasksDone || 0}</div>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 });
             });
         }
