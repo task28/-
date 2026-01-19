@@ -76,28 +76,24 @@
 
         @keyframes show { 0%, 49.99% { opacity: 0; z-index: 1; } 50%, 100% { opacity: 1; z-index: 5; } }
 
-        /* Overlay (The Sliding Part) */
+        /* Overlay */
         .overlay-container {
             position: absolute; top: 0; left: 50%; width: 50%; height: 100%;
             overflow: hidden; transition: transform 0.6s ease-in-out; z-index: 100;
         }
-
         .container.right-panel-active .overlay-container { transform: translateX(-100%); }
 
         .overlay {
             background: linear-gradient(to right, #b8860b, #d4af37, #f1c40f, #b8860b);
-            background-repeat: no-repeat; background-size: cover; background-position: 0 0;
             color: #000; position: relative; left: -100%; height: 100%; width: 200%;
             transform: translateX(0); transition: transform 0.6s ease-in-out;
         }
-
         .container.right-panel-active .overlay { transform: translateX(50%); }
 
         .overlay-panel {
             position: absolute; display: flex; align-items: center; justify-content: center;
             flex-direction: column; padding: 0 40px; text-align: center; top: 0; height: 100%; width: 50%; transform: translateX(0); transition: transform 0.6s ease-in-out;
         }
-
         .overlay-left { transform: translateX(-20%); }
         .container.right-panel-active .overlay-left { transform: translateX(0); }
         .overlay-right { right: 0; transform: translateX(0); }
@@ -123,6 +119,7 @@
             margin: 8px 0; width: 100%; color: #fff; border-radius: 5px; outline: none;
         }
         input:focus { border-color: #d4af37; }
+        input[readonly] { background: #1a1a1a; color: #2ecc71; border-color: #2ecc71; font-weight: bold; cursor: not-allowed; }
 
         button {
             border-radius: 20px; border: 1px solid #d4af37; background: #d4af37;
@@ -136,60 +133,24 @@
         button.ghost:hover { background: #000; color: #d4af37; border-color: #000; }
 
         .btn-submit { margin-top: 10px; width: 100%; box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3); }
-
         .msg-box { color: #ff4d4d; font-size: 0.75rem; margin-top: 10px; display: none; }
         
         /* MOBILE SWITCH BUTTON (Only visible on mobile) */
-        .mobile-switch {
-            display: none;
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: #aaa;
-        }
-        .mobile-switch span {
-            color: #d4af37; font-weight: bold; cursor: pointer; text-decoration: underline;
-        }
+        .mobile-switch { display: none; margin-top: 20px; font-size: 0.9rem; color: #aaa; }
+        .mobile-switch span { color: #d4af37; font-weight: bold; cursor: pointer; text-decoration: underline; }
 
         /* MOBILE RESPONSIVE CSS */
         @media (max-width: 768px) {
             body { overflow-y: auto; height: auto; padding: 20px 0; }
-            .container {
-                width: 100%;
-                min-height: 100vh; /* Full Height on Mobile */
-                border-radius: 0;
-                box-shadow: none;
-                border: none;
-                background: #000;
-            }
-            .form-container {
-                width: 100%; /* Full Width */
-                padding: 40px 20px;
-                position: absolute;
-                top: 0; left: 0;
-                height: auto;
-                min-height: 100%;
-            }
-
-            /* Hide the Slider Overlay on Mobile */
+            .container { width: 100%; min-height: 100vh; border-radius: 0; box-shadow: none; border: none; background: #000; }
+            .form-container { width: 100%; padding: 40px 20px; position: absolute; top: 0; left: 0; height: auto; min-height: 100%; }
             .overlay-container { display: none; }
-
-            /* Show Mobile Switch Links */
             .mobile-switch { display: block; }
-
-            /* Adjust Visibility Logic for Mobile */
             .sign-in-container { opacity: 1; z-index: 2; transform: none; }
             .sign-up-container { opacity: 0; z-index: 1; transform: none; pointer-events: none; }
-
-            /* When Right Panel Active (Sign Up Mode) */
-            .container.right-panel-active .sign-in-container {
-                opacity: 0; pointer-events: none; transform: none;
-            }
-            .container.right-panel-active .sign-up-container {
-                opacity: 1; z-index: 5; pointer-events: all; transform: none; animation: fadeIn 0.5s;
-            }
-
+            .container.right-panel-active .sign-in-container { opacity: 0; pointer-events: none; transform: none; }
+            .container.right-panel-active .sign-up-container { opacity: 1; z-index: 5; pointer-events: all; transform: none; animation: fadeIn 0.5s; }
             @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-            
             h1 { font-size: 1.8rem; }
             input { padding: 15px; font-size: 1rem; }
             button { width: 100%; padding: 15px; font-size: 1rem; }
@@ -212,8 +173,9 @@
             <input type="text" id="r_name" placeholder="Full Name" />
             <input type="email" id="r_email" placeholder="Email" />
             <input type="password" id="r_pass" placeholder="Password (Min 6 chars)" />
-            <!-- REFERRAL OPTIONAL HERE -->
-            <input type="text" id="r_refCode" placeholder="Referral Code (Optional)" />
+            
+            <!-- MANDATORY REFERRAL CODE -->
+            <input type="text" id="r_refCode" placeholder="Referral Code (Required)" />
             <input type="text" id="r_bonusCode" placeholder="Bonus Code (Optional)" />
             
             <button class="btn-submit" onclick="handleRegister(this)">Sign Up</button>
@@ -246,7 +208,7 @@
             </div>
         </div>
 
-        <!-- OVERLAY (SIDE PANEL - HIDDEN ON MOBILE) -->
+        <!-- OVERLAY (PC ONLY) -->
         <div class="overlay-container">
             <div class="overlay">
                 <div class="overlay-panel overlay-left">
@@ -268,35 +230,29 @@
         const signInButton = document.getElementById('signIn');
         const container = document.getElementById('container');
 
-        // PC Toggle Animation
-        signUpButton.addEventListener('click', () => {
-            container.classList.add("right-panel-active");
-        });
-        signInButton.addEventListener('click', () => {
-            container.classList.remove("right-panel-active");
-        });
+        // Toggle Animation
+        signUpButton.addEventListener('click', () => container.classList.add("right-panel-active"));
+        signInButton.addEventListener('click', () => container.classList.remove("right-panel-active"));
 
-        // Mobile Toggle Functions
-        function switchToSignup() {
-            container.classList.add("right-panel-active");
-        }
-        function switchToLogin() {
-            container.classList.remove("right-panel-active");
-        }
+        function switchToSignup() { container.classList.add("right-panel-active"); }
+        function switchToLogin() { container.classList.remove("right-panel-active"); }
 
-        // 1. Check URL for Referral Code
+        // --- CHECK URL FOR REF CODE ---
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
             const ref = urlParams.get('ref');
+            
+            // If ref code is present in URL
             if(ref) {
-                // If ref code exists, switch to Sign Up & fill code
-                container.classList.add("right-panel-active");
-                document.getElementById('r_refCode').value = ref;
-                document.getElementById('r_refCode').readOnly = true;
+                container.classList.add("right-panel-active"); // Switch to Sign Up
+                const refInput = document.getElementById('r_refCode');
+                refInput.value = ref;
+                refInput.readOnly = true; // Make it read-only
+                refInput.style.borderColor = "#2ecc71"; // Green border to show it's valid
             }
         };
 
-        // 2. REGISTER LOGIC (REFERRAL NOW OPTIONAL)
+        // --- REGISTER LOGIC (MANDATORY REFERRAL) ---
         function handleRegister(btn) {
             const name = document.getElementById('r_name').value;
             const email = document.getElementById('r_email').value;
@@ -305,21 +261,34 @@
             const bonusCode = document.getElementById('r_bonusCode').value.trim().toUpperCase();
             const msgBox = document.getElementById('regMsg');
 
-            // VALIDATION: RefCode is NOT mandatory now
-            if(!name || !email || !pass) {
-                showError(msgBox, "All fields (except Referral/Bonus) are required."); return;
+            // 1. Validation
+            if(!name || !email || !pass || !refCode) {
+                showError(msgBox, "All fields (Name, Email, Pass, Referral Code) are required."); return;
             }
             if(pass.length < 6) {
                 showError(msgBox, "Password must be at least 6 characters."); return;
             }
 
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking Ref Code...';
             btn.style.opacity = "0.7";
 
-            // Check Bonus Code First
+            // 2. Verify Referral Code Exists
+            db.ref('users').orderByChild('myRefCode').equalTo(refCode).once('value', snapshot => {
+                if(!snapshot.exists()) {
+                    showError(msgBox, "Invalid Referral Code! Please ask your inviter.");
+                    resetBtn(btn, "Sign Up");
+                    return;
+                }
+
+                // If Referral is valid, check Bonus Code
+                checkBonusAndRegister(name, email, pass, refCode, bonusCode, btn, msgBox);
+            });
+        }
+
+        function checkBonusAndRegister(name, email, pass, refCode, bonusCode, btn, msgBox) {
             db.ref('bonusCodes/' + bonusCode).once('value').then(snap => {
                 let startBal = 0;
-                let startCred = 2; // Default Credit
+                let startCred = 2;
 
                 if(bonusCode && snap.exists()) {
                     const bData = snap.val();
@@ -330,27 +299,22 @@
                     resetBtn(btn, "Sign Up"); return;
                 }
 
-                // Create User
+                // Create User in Firebase Auth
                 auth.createUserWithEmailAndPassword(email, pass).then((cred) => {
                     const uid = cred.user.uid;
                     const myCode = "TASK" + Math.floor(100000 + Math.random() * 900000);
                     const today = new Date().toISOString().split('T')[0];
-                    
-                    // If Ref Code empty, save as 'none'
-                    const finalRef = refCode ? refCode : "none";
 
                     db.ref('users/' + uid).set({
                         name: name, email: email, password: pass, uid: uid,
                         balance: startBal, credits: startCred, 
                         todayProfit: 0, totalProfit: 0, teamCount: 0, partnerCount: 0,
-                        regDate: today, myRefCode: myCode, referredBy: finalRef, plan: "free"
+                        regDate: today, myRefCode: myCode, referredBy: refCode, plan: "free"
                     }).then(() => {
-                        // Only update referrer if code exists
-                        if(refCode) {
-                            updateReferrer(refCode);
-                        }
+                        // Update Referrer Stats
+                        updateReferrer(refCode);
                         
-                        alert("Account Created! 2 Credits Added.");
+                        alert("Account Created Successfully! Welcome.");
                         window.location.href = "Home.html";
                     });
 
@@ -369,6 +333,7 @@
                         const data = u.val();
                         let updates = { teamCount: (data.teamCount || 0) + 1 };
                         
+                        // If referrer has active plan, update plan ref count
                         if(data.activePlan) {
                             updates['activePlan/currentRef'] = (data.activePlan.currentRef || 0) + 1;
                         }
@@ -378,7 +343,7 @@
             });
         }
 
-        // 3. LOGIN LOGIC
+        // --- LOGIN LOGIC ---
         function handleLogin(btn) {
             const email = document.getElementById('l_email').value;
             const pass = document.getElementById('l_pass').value;
@@ -403,13 +368,8 @@
                 });
         }
 
-        function showError(el, msg) {
-            el.innerText = msg; el.style.display = 'block';
-        }
-        function resetBtn(btn, txt) {
-            btn.innerHTML = txt; btn.style.opacity = "1";
-        }
-
+        function showError(el, msg) { el.innerText = msg; el.style.display = 'block'; }
+        function resetBtn(btn, txt) { btn.innerHTML = txt; btn.style.opacity = "1"; }
     </script>
 </body>
 </html>
