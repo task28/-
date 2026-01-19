@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TASK28 - Task Manager</title>
+    <title>TASK28 - Task Zone</title>
 
     <!-- Google Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
@@ -36,232 +36,189 @@
             background-color: #050505;
             color: #fff;
             font-family: 'Montserrat', sans-serif;
-            padding-bottom: 40px;
-            overflow-x: hidden;
-        }
-
-        /* Background Glow */
-        .bg-glow {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 10%, rgba(212, 175, 55, 0.15) 0%, transparent 50%);
-            z-index: -1; pointer-events: none;
+            padding-bottom: 50px;
         }
 
         /* HEADER */
         .header {
-            padding: 20px;
-            display: flex; align-items: center; justify-content: space-between;
-            background: rgba(10, 10, 10, 0.9);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
+            padding: 20px; display: flex; align-items: center; justify-content: center;
+            background: #000; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 100;
         }
-        .back-btn { font-size: 1.2rem; color: #fff; cursor: pointer; }
-        .page-title { font-size: 1.1rem; font-weight: 700; color: #d4af37; letter-spacing: 2px; }
+        .page-title { color: #d4af37; font-weight: 800; letter-spacing: 2px; font-size: 1.2rem; }
+        .back-btn { position: absolute; left: 20px; color: #fff; cursor: pointer; }
 
-        /* MAIN CONTAINER */
-        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+        .container { max-width: 500px; margin: 0 auto; padding: 15px; }
 
-        /* CARDS */
-        .task-card {
-            background: rgba(20, 20, 20, 0.8);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            border-radius: 15px; padding: 30px 20px;
-            text-align: center; display: none; /* Hidden by default */
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-            animation: fadeIn 0.5s ease;
+        /* CARDS (Apply/Waiting/Review) */
+        .info-card {
+            background: #111; border: 1px solid #333; border-radius: 10px;
+            padding: 30px 20px; text-align: center; margin-top: 50px; display: none;
         }
-        .active-card { display: block; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* ICONS & TITLES */
-        .status-icon { font-size: 3.5rem; margin-bottom: 20px; display: block; }
-        .t-title { font-size: 1.2rem; font-weight: 800; color: #fff; margin-bottom: 10px; }
-        .t-desc { color: #888; font-size: 0.9rem; margin-bottom: 25px; line-height: 1.6; }
-
-        /* BUTTONS */
+        .active-view { display: block; }
+        
         .btn-gold {
-            width: 100%; padding: 15px;
-            background: linear-gradient(135deg, #d4af37, #b8860b);
-            border: none; border-radius: 10px;
-            color: #000; font-weight: 800; text-transform: uppercase;
-            letter-spacing: 1px; cursor: pointer;
-            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
-            transition: 0.3s;
+            width: 100%; padding: 14px; background: #b8860b; color: #000;
+            font-weight: 800; border: none; border-radius: 8px; cursor: pointer;
+            margin-top: 15px; font-size: 1rem; transition: 0.3s;
         }
-        .btn-gold:hover { transform: translateY(-2px); }
-        .btn-gold:active { transform: scale(0.98); }
+        .btn-gold:hover { background: #d4af37; }
 
-        /* --- WORK SPACE STYLES --- */
-        
-        /* Timer */
-        .timer-box {
-            background: #000; border: 1px solid #d4af37;
-            padding: 15px; border-radius: 10px; margin-bottom: 20px;
-            position: relative; overflow: hidden;
-        }
-        .timer-val {
-            font-family: 'Orbitron', sans-serif; font-size: 2.5rem;
-            color: #ff4d4d; text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-        }
-        .timer-label { font-size: 0.7rem; color: #aaa; letter-spacing: 2px; margin-bottom: 5px; }
+        /* --- WORK ZONE UI (As per image) --- */
+        .task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .t-head-title { font-weight: 800; font-size: 1.2rem; }
+        .status-badge { background: #155724; color: #2ecc71; padding: 4px 10px; font-size: 0.7rem; font-weight: bold; border: 1px solid #2ecc71; border-radius: 4px; }
 
-        /* Data Rows */
-        .data-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px; }
-        
-        .data-item {
-            background: #151515; border: 1px dashed #444;
-            padding: 12px 15px; border-radius: 8px;
-            display: flex; justify-content: space-between; align-items: center;
-            cursor: pointer; transition: 0.2s; text-align: left;
+        /* Timer Box */
+        .timer-container {
+            border: 1px solid #d4af37; border-radius: 12px; padding: 20px;
+            text-align: center; background: #080808; margin-bottom: 25px;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
         }
-        .data-item:hover { border-color: #d4af37; background: #1a1a1a; }
-        .data-item:active { background: #d4af37; color: #000; }
+        .timer-label { color: #888; font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 5px; }
+        .timer-digits {
+            font-family: 'Orbitron', sans-serif; font-size: 2.8rem; color: #ff4444;
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.4); letter-spacing: 2px;
+        }
+
+        /* Copy Fields */
+        .copy-card {
+            background: #0f0f0f; border: 1px dashed #333; border-radius: 8px;
+            padding: 12px 15px; margin-bottom: 12px; display: flex;
+            justify-content: space-between; align-items: center; cursor: pointer;
+            transition: 0.2s;
+        }
+        .copy-card:active { background: #1a1a1a; border-color: #d4af37; }
         
-        .d-label { font-size: 0.75rem; color: #666; display: block; margin-bottom: 2px; }
-        .d-val { font-family: monospace; font-size: 1rem; color: #fff; font-weight: 600; }
-        .data-item:active .d-val, .data-item:active .d-label { color: #000; }
+        .field-label { font-size: 0.7rem; color: #666; display: block; margin-bottom: 3px; }
+        .field-value { font-size: 1rem; font-weight: 700; color: #fff; font-family: sans-serif; }
+        .copy-icon { color: #d4af37; font-size: 1.2rem; }
 
         /* Submission Form */
-        .sub-title { text-align: left; font-size: 0.9rem; color: #d4af37; margin-bottom: 10px; font-weight: bold; }
+        .submit-section { margin-top: 30px; padding-top: 20px; border-top: 1px solid #222; }
+        .sub-label { color: #d4af37; font-weight: bold; margin-bottom: 15px; display: block; }
         
-        .input-field {
-            width: 100%; padding: 15px; background: #0a0a0a;
-            border: 1px solid #333; border-radius: 8px;
-            color: #fff; margin-bottom: 10px; outline: none; font-family: monospace;
+        .input-box {
+            width: 100%; background: #0a0a0a; border: 1px solid #333;
+            color: #fff; padding: 15px; border-radius: 8px; margin-bottom: 15px;
+            font-family: monospace; outline: none;
         }
-        .input-field:focus { border-color: #d4af37; }
+        .input-box:focus { border-color: #d4af37; }
 
-        /* LOADER */
-        .loader {
-            width: 40px; height: 40px; border: 4px solid #333;
-            border-top: 4px solid #d4af37; border-radius: 50%;
-            animation: spin 1s linear infinite; margin: 0 auto 20px;
-        }
+        /* Loader */
+        .loader { width: 40px; height: 40px; border: 4px solid #333; border-top: 4px solid #d4af37; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* STATUS BADGES */
-        .badge { display: inline-block; padding: 5px 12px; border-radius: 5px; font-size: 0.8rem; font-weight: bold; margin-top: 10px; }
-        .badge-pending { background: #333; color: #aaa; }
-        .badge-success { background: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; }
-        .badge-fail { background: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #e74c3c; }
 
     </style>
 </head>
 <body>
 
-    <div class="bg-glow"></div>
-
     <div class="header">
         <i class="fas fa-chevron-left back-btn" onclick="window.location.href='Home.html'"></i>
         <div class="page-title">TASK ZONE</div>
-        <div style="width:20px;"></div>
     </div>
 
     <div class="container">
 
-        <!-- 1. APPLY VIEW -->
-        <div id="view_apply" class="task-card">
-            <i class="fas fa-rocket status-icon" style="color: #d4af37;"></i>
-            <div class="t-title">READY FOR NEW TASK?</div>
-            <div class="t-desc">
-                Request a Gmail creation task. You will have <b>13 minutes</b> to complete it. 
-                Ensure you have stable internet.
-            </div>
+        <!-- 1. APPLY BUTTON (Default) -->
+        <div id="view_apply" class="info-card">
+            <i class="fas fa-rocket" style="font-size: 3rem; color: #d4af37; margin-bottom: 20px;"></i>
+            <h3>START NEW TASK</h3>
+            <p style="color: #888; font-size: 0.9rem; margin: 10px 0 20px;">
+                You will get 13 minutes to create a Gmail account using the details provided.
+            </p>
             <button class="btn-gold" onclick="applyForTask()">REQUEST TASK</button>
         </div>
 
-        <!-- 2. WAITING VIEW -->
-        <div id="view_waiting" class="task-card">
+        <!-- 2. WAITING FOR ADMIN -->
+        <div id="view_waiting" class="info-card">
             <div class="loader"></div>
-            <div class="t-title">FINDING TASK...</div>
-            <div class="t-desc">Please wait while our admin assigns a task to you.<br>Do not close this window.</div>
-            <span class="badge badge-pending">STATUS: QUEUED</span>
+            <h3>FINDING TASK...</h3>
+            <p style="color: #888;">Please wait. Do not close this page.</p>
         </div>
 
-        <!-- 3. WORK VIEW (MAIN) -->
-        <div id="view_work" class="task-card" style="text-align: left;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="color:#fff;">TASK DETAILS</h3>
-                <span class="badge badge-success" style="margin:0;">ACTIVE</span>
+        <!-- 3. MAIN WORK AREA -->
+        <div id="view_work" style="display: none;">
+            
+            <div class="task-header">
+                <div class="t-head-title">TASK DETAILS</div>
+                <div class="status-badge">ACTIVE</div>
             </div>
 
             <!-- Timer -->
-            <div class="timer-box" style="text-align: center;">
+            <div class="timer-container">
                 <div class="timer-label">TIME REMAINING</div>
-                <div class="timer-val" id="timerDisplay">13:00</div>
+                <div class="timer-digits" id="timerDisplay">13:00</div>
             </div>
 
-            <p style="text-align:center; font-size:0.75rem; color:#666; margin-bottom:15px;">Tap on any field to copy</p>
+            <p style="text-align: center; color: #555; font-size: 0.8rem; margin-bottom: 20px;">
+                Tap on any field to copy
+            </p>
 
             <!-- Data Fields -->
-            <div class="data-grid">
-                <div class="data-item" onclick="copyToClipboard('d_fname')">
-                    <div>
-                        <span class="d-label">First Name</span>
-                        <span class="d-val" id="d_fname">...</span>
-                    </div>
-                    <i class="fas fa-copy" style="color:#d4af37"></i>
+            <div class="copy-card" onclick="copyToClipboard('d_fname')">
+                <div>
+                    <span class="field-label">First Name</span>
+                    <span class="field-value" id="d_fname">...</span>
                 </div>
-                <div class="data-item" onclick="copyToClipboard('d_lname')">
-                    <div>
-                        <span class="d-label">Last Name</span>
-                        <span class="d-val" id="d_lname">...</span>
-                    </div>
-                    <i class="fas fa-copy" style="color:#d4af37"></i>
-                </div>
-                <div class="data-item" onclick="copyToClipboard('d_dob')">
-                    <div>
-                        <span class="d-label">Date of Birth</span>
-                        <span class="d-val" id="d_dob">...</span>
-                    </div>
-                    <i class="fas fa-copy" style="color:#d4af37"></i>
-                </div>
-                <div class="data-item" onclick="copyToClipboard('d_rec')">
-                    <div>
-                        <span class="d-label">Recovery Email</span>
-                        <span class="d-val" id="d_rec">...</span>
-                    </div>
-                    <i class="fas fa-copy" style="color:#d4af37"></i>
-                </div>
-                <div class="data-item" onclick="copyToClipboard('d_pass')">
-                    <div>
-                        <span class="d-label">Password</span>
-                        <span class="d-val" id="d_pass">...</span>
-                    </div>
-                    <i class="fas fa-copy" style="color:#d4af37"></i>
-                </div>
+                <i class="fas fa-copy copy-icon"></i>
             </div>
 
-            <hr style="border:0; border-top:1px solid #333; margin: 20px 0;">
+            <div class="copy-card" onclick="copyToClipboard('d_lname')">
+                <div>
+                    <span class="field-label">Last Name</span>
+                    <span class="field-value" id="d_lname">...</span>
+                </div>
+                <i class="fas fa-copy copy-icon"></i>
+            </div>
 
-            <div class="sub-title">SUBMIT WORK</div>
-            <input type="email" id="sub_email" class="input-field" placeholder="Paste Created Gmail (example@gmail.com)">
-            <input type="text" id="sub_pass" class="input-field" placeholder="Confirm Password Used">
-            
-            <button class="btn-gold" onclick="submitWork()">SUBMIT FOR REVIEW</button>
+            <div class="copy-card" onclick="copyToClipboard('d_dob')">
+                <div>
+                    <span class="field-label">Date of Birth</span>
+                    <span class="field-value" id="d_dob">...</span>
+                </div>
+                <i class="fas fa-copy copy-icon"></i>
+            </div>
+
+            <div class="copy-card" onclick="copyToClipboard('d_rec')">
+                <div>
+                    <span class="field-label">Recovery Email (Use This)</span>
+                    <span class="field-value" id="d_rec" style="font-size: 0.9rem;">...</span>
+                </div>
+                <i class="fas fa-copy copy-icon"></i>
+            </div>
+
+            <div class="copy-card" onclick="copyToClipboard('d_pass')">
+                <div>
+                    <span class="field-label">Password</span>
+                    <span class="field-value" id="d_pass">...</span>
+                </div>
+                <i class="fas fa-copy copy-icon"></i>
+            </div>
+
+            <!-- Submission Area -->
+            <div class="submit-section">
+                <span class="sub-label">SUBMIT WORK</span>
+                
+                <input type="email" id="sub_email" class="input-box" placeholder="Paste Created Gmail (example@gmail.com)">
+                <input type="text" id="sub_pass" class="input-box" placeholder="Confirm Password Used">
+                
+                <button class="btn-gold" onclick="submitWork()">SUBMIT FOR REVIEW</button>
+            </div>
         </div>
 
-        <!-- 4. REVIEW VIEW -->
-        <div id="view_review" class="task-card">
-            <i class="fas fa-check-circle status-icon" style="color: #2ecc71;"></i>
-            <div class="t-title">SUBMITTED!</div>
-            <div class="t-desc">
-                Your task is under review. Admin will check the details shortly. 
-                Payment will be added automatically if approved.
-            </div>
-            <span class="badge badge-success">UNDER REVIEW</span>
+        <!-- 4. REVIEW SCREEN -->
+        <div id="view_review" class="info-card">
+            <i class="fas fa-check-circle" style="font-size: 3rem; color: #2ecc71; margin-bottom: 15px;"></i>
+            <h3>UNDER REVIEW</h3>
+            <p style="color: #888;">Your task has been submitted. Admin is checking it.</p>
         </div>
 
-        <!-- 5. FAILED VIEW -->
-        <div id="view_failed" class="task-card">
-            <i class="fas fa-times-circle status-icon" style="color: #e74c3c;"></i>
-            <div class="t-title" style="color: #e74c3c;">TASK FAILED</div>
-            <div class="t-desc">
-                Either the time expired or the task was rejected by admin.
-                Please try again carefully.
-            </div>
-            <button class="btn-gold" style="background: #333; color: #fff;" onclick="resetTask()">TRY AGAIN</button>
+        <!-- 5. FAILED SCREEN -->
+        <div id="view_failed" class="info-card">
+            <i class="fas fa-times-circle" style="font-size: 3rem; color: #e74c3c; margin-bottom: 15px;"></i>
+            <h3 style="color: #e74c3c;">TASK FAILED</h3>
+            <p style="color: #888;">Time expired or rejected.</p>
+            <button class="btn-gold" onclick="resetTask()" style="background:#333; color:#fff;">TRY AGAIN</button>
         </div>
 
     </div>
@@ -269,34 +226,38 @@
     <script>
         let timerInterval;
 
-        // Check Auth
+        // Auth Check
         auth.onAuthStateChanged(user => {
             if(user) {
-                initTaskListener(user.uid);
+                initListener(user.uid);
             } else {
-                window.location.href = 'registration_login.html';
+                window.location.href = "registration_login.html";
             }
         });
 
         // Realtime Listener
-        function initTaskListener(uid) {
-            db.ref('tasks/' + uid).on('value', snapshot => {
-                const data = snapshot.val();
+        function initListener(uid) {
+            db.ref('tasks/' + uid).on('value', snap => {
+                const data = snap.val();
                 
-                // Hide All Views First
-                document.querySelectorAll('.task-card').forEach(el => el.classList.remove('active-card'));
+                // Reset Views
+                document.getElementById('view_apply').classList.remove('active-view');
+                document.getElementById('view_waiting').classList.remove('active-view');
+                document.getElementById('view_work').style.display = 'none';
+                document.getElementById('view_review').classList.remove('active-view');
+                document.getElementById('view_failed').classList.remove('active-view');
 
-                if (!data) {
-                    // No task yet
-                    document.getElementById('view_apply').classList.add('active-card');
+                if(!data) {
+                    // No Task
+                    document.getElementById('view_apply').classList.add('active-view');
                 } else {
-                    // Check Status
-                    if (data.status === 'pending') {
-                        document.getElementById('view_waiting').classList.add('active-card');
-                    
-                    } else if (data.status === 'active') {
-                        document.getElementById('view_work').classList.add('active-card');
-                        // Fill Data
+                    if(data.status === 'pending') {
+                        document.getElementById('view_waiting').classList.add('active-view');
+                    } 
+                    else if(data.status === 'active') {
+                        document.getElementById('view_work').style.display = 'block';
+                        
+                        // Populate Data
                         if(data.adminData) {
                             document.getElementById('d_fname').innerText = data.adminData.fname;
                             document.getElementById('d_lname').innerText = data.adminData.lname;
@@ -305,25 +266,25 @@
                             document.getElementById('d_pass').innerText = data.adminData.pass;
                         }
                         // Start Timer
-                        runTimer(data.startTime);
-                    
-                    } else if (data.status === 'review') {
-                        document.getElementById('view_review').classList.add('active-card');
+                        startTimer(data.startTime);
+                    }
+                    else if(data.status === 'review') {
+                        document.getElementById('view_review').classList.add('active-view');
                         clearInterval(timerInterval);
-                    
-                    } else if (data.status === 'failed' || data.status === 'rejected') {
-                        document.getElementById('view_failed').classList.add('active-card');
+                    }
+                    else if(data.status === 'failed' || data.status === 'rejected') {
+                        document.getElementById('view_failed').classList.add('active-view');
                         clearInterval(timerInterval);
-                    
-                    } else if (data.status === 'completed') {
-                        alert("Great Job! Task Approved & Payment Received.");
-                        db.ref('tasks/' + uid).remove(); // Clear task so he can apply again
+                    }
+                    else if(data.status === 'completed') {
+                        alert("Task Approved! Payment Added.");
+                        db.ref('tasks/' + uid).remove();
                     }
                 }
             });
         }
 
-        // Apply Function
+        // Apply Logic
         function applyForTask() {
             const uid = auth.currentUser.uid;
             db.ref('tasks/' + uid).set({
@@ -334,61 +295,52 @@
         }
 
         // Timer Logic
-        function runTimer(startTime) {
-            const duration = 13 * 60 * 1000; // 13 Minutes
+        function startTimer(startTime) {
+            const duration = 13 * 60 * 1000; // 13 Mins
             clearInterval(timerInterval);
 
             timerInterval = setInterval(() => {
                 const now = Date.now();
-                const elapsed = now - startTime;
-                const remaining = duration - elapsed;
+                const diff = duration - (now - startTime);
 
-                if (remaining <= 0) {
+                if(diff <= 0) {
                     clearInterval(timerInterval);
                     document.getElementById('timerDisplay').innerText = "00:00";
-                    failTask();
+                    db.ref('tasks/' + auth.currentUser.uid).update({ status: 'failed' });
                 } else {
-                    const m = Math.floor(remaining / 60000);
-                    const s = Math.floor((remaining % 60000) / 1000);
+                    const m = Math.floor(diff / 60000);
+                    const s = Math.floor((diff % 60000) / 1000);
                     document.getElementById('timerDisplay').innerText = 
-                        `${m}:${s < 10 ? '0' : ''}${s}`;
+                        `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
                 }
             }, 1000);
         }
 
-        function failTask() {
-            const uid = auth.currentUser.uid;
-            db.ref('tasks/' + uid).update({ status: 'failed' });
-        }
-
-        // Submit Function
+        // Submit Logic
         function submitWork() {
             const email = document.getElementById('sub_email').value;
             const pass = document.getElementById('sub_pass').value;
+            
+            if(!email || !pass) return alert("Please fill both fields!");
 
-            if(!email || !pass) { alert("Please fill both fields!"); return; }
-
-            const uid = auth.currentUser.uid;
-            db.ref('tasks/' + uid).update({
+            db.ref('tasks/' + auth.currentUser.uid).update({
                 status: 'review',
                 userSubmission: { email: email, pass: pass }
             });
         }
 
-        // Copy Helper
-        function copyToClipboard(elementId) {
-            const text = document.getElementById(elementId).innerText;
+        // Copy Feature
+        function copyToClipboard(id) {
+            const text = document.getElementById(id).innerText;
             if(text === "...") return;
-            navigator.clipboard.writeText(text).then(() => {
-                // Notifying user (optional visual feedback is handled in CSS active state)
-                // alert("Copied: " + text); 
-            });
+            navigator.clipboard.writeText(text);
+            // Visual feedback handled by CSS :active
         }
 
         function resetTask() {
-            const uid = auth.currentUser.uid;
-            db.ref('tasks/' + uid).remove();
+            db.ref('tasks/' + auth.currentUser.uid).remove();
         }
     </script>
+
 </body>
 </html>
