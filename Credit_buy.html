@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buy Credits</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDuxSz3j5xMYDw5U9kLA0cjkpOE82D06MI",
+            authDomain: "part-1-f6d87.firebaseapp.com",
+            databaseURL: "https://part-1-f6d87-default-rtdb.firebaseio.com",
+            projectId: "part-1-f6d87",
+            storageBucket: "part-1-f6d87.firebasestorage.app",
+            messagingSenderId: "682699403122",
+            appId: "1:682699403122:web:038ffca84d489a6c0db7eb"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: #050505; color: #fff; font-family: 'Montserrat', sans-serif; padding-bottom: 50px; }
+
+        /* HEADER */
+        .header {
+            padding: 20px; display: flex; align-items: center; 
+            background: #000; border-bottom: 1px solid #222; 
+            position: sticky; top: 0; z-index: 100;
+        }
+        .page-title { flex: 1; text-align: center; color: #d4af37; font-weight: 800; font-size: 1.2rem; }
+        .back-btn { color: #fff; cursor: pointer; font-size: 1.2rem; }
+
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+
+        /* WALLET BOX */
+        .wallet-box {
+            background: linear-gradient(135deg, #111, #1a1a1a);
+            border: 1px solid #d4af37; border-radius: 12px; padding: 20px;
+            text-align: center; margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+        }
+        .w-title { color: #2ecc71; font-weight: bold; margin-bottom: 10px; font-size: 0.9rem; }
+        .w-address {
+            background: #000; padding: 10px; border-radius: 5px; border: 1px dashed #444;
+            font-family: monospace; font-size: 0.85rem; color: #fff; word-break: break-all;
+            margin-bottom: 10px;
+        }
+        .copy-btn {
+            background: #d4af37; color: #000; border: none; padding: 8px 20px;
+            border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 0.8rem;
+        }
+
+        /* PACKAGES GRID */
+        .pkg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+        
+        .pkg-card {
+            background: #111; border: 1px solid #333; border-radius: 10px; padding: 15px;
+            text-align: center; cursor: pointer; transition: 0.3s; position: relative;
+        }
+        .pkg-card:hover { border-color: #d4af37; transform: translateY(-3px); }
+        .pkg-card.selected { border-color: #2ecc71; background: rgba(46, 204, 113, 0.1); }
+        
+        .pkg-cr { font-size: 1.5rem; color: #fff; font-weight: 800; font-family: 'Orbitron'; }
+        .pkg-price { color: #d4af37; font-weight: bold; margin: 5px 0; }
+        .pkg-save { font-size: 0.7rem; color: #2ecc71; background: rgba(46, 204, 113, 0.1); padding: 2px 8px; border-radius: 4px; display: inline-block; }
+
+        /* CUSTOM BUY */
+        .custom-box {
+            background: #111; border: 1px solid #333; padding: 20px; border-radius: 10px; margin-bottom: 30px;
+        }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; color: #888; font-size: 0.8rem; margin-bottom: 5px; }
+        .input-group input {
+            width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: #fff; border-radius: 5px; outline: none;
+        }
+        .rate-info { font-size: 0.75rem; color: #666; text-align: right; }
+
+        /* PAYMENT FORM */
+        .pay-form { border-top: 1px solid #222; padding-top: 20px; }
+        .pay-btn {
+            width: 100%; padding: 15px; background: #2ecc71; color: #000;
+            font-weight: 800; border: none; border-radius: 8px; cursor: pointer;
+            font-size: 1rem; margin-top: 10px;
+        }
+        .pay-btn:disabled { background: #444; color: #888; cursor: not-allowed; }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <i class="fas fa-chevron-left back-btn" onclick="window.location.href='Home.html'"></i>
+        <div class="page-title">BUY CREDITS</div>
+        <div style="width:20px;"></div>
+    </div>
+
+    <div class="container">
+        
+        <!-- ADMIN WALLET -->
+        <div class="wallet-box">
+            <div class="w-title">SEND PAYMENT HERE (USDT BEP20)</div>
+            <div class="w-address" id="adminAddr">Loading...</div>
+            <button class="copy-btn" onclick="copyAddr()"><i class="fas fa-copy"></i> COPY ADDRESS</button>
+        </div>
+
+        <h3 style="color:#fff; margin-bottom:15px; font-size:1rem;">CHOOSE PACKAGE</h3>
+        <div class="pkg-grid" id="pkgList">
+            <!-- Packages will load here -->
+        </div>
+
+        <!-- CUSTOM AMOUNT -->
+        <div class="custom-box" onclick="selectCustom()">
+            <h3 style="color:#d4af37; font-size:1rem; margin-bottom:15px;">OR CUSTOM AMOUNT</h3>
+            <div class="input-group">
+                <label>Enter Amount (USD)</label>
+                <input type="number" id="customAmount" placeholder="Min $1" oninput="calcCustom()">
+            </div>
+            <div class="rate-info">Standard Rate: $1 = 1 Credit</div>
+            <div style="margin-top:10px; font-weight:bold; color:#fff;">
+                YOU GET: <span id="customGet" style="color:#2ecc71">0</span> Credits
+            </div>
+        </div>
+
+        <!-- PAYMENT DETAILS FORM -->
+        <div class="pay-form">
+            <h3 style="color:#fff; margin-bottom:15px;">PAYMENT PROOF</h3>
+            
+            <div class="input-group">
+                <label>Your Wallet Address (Sender)</label>
+                <input type="text" id="senderAddr" placeholder="Paste your USDT address">
+            </div>
+
+            <div class="input-group">
+                <label>Transaction Hash / ID (Optional)</label>
+                <input type="text" id="txnId" placeholder="Transaction Hash">
+            </div>
+
+            <div style="background:#1a1a1a; padding:10px; border-radius:5px; margin-bottom:15px; display:flex; justify-content:space-between;">
+                <span style="color:#aaa;">Total To Pay:</span>
+                <span style="color:#d4af37; font-weight:bold;">$<span id="finalPay">0.00</span></span>
+            </div>
+
+            <button class="pay-btn" id="submitBtn" onclick="submitRequest()">CONFIRM PURCHASE</button>
+        </div>
+
+    </div>
+
+    <script>
+        let selectedType = 'none'; // 'package' or 'custom'
+        let selectedPkgData = null;
+        let finalPrice = 0;
+        let finalCredits = 0;
+
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                loadAdminWallet();
+                loadPackages();
+            } else {
+                window.location.href = "registration_login.html";
+            }
+        });
+
+        // 1. LOAD WALLET
+        function loadAdminWallet() {
+            db.ref('adminSettings/walletAddress').on('value', snap => {
+                document.getElementById('adminAddr').innerText = snap.val() || "Contact Admin";
+            });
+        }
+
+        // 2. LOAD PACKAGES
+        function loadPackages() {
+            db.ref('adminSettings/packages').on('value', snap => {
+                const list = document.getElementById('pkgList');
+                list.innerHTML = "";
+                
+                if(snap.exists()) {
+                    snap.forEach(child => {
+                        const pkg = child.val();
+                        // Only show if data is valid
+                        if(pkg.credits && pkg.finalPrice) {
+                            const div = document.createElement('div');
+                            div.className = 'pkg-card';
+                            div.onclick = () => selectPackage(div, pkg);
+                            div.innerHTML = `
+                                <div class="pkg-cr">${pkg.credits} CR</div>
+                                <div class="pkg-price">$${pkg.finalPrice}</div>
+                                ${pkg.discount > 0 ? `<div class="pkg-save">SAVE ${pkg.discount}%</div>` : ''}
+                            `;
+                            list.appendChild(div);
+                        }
+                    });
+                } else {
+                    list.innerHTML = "<p style='color:#666; grid-column:span 2;'>No special packages available.</p>";
+                }
+            });
+        }
+
+        // 3. SELECTION LOGIC
+        function selectPackage(element, pkg) {
+            // UI Update
+            document.querySelectorAll('.pkg-card').forEach(e => e.classList.remove('selected'));
+            element.classList.add('selected');
+            document.querySelector('.custom-box').style.borderColor = '#333';
+            
+            // Data Update
+            selectedType = 'package';
+            selectedPkgData = pkg;
+            finalPrice = pkg.finalPrice;
+            finalCredits = pkg.credits;
+            
+            updateTotalDisplay();
+        }
+
+        function selectCustom() {
+            // UI Update
+            document.querySelectorAll('.pkg-card').forEach(e => e.classList.remove('selected'));
+            document.querySelector('.custom-box').style.borderColor = '#d4af37';
+            
+            // Data Update
+            selectedType = 'custom';
+            calcCustom(); // Recalculate based on input
+        }
+
+        function calcCustom() {
+            if(selectedType !== 'custom') selectCustom();
+
+            const amount = parseFloat(document.getElementById('customAmount').value) || 0;
+            finalPrice = amount; // Rate $1 = 1 Credit
+            finalCredits = amount; // Rate 1:1
+
+            document.getElementById('customGet').innerText = finalCredits;
+            updateTotalDisplay();
+        }
+
+        function updateTotalDisplay() {
+            document.getElementById('finalPay').innerText = parseFloat(finalPrice).toFixed(2);
+        }
+
+        // 4. SUBMIT REQUEST
+        function submitRequest() {
+            const sender = document.getElementById('senderAddr').value;
+            const txn = document.getElementById('txnId').value;
+
+            if(finalPrice <= 0) return alert("Please select a package or enter amount!");
+            if(!sender) return alert("Please enter your Wallet Address (Sender)!");
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = "Processing...";
+
+            const reqData = {
+                uid: auth.currentUser.uid,
+                email: auth.currentUser.email,
+                credits: parseFloat(finalCredits),
+                pricePaid: parseFloat(finalPrice),
+                senderAddress: sender,
+                txnId: txn || "N/A",
+                type: selectedType,
+                status: 'pending',
+                date: Date.now()
+            };
+
+            db.ref('credit_requests').push(reqData).then(() => {
+                alert("Request Sent! Admin will check and approve shortly.");
+                window.location.href = "Home.html";
+            }).catch(e => {
+                alert("Error: " + e.message);
+                btn.disabled = false;
+                btn.innerText = "CONFIRM PURCHASE";
+            });
+        }
+
+        function copyAddr() {
+            const txt = document.getElementById('adminAddr').innerText;
+            if(txt === "Loading..." || txt === "Contact Admin") return;
+            navigator.clipboard.writeText(txt);
+            alert("Address Copied!");
+        }
+    </script>
+</body>
+</html>
