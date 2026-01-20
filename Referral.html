@@ -31,133 +31,57 @@
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: #050505; color: #fff; font-family: 'Montserrat', sans-serif; padding-bottom: 40px; overflow-x: hidden; }
 
-        body {
-            background-color: #050505;
-            color: #fff;
-            font-family: 'Montserrat', sans-serif;
-            padding-bottom: 40px;
-            overflow-x: hidden;
-        }
+        .bg-glow { position: fixed; top: 20%; left: 50%; transform: translateX(-50%); width: 300px; height: 300px; background: rgba(212, 175, 55, 0.15); filter: blur(150px); pointer-events: none; z-index: -1; }
 
-        /* Glow Effect */
-        .bg-glow {
-            position: fixed; top: 20%; left: 50%; transform: translateX(-50%);
-            width: 300px; height: 300px;
-            background: rgba(212, 175, 55, 0.15);
-            filter: blur(150px); pointer-events: none; z-index: -1;
-        }
-
-        /* HEADER */
-        .header {
-            padding: 20px;
-            display: flex; align-items: center; justify-content: space-between;
-            background: rgba(10, 10, 10, 0.9);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
-        }
+        .header { padding: 20px; display: flex; align-items: center; justify-content: space-between; background: rgba(10, 10, 10, 0.9); border-bottom: 1px solid rgba(255, 255, 255, 0.1); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
         .back-btn { font-size: 1.2rem; color: #fff; cursor: pointer; }
         .page-title { font-size: 1.1rem; font-weight: 700; color: #d4af37; letter-spacing: 2px; }
 
-        /* REFERRAL CARD */
-        .ref-card {
-            margin: 20px;
-            background: linear-gradient(135deg, #111, #0a0a0a);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            border-radius: 15px; padding: 25px;
-            text-align: center; position: relative; overflow: hidden;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
-        }
-
-        .ref-card::after {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,215,0,0.05) 0%, transparent 60%);
-            animation: rotate 10s linear infinite; pointer-events: none;
-        }
+        .ref-card { margin: 20px; background: linear-gradient(135deg, #111, #0a0a0a); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 15px; padding: 25px; text-align: center; position: relative; overflow: hidden; box-shadow: 0 0 20px rgba(212, 175, 55, 0.1); }
+        .ref-card::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,215,0,0.05) 0%, transparent 60%); animation: rotate 10s linear infinite; pointer-events: none; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
         .ref-title { font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-        
-        .code-box {
-            background: #000; border: 1px dashed #d4af37;
-            padding: 10px; margin: 15px 0; border-radius: 8px;
-            display: flex; justify-content: space-between; align-items: center;
-            position: relative; z-index: 2;
-        }
+        .code-box { background: #000; border: 1px dashed #d4af37; padding: 10px; margin: 15px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
         .my-code { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; color: #fff; letter-spacing: 2px; }
         
-        .copy-btn {
-            background: #d4af37; color: #000; border: none;
-            padding: 5px 12px; border-radius: 5px; font-weight: bold; cursor: pointer;
-            font-size: 0.8rem; transition: 0.2s;
-        }
+        .copy-btn { background: #d4af37; color: #000; border: none; padding: 5px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.8rem; transition: 0.2s; }
         .copy-btn:active { transform: scale(0.9); }
-
         .commission-text { font-size: 0.9rem; color: #ccc; margin-top: 10px; position: relative; z-index: 2; }
         .comm-val { color: #2ecc71; font-weight: bold; }
 
-        /* SECTION HEADERS */
-        .section-head {
-            margin: 30px 20px 15px;
-            display: flex; align-items: center; gap: 10px;
-            color: #d4af37; font-weight: 700; font-size: 1rem;
-            border-bottom: 1px solid #333; padding-bottom: 10px;
-        }
-        .section-head i { font-size: 1.2rem; }
-
-        /* LEADERBOARD */
+        .section-head { margin: 30px 20px 15px; display: flex; align-items: center; gap: 10px; color: #d4af37; font-weight: 700; font-size: 1rem; border-bottom: 1px solid #333; padding-bottom: 10px; }
         .leaderboard { padding: 0 20px; }
-        
-        .l-item {
-            display: flex; align-items: center; justify-content: space-between;
-            background: rgba(255, 255, 255, 0.05); padding: 12px 15px;
-            border-radius: 10px; margin-bottom: 8px;
-            border: 1px solid transparent; transition: 0.3s;
-        }
-        
+        .l-item { display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.05); padding: 12px 15px; border-radius: 10px; margin-bottom: 8px; border: 1px solid transparent; transition: 0.3s; }
         .l-rank { font-weight: 800; width: 30px; font-size: 1rem; color: #666; }
         .l-name { flex: 1; font-size: 0.9rem; font-weight: 600; }
         .l-score { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: #d4af37; }
-
-        /* Top 3 Styling */
-        .l-item:nth-child(1) { border-color: #ffd700; background: rgba(255, 215, 0, 0.1); }
-        .l-item:nth-child(1) .l-rank { color: #ffd700; }
         
-        .l-item:nth-child(2) { border-color: #c0c0c0; background: rgba(192, 192, 192, 0.1); }
-        .l-item:nth-child(2) .l-rank { color: #c0c0c0; }
-        
-        .l-item:nth-child(3) { border-color: #cd7f32; background: rgba(205, 127, 50, 0.1); }
-        .l-item:nth-child(3) .l-rank { color: #cd7f32; }
+        .l-item:nth-child(1) { border-color: #ffd700; background: rgba(255, 215, 0, 0.1); } .l-item:nth-child(1) .l-rank { color: #ffd700; }
+        .l-item:nth-child(2) { border-color: #c0c0c0; background: rgba(192, 192, 192, 0.1); } .l-item:nth-child(2) .l-rank { color: #c0c0c0; }
+        .l-item:nth-child(3) { border-color: #cd7f32; background: rgba(205, 127, 50, 0.1); } .l-item:nth-child(3) .l-rank { color: #cd7f32; }
 
-        /* PARTNERS LIST */
         .partner-list { padding: 0 20px; }
-        .p-item {
-            background: #111; padding: 15px; border-radius: 10px;
-            margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
-            border-left: 3px solid #333;
-        }
+        .p-item { background: #111; padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid #333; }
         .p-item.active { border-left-color: #2ecc71; }
-        
         .p-info div:first-child { font-weight: 600; font-size: 0.95rem; color: #fff; }
         .p-info div:last-child { font-size: 0.75rem; color: #666; margin-top: 2px; }
-        
         .p-status { text-align: right; }
         .stat-badge { font-size: 0.7rem; padding: 3px 8px; border-radius: 4px; background: #222; color: #888; }
         .stat-badge.act { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
-
     </style>
 </head>
 <body>
 
     <div class="bg-glow"></div>
-
     <div class="header">
         <i class="fas fa-chevron-left back-btn" onclick="window.location.href='Home.html'"></i>
         <div class="page-title">TEAM & REWARDS</div>
         <div style="width:20px;"></div>
     </div>
 
-    <!-- REFERRAL CARD -->
     <div class="ref-card">
         <div class="ref-title">Your Referral Code</div>
         <div class="code-box">
@@ -170,26 +94,17 @@
         <p style="font-size:0.7rem; color:#666; margin-top:10px;">Share link & earn 20% commission from your team.</p>
     </div>
 
-    <!-- LEADERBOARD -->
-    <div class="section-head">
-        <i class="fas fa-trophy"></i> TOP EARNERS (TODAY)
-    </div>
-    <div class="leaderboard" id="leaderboardList">
-        <div style="text-align:center; color:#444; padding:10px;">Loading Rankings...</div>
-    </div>
+    <div class="section-head"><i class="fas fa-trophy"></i> TOP EARNERS (TODAY)</div>
+    <div class="leaderboard" id="leaderboardList"><div style="text-align:center; color:#444; padding:10px;">Loading Rankings...</div></div>
 
-    <!-- MY TEAM -->
-    <div class="section-head">
-        <i class="fas fa-users"></i> MY PARTNERS
-    </div>
-    <div class="partner-list" id="partnerList">
-        <div style="text-align:center; color:#444; padding:10px;">Loading Partners...</div>
-    </div>
+    <div class="section-head"><i class="fas fa-users"></i> MY PARTNERS</div>
+    <div class="partner-list" id="partnerList"><div style="text-align:center; color:#444; padding:10px;">Loading Partners...</div></div>
 
     <script>
         let myRefCode = "";
-        // Base URL where the site is hosted
-        const baseURL = "https://task28.github.io/-/";
+        
+        // FIXED LINK STRUCTURE
+        const baseURL = "https://task28.github.io/-/registration_login.html";
 
         auth.onAuthStateChanged(user => {
             if(user) {
@@ -208,21 +123,15 @@
             }
         });
 
-        // UPDATED: Copy Link Function
         function copyLink() {
             if(myRefCode === "...") return;
-            
-            // Generate Link: https://task28.github.io/-/?ref=CODE
             const fullLink = `${baseURL}?ref=${myRefCode}`;
             
             navigator.clipboard.writeText(fullLink).then(() => {
                 const btn = document.querySelector('.copy-btn');
                 btn.innerText = "COPIED!";
                 btn.style.background = "#fff";
-                setTimeout(() => {
-                    btn.innerText = "COPY LINK";
-                    btn.style.background = "#d4af37";
-                }, 1500);
+                setTimeout(() => { btn.innerText = "COPY LINK"; btn.style.background = "#d4af37"; }, 1500);
             });
         }
 
@@ -236,21 +145,11 @@
                     if(u.todayProfit > 0) users.push({ name: u.name, score: parseFloat(u.todayProfit) });
                 });
                 users.sort((a, b) => b.score - a.score);
-
-                if(users.length === 0) {
-                    list.innerHTML = "<div style='text-align:center; color:#444; font-size:0.8rem;'>No Data Available Yet</div>";
-                    return;
-                }
-
+                if(users.length === 0) { list.innerHTML = "<div style='text-align:center; color:#444; font-size:0.8rem;'>No Data Available Yet</div>"; return; }
                 users.forEach((u, i) => {
                     let rankDisplay = i + 1;
                     if(i === 0) rankDisplay = '<i class="fas fa-crown"></i>';
-                    list.innerHTML += `
-                        <div class="l-item">
-                            <div class="l-rank">${rankDisplay}</div>
-                            <div class="l-name">${u.name}</div>
-                            <div class="l-score">$${u.score.toFixed(2)}</div>
-                        </div>`;
+                    list.innerHTML += `<div class="l-item"><div class="l-rank">${rankDisplay}</div><div class="l-name">${u.name}</div><div class="l-score">$${u.score.toFixed(2)}</div></div>`;
                 });
             });
         }
@@ -259,24 +158,11 @@
             db.ref('users').orderByChild('referredBy').equalTo(code).on('value', snap => {
                 const list = document.getElementById('partnerList');
                 list.innerHTML = "";
-                if(!snap.exists()) {
-                    list.innerHTML = "<div style='text-align:center; color:#444; font-size:0.8rem;'>You haven't referred anyone yet.</div>";
-                    return;
-                }
+                if(!snap.exists()) { list.innerHTML = "<div style='text-align:center; color:#444; font-size:0.8rem;'>You haven't referred anyone yet.</div>"; return; }
                 snap.forEach(child => {
                     const p = child.val();
                     const hasPlan = p.activePlan ? true : false;
-                    list.innerHTML += `
-                        <div class="p-item ${hasPlan ? "active" : ""}">
-                            <div class="p-info">
-                                <div>${p.name}</div>
-                                <div>ID: ${child.key.substring(0,6)}...</div>
-                            </div>
-                            <div class="p-status">
-                                <span class="stat-badge ${hasPlan ? "act" : ""}">${hasPlan ? "PREMIUM" : "FREE"}</span>
-                                <div style="font-size:0.7rem; color:#666; margin-top:3px;">Tasks: ${p.totalTasksDone || 0}</div>
-                            </div>
-                        </div>`;
+                    list.innerHTML += `<div class="p-item ${hasPlan ? "active" : ""}"><div class="p-info"><div>${p.name}</div><div>ID: ${child.key.substring(0,6)}...</div></div><div class="p-status"><span class="stat-badge ${hasPlan ? "act" : ""}">${hasPlan ? "PREMIUM" : "FREE"}</span><div style="font-size:0.7rem; color:#666; margin-top:3px;">Tasks: ${p.totalTasksDone || 0}</div></div></div>`;
                 });
             });
         }
