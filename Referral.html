@@ -30,6 +30,7 @@
     </script>
 
     <style>
+        /* DESIGN REMAINS EXACTLY THE SAME */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
@@ -176,12 +177,11 @@
         <div style="width: 24px;"></div>
     </div>
 
-    <!-- Invite Section WITH EXPLANATION -->
+    <!-- Invite Section -->
     <div class="invite-section">
         <div class="invite-card">
             <h2>Get <span class="highlight-text">20%</span> Commission!</h2>
             
-            <!-- Explanation Block -->
             <div class="explain-box">
                 <div class="explain-text">
                     Earn <b>20% commission</b> from every task your direct partners complete.
@@ -226,7 +226,7 @@
             <div class="stat-label">Total Team</div>
         </div>
 
-        <!-- Box 3: Total Commission (Full Width) -->
+        <!-- Box 3: Total Commission -->
         <div class="stat-box full">
             <div class="stat-icon"><i class="fas fa-wallet"></i></div>
             <div class="stat-num" id="totalComm">$0.00</div>
@@ -247,7 +247,6 @@
 
     <script>
         let myRefCode = "";
-        // Update this URL to your actual hosted URL
         const baseURL = "https://task28.github.io/-/registration_login.html";
 
         auth.onAuthStateChanged(user => {
@@ -257,19 +256,20 @@
                     const data = snap.val();
                     if (data) {
                         myRefCode = data.myRefCode || "ERROR";
-                        const directPartners = data.partnerCount || 0;
-                        const teamMembers = data.teamCount || 0; 
+                        
+                        // NOTE: Direct partner count is now handled in loadPartnerList() for accuracy
+                        
+                        const teamMembers = data.teamCount || 0; // Total team (including indirect)
                         const lifetimeComm = data.totalProfit || 0; 
 
                         // Update UI
                         document.getElementById('displayCode').innerText = myRefCode;
                         document.getElementById('displayLink').innerText = `${baseURL}?ref=${myRefCode}`;
                         
-                        document.getElementById('partnerCount').innerText = directPartners;
                         document.getElementById('teamCount').innerText = teamMembers;
                         document.getElementById('totalComm').innerText = "$" + parseFloat(lifetimeComm).toFixed(2);
 
-                        // Load List
+                        // Load List & Calculate Direct Count
                         loadPartnerList(myRefCode);
                     }
                 });
@@ -281,11 +281,8 @@
         // Copy Function
         function copyToClipboard(type) {
             let textToCopy = "";
-            if (type === 'code') {
-                textToCopy = myRefCode;
-            } else {
-                textToCopy = `${baseURL}?ref=${myRefCode}`;
-            }
+            if (type === 'code') textToCopy = myRefCode;
+            else textToCopy = `${baseURL}?ref=${myRefCode}`;
 
             if (textToCopy && textToCopy !== "Loading...") {
                 navigator.clipboard.writeText(textToCopy).then(() => {
@@ -302,10 +299,16 @@
             setTimeout(() => { toast.style.display = "none"; }, 2000);
         }
 
-        // Load Recent Partners List
+        // --- FIXED: Load List AND Count Direct Partners ---
         function loadPartnerList(code) {
-            db.ref('users').orderByChild('referredBy').equalTo(code).limitToLast(10).on('value', snap => {
+            db.ref('users').orderByChild('referredBy').equalTo(code).on('value', snap => {
                 const listDiv = document.getElementById('partnerList');
+                const countBox = document.getElementById('partnerCount');
+                
+                // IMPORTANT: Calculate count from actual list size
+                const actualCount = snap.exists() ? snap.numChildren() : 0;
+                countBox.innerText = actualCount; // Update the UI with actual count
+
                 listDiv.innerHTML = "";
 
                 if (!snap.exists()) {
