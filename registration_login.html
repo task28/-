@@ -39,107 +39,60 @@
             font-family: 'Montserrat', sans-serif; height: 100vh; color: #fff; overflow: hidden;
         }
 
-        /* Gold Glow Background */
-        .bg-glow {
-            position: absolute; width: 600px; height: 600px;
-            background: #d4af37; filter: blur(200px); opacity: 0.1;
-            z-index: 0; pointer-events: none; animation: pulse 6s infinite alternate;
-        }
-
+        .bg-glow { position: absolute; width: 600px; height: 600px; background: #d4af37; filter: blur(200px); opacity: 0.1; z-index: 0; pointer-events: none; animation: pulse 6s infinite alternate; }
         @keyframes pulse { from { opacity: 0.05; transform: scale(0.8); } to { opacity: 0.15; transform: scale(1.1); } }
 
-        /* Container */
         .container {
-            background: rgba(20, 20, 20, 0.85);
-            border-radius: 20px;
+            background: rgba(20, 20, 20, 0.85); border-radius: 20px;
             box-shadow: 0 14px 28px rgba(0,0,0,0.5), 0 10px 10px rgba(0,0,0,0.5);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            position: relative; overflow: hidden;
-            width: 850px; max-width: 100%; min-height: 580px;
-            z-index: 1; backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.2); position: relative; overflow: hidden;
+            width: 850px; max-width: 100%; min-height: 620px; z-index: 1; backdrop-filter: blur(10px);
         }
 
-        .form-container {
-            position: absolute; top: 0; height: 100%; transition: all 0.6s ease-in-out;
-            padding: 0 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
-        }
-
-        /* Sign Up Form Position */
+        .form-container { position: absolute; top: 0; height: 100%; transition: all 0.6s ease-in-out; padding: 0 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
         .sign-up-container { left: 0; width: 50%; opacity: 0; z-index: 1; }
-        
-        /* Sign In Form Position */
         .sign-in-container { left: 0; width: 50%; z-index: 2; }
 
-        /* Active State Animation */
         .container.right-panel-active .sign-in-container { transform: translateX(100%); opacity: 0; }
         .container.right-panel-active .sign-up-container { transform: translateX(100%); opacity: 1; z-index: 5; animation: show 0.6s; }
-
         @keyframes show { 0%, 49.99% { opacity: 0; z-index: 1; } 50%, 100% { opacity: 1; z-index: 5; } }
 
-        /* Overlay */
-        .overlay-container {
-            position: absolute; top: 0; left: 50%; width: 50%; height: 100%;
-            overflow: hidden; transition: transform 0.6s ease-in-out; z-index: 100;
-        }
+        .overlay-container { position: absolute; top: 0; left: 50%; width: 50%; height: 100%; overflow: hidden; transition: transform 0.6s ease-in-out; z-index: 100; }
         .container.right-panel-active .overlay-container { transform: translateX(-100%); }
 
-        .overlay {
-            background: linear-gradient(to right, #b8860b, #d4af37, #f1c40f, #b8860b);
-            color: #000; position: relative; left: -100%; height: 100%; width: 200%;
-            transform: translateX(0); transition: transform 0.6s ease-in-out;
-        }
+        .overlay { background: linear-gradient(to right, #b8860b, #d4af37, #f1c40f, #b8860b); color: #000; position: relative; left: -100%; height: 100%; width: 200%; transform: translateX(0); transition: transform 0.6s ease-in-out; }
         .container.right-panel-active .overlay { transform: translateX(50%); }
 
-        .overlay-panel {
-            position: absolute; display: flex; align-items: center; justify-content: center;
-            flex-direction: column; padding: 0 40px; text-align: center; top: 0; height: 100%; width: 50%; transform: translateX(0); transition: transform 0.6s ease-in-out;
-        }
+        .overlay-panel { position: absolute; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 0 40px; text-align: center; top: 0; height: 100%; width: 50%; transform: translateX(0); transition: transform 0.6s ease-in-out; }
         .overlay-left { transform: translateX(-20%); }
         .container.right-panel-active .overlay-left { transform: translateX(0); }
         .overlay-right { right: 0; transform: translateX(0); }
         .container.right-panel-active .overlay-right { transform: translateX(20%); }
 
-        /* Elements Styling */
         h1 { font-family: 'Orbitron', sans-serif; margin-bottom: 10px; color: #d4af37; }
         h1.light { color: #000; }
-        
         p { font-size: 0.9rem; line-height: 20px; letter-spacing: 0.5px; margin: 20px 0 30px; }
         p.light { color: #222; font-weight: 600; }
 
         .social-container { margin: 20px 0; }
-        .social-container a {
-            border: 1px solid #d4af37; border-radius: 50%; display: inline-flex;
-            justify-content: center; align-items: center; margin: 0 5px; height: 40px; width: 40px;
-            color: #d4af37; text-decoration: none; transition: 0.3s;
-        }
+        .social-container a { border: 1px solid #d4af37; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; margin: 0 5px; height: 40px; width: 40px; color: #d4af37; text-decoration: none; transition: 0.3s; }
         .social-container a:hover { background: #d4af37; color: #000; }
 
-        input {
-            background: #111; border: 1px solid #333; padding: 12px 15px;
-            margin: 8px 0; width: 100%; color: #fff; border-radius: 5px; outline: none;
-        }
+        input { background: #111; border: 1px solid #333; padding: 12px 15px; margin: 6px 0; width: 100%; color: #fff; border-radius: 5px; outline: none; }
         input:focus { border-color: #d4af37; }
         input[readonly] { background: #1a1a1a; color: #2ecc71; border-color: #2ecc71; font-weight: bold; cursor: not-allowed; }
 
-        button {
-            border-radius: 20px; border: 1px solid #d4af37; background: #d4af37;
-            color: #000; font-size: 12px; font-weight: bold; padding: 12px 45px;
-            letter-spacing: 1px; text-transform: uppercase; transition: transform 80ms ease-in; cursor: pointer;
-        }
+        button { border-radius: 20px; border: 1px solid #d4af37; background: #d4af37; color: #000; font-size: 12px; font-weight: bold; padding: 12px 45px; letter-spacing: 1px; text-transform: uppercase; transition: transform 80ms ease-in; cursor: pointer; }
         button:active { transform: scale(0.95); }
-        button:focus { outline: none; }
-        
         button.ghost { background: transparent; border-color: #000; color: #000; }
         button.ghost:hover { background: #000; color: #d4af37; border-color: #000; }
 
         .btn-submit { margin-top: 10px; width: 100%; box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3); }
         .msg-box { color: #ff4d4d; font-size: 0.75rem; margin-top: 10px; display: none; }
         
-        /* MOBILE SWITCH BUTTON (Only visible on mobile) */
         .mobile-switch { display: none; margin-top: 20px; font-size: 0.9rem; color: #aaa; }
         .mobile-switch span { color: #d4af37; font-weight: bold; cursor: pointer; text-decoration: underline; }
 
-        /* MOBILE RESPONSIVE CSS */
         @media (max-width: 768px) {
             body { overflow-y: auto; height: auto; padding: 20px 0; }
             .container { width: 100%; min-height: 100vh; border-radius: 0; box-shadow: none; border: none; background: #000; }
@@ -166,25 +119,20 @@
         <!-- SIGN UP FORM -->
         <div class="form-container sign-up-container">
             <h1 style="font-size: 1.5rem;">Create Account</h1>
-            <div class="social-container">
-                <a href="#"><i class="fas fa-gift"></i></a>
-                <span style="font-size:0.7rem; color:#888; margin-left:10px;">Get 2 Credits Free!</span>
-            </div>
+            
             <input type="text" id="r_name" placeholder="Full Name" />
             <input type="email" id="r_email" placeholder="Email" />
+            <input type="tel" id="r_number" placeholder="Phone Number" />
             <input type="password" id="r_pass" placeholder="Password (Min 6 chars)" />
+            <input type="password" id="r_passConfirm" placeholder="Confirm Password" />
             
             <!-- MANDATORY REFERRAL CODE -->
             <input type="text" id="r_refCode" placeholder="Referral Code (Required)" />
-            <input type="text" id="r_bonusCode" placeholder="Bonus Code (Optional)" />
             
             <button class="btn-submit" onclick="handleRegister(this)">Sign Up</button>
             <div id="regMsg" class="msg-box">Error message</div>
 
-            <!-- Mobile Only Switch -->
-            <div class="mobile-switch">
-                Already have an account? <span onclick="switchToLogin()">Sign In</span>
-            </div>
+            <div class="mobile-switch">Already have an account? <span onclick="switchToLogin()">Sign In</span></div>
         </div>
 
         <!-- SIGN IN FORM -->
@@ -202,10 +150,7 @@
             <button class="btn-submit" onclick="handleLogin(this)">Sign In</button>
             <div id="loginMsg" class="msg-box">Error message</div>
 
-            <!-- Mobile Only Switch -->
-            <div class="mobile-switch">
-                Don't have an account? <span onclick="switchToSignup()">Create Account</span>
-            </div>
+            <div class="mobile-switch">Don't have an account? <span onclick="switchToSignup()">Create Account</span></div>
         </div>
 
         <!-- OVERLAY (PC ONLY) -->
@@ -230,7 +175,6 @@
         const signInButton = document.getElementById('signIn');
         const container = document.getElementById('container');
 
-        // Toggle Animation
         signUpButton.addEventListener('click', () => container.classList.add("right-panel-active"));
         signInButton.addEventListener('click', () => container.classList.remove("right-panel-active"));
 
@@ -242,79 +186,72 @@
             const urlParams = new URLSearchParams(window.location.search);
             const ref = urlParams.get('ref');
             
-            // If ref code is present in URL
             if(ref) {
-                container.classList.add("right-panel-active"); // Switch to Sign Up
+                container.classList.add("right-panel-active");
                 const refInput = document.getElementById('r_refCode');
                 refInput.value = ref;
-                refInput.readOnly = true; // Make it read-only
-                refInput.style.borderColor = "#2ecc71"; // Green border to show it's valid
+                refInput.readOnly = true; 
+                refInput.style.borderColor = "#2ecc71";
             }
         };
 
-        // --- REGISTER LOGIC (MANDATORY REFERRAL) ---
+        // --- REGISTER LOGIC ---
         function handleRegister(btn) {
             const name = document.getElementById('r_name').value;
             const email = document.getElementById('r_email').value;
+            const number = document.getElementById('r_number').value;
             const pass = document.getElementById('r_pass').value;
+            const confirmPass = document.getElementById('r_passConfirm').value;
             const refCode = document.getElementById('r_refCode').value.trim();
-            const bonusCode = document.getElementById('r_bonusCode').value.trim().toUpperCase();
             const msgBox = document.getElementById('regMsg');
 
-            // 1. Validation
-            if(!name || !email || !pass || !refCode) {
-                showError(msgBox, "All fields (Name, Email, Pass, Referral Code) are required."); return;
+            // VALIDATION
+            if(!name || !email || !number || !pass || !confirmPass || !refCode) {
+                showError(msgBox, "All fields (Name, Email, Number, Password, Ref Code) are required."); return;
             }
             if(pass.length < 6) {
                 showError(msgBox, "Password must be at least 6 characters."); return;
+            }
+            if(pass !== confirmPass) {
+                showError(msgBox, "Passwords do not match!"); return;
             }
 
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking Ref Code...';
             btn.style.opacity = "0.7";
 
-            // 2. Verify Referral Code Exists
+            // Verify Referral Code Exists
             db.ref('users').orderByChild('myRefCode').equalTo(refCode).once('value', snapshot => {
                 if(!snapshot.exists()) {
-                    showError(msgBox, "Invalid Referral Code! Please ask your inviter.");
+                    showError(msgBox, "Invalid Referral Code! Check the link or ask admin.");
                     resetBtn(btn, "Sign Up");
                     return;
                 }
 
-                // If Referral is valid, check Bonus Code
-                checkBonusAndRegister(name, email, pass, refCode, bonusCode, btn, msgBox);
-            });
-        }
-
-        function checkBonusAndRegister(name, email, pass, refCode, bonusCode, btn, msgBox) {
-            db.ref('bonusCodes/' + bonusCode).once('value').then(snap => {
-                let startBal = 0;
-                let startCred = 2;
-
-                if(bonusCode && snap.exists()) {
-                    const bData = snap.val();
-                    if(bData.type === 'balance') startBal = parseFloat(bData.amount);
-                    if(bData.type === 'credit') startCred += parseInt(bData.amount);
-                } else if(bonusCode && !snap.exists()) {
-                    showError(msgBox, "Invalid Bonus Code"); 
-                    resetBtn(btn, "Sign Up"); return;
-                }
-
-                // Create User in Firebase Auth
+                // If Valid, Create Account
                 auth.createUserWithEmailAndPassword(email, pass).then((cred) => {
                     const uid = cred.user.uid;
                     const myCode = "TASK" + Math.floor(100000 + Math.random() * 900000);
                     const today = new Date().toISOString().split('T')[0];
 
                     db.ref('users/' + uid).set({
-                        name: name, email: email, password: pass, uid: uid,
-                        balance: startBal, credits: startCred, 
-                        todayProfit: 0, totalProfit: 0, teamCount: 0, partnerCount: 0,
-                        regDate: today, myRefCode: myCode, referredBy: refCode, plan: "free"
+                        name: name,
+                        email: email,
+                        phone: number,
+                        password: pass, // Optional to save, Firebase handles auth
+                        uid: uid,
+                        balance: 0,
+                        credits: 2, // Free credits
+                        todayProfit: 0, 
+                        totalProfit: 0, 
+                        teamCount: 0, 
+                        partnerCount: 0,
+                        regDate: today, 
+                        myRefCode: myCode, 
+                        referredBy: refCode, 
+                        plan: "free"
                     }).then(() => {
-                        // Update Referrer Stats
                         updateReferrer(refCode);
-                        
-                        alert("Account Created Successfully! Welcome.");
+                        alert("Account Created! You can now login.");
                         window.location.href = "Home.html";
                     });
 
@@ -332,8 +269,6 @@
                         const refUid = u.key;
                         const data = u.val();
                         let updates = { teamCount: (data.teamCount || 0) + 1 };
-                        
-                        // If referrer has active plan, update plan ref count
                         if(data.activePlan) {
                             updates['activePlan/currentRef'] = (data.activePlan.currentRef || 0) + 1;
                         }
@@ -343,7 +278,6 @@
             });
         }
 
-        // --- LOGIN LOGIC ---
         function handleLogin(btn) {
             const email = document.getElementById('l_email').value;
             const pass = document.getElementById('l_pass').value;
