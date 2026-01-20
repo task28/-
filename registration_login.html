@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TASK28 - Access Portal</title>
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <!-- FIREBASE SDK -->
@@ -33,153 +33,210 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
-            background: #050505;
-            background-image: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000000 100%);
+            background: linear-gradient(135deg, #1c1c1c, #2a2a72, #009ffd);
+            background-size: 300% 300%;
+            animation: gradientBG 10s ease infinite;
             display: flex; justify-content: center; align-items: center;
-            font-family: 'Montserrat', sans-serif; height: 100vh; color: #fff; overflow: hidden;
+            font-family: 'Poppins', sans-serif; min-height: 100vh; color: #fff;
+            padding: 20px;
         }
 
-        .bg-glow { position: absolute; width: 600px; height: 600px; background: #d4af37; filter: blur(200px); opacity: 0.1; z-index: 0; pointer-events: none; animation: pulse 6s infinite alternate; }
-        @keyframes pulse { from { opacity: 0.05; transform: scale(0.8); } to { opacity: 0.15; transform: scale(1.1); } }
-
-        .container {
-            background: rgba(20, 20, 20, 0.85); border-radius: 20px;
-            box-shadow: 0 14px 28px rgba(0,0,0,0.5), 0 10px 10px rgba(0,0,0,0.5);
-            border: 1px solid rgba(212, 175, 55, 0.2); position: relative; overflow: hidden;
-            width: 850px; max-width: 100%; min-height: 620px; z-index: 1; backdrop-filter: blur(10px);
+        @keyframes gradientBG { 
+            0% { background-position: 0% 50%; } 
+            50% { background-position: 100% 50%; } 
+            100% { background-position: 0% 50%; } 
         }
 
-        .form-container { position: absolute; top: 0; height: 100%; transition: all 0.6s ease-in-out; padding: 0 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        .sign-up-container { left: 0; width: 50%; opacity: 0; z-index: 1; }
-        .sign-in-container { left: 0; width: 50%; z-index: 2; }
+        /* --- CARD CONTAINER --- */
+        .wrapper {
+            width: 100%;
+            max-width: 450px; /* Perfect for mobile width */
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
 
-        .container.right-panel-active .sign-in-container { transform: translateX(100%); opacity: 0; }
-        .container.right-panel-active .sign-up-container { transform: translateX(100%); opacity: 1; z-index: 5; animation: show 0.6s; }
-        @keyframes show { 0%, 49.99% { opacity: 0; z-index: 1; } 50%, 100% { opacity: 1; z-index: 5; } }
-
-        .overlay-container { position: absolute; top: 0; left: 50%; width: 50%; height: 100%; overflow: hidden; transition: transform 0.6s ease-in-out; z-index: 100; }
-        .container.right-panel-active .overlay-container { transform: translateX(-100%); }
-
-        .overlay { background: linear-gradient(to right, #b8860b, #d4af37, #f1c40f, #b8860b); color: #000; position: relative; left: -100%; height: 100%; width: 200%; transform: translateX(0); transition: transform 0.6s ease-in-out; }
-        .container.right-panel-active .overlay { transform: translateX(50%); }
-
-        .overlay-panel { position: absolute; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 0 40px; text-align: center; top: 0; height: 100%; width: 50%; transform: translateX(0); transition: transform 0.6s ease-in-out; }
-        .overlay-left { transform: translateX(-20%); }
-        .container.right-panel-active .overlay-left { transform: translateX(0); }
-        .overlay-right { right: 0; transform: translateX(0); }
-        .container.right-panel-active .overlay-right { transform: translateX(20%); }
-
-        h1 { font-family: 'Orbitron', sans-serif; margin-bottom: 10px; color: #d4af37; }
-        h1.light { color: #000; }
-        p { font-size: 0.9rem; line-height: 20px; letter-spacing: 0.5px; margin: 20px 0 30px; }
-        p.light { color: #222; font-weight: 600; }
-
-        .social-container { margin: 20px 0; }
-        .social-container a { border: 1px solid #d4af37; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; margin: 0 5px; height: 40px; width: 40px; color: #d4af37; text-decoration: none; transition: 0.3s; }
-        .social-container a:hover { background: #d4af37; color: #000; }
-
-        input { background: #111; border: 1px solid #333; padding: 12px 15px; margin: 6px 0; width: 100%; color: #fff; border-radius: 5px; outline: none; }
-        input:focus { border-color: #d4af37; }
-        input[readonly] { background: #1a1a1a; color: #2ecc71; border-color: #2ecc71; font-weight: bold; cursor: not-allowed; }
-
-        button { border-radius: 20px; border: 1px solid #d4af37; background: #d4af37; color: #000; font-size: 12px; font-weight: bold; padding: 12px 45px; letter-spacing: 1px; text-transform: uppercase; transition: transform 80ms ease-in; cursor: pointer; }
-        button:active { transform: scale(0.95); }
-        button.ghost { background: transparent; border-color: #000; color: #000; }
-        button.ghost:hover { background: #000; color: #d4af37; border-color: #000; }
-
-        .btn-submit { margin-top: 10px; width: 100%; box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3); }
-        .msg-box { color: #ff4d4d; font-size: 0.75rem; margin-top: 10px; display: none; }
+        /* --- TABS HEADER --- */
+        .tabs-header {
+            display: flex;
+            background: rgba(0,0,0,0.2);
+        }
         
-        .mobile-switch { display: none; margin-top: 20px; font-size: 0.9rem; color: #aaa; }
-        .mobile-switch span { color: #d4af37; font-weight: bold; cursor: pointer; text-decoration: underline; }
-
-        @media (max-width: 768px) {
-            body { overflow-y: auto; height: auto; padding: 20px 0; }
-            .container { width: 100%; min-height: 100vh; border-radius: 0; box-shadow: none; border: none; background: #000; }
-            .form-container { width: 100%; padding: 40px 20px; position: absolute; top: 0; left: 0; height: auto; min-height: 100%; }
-            .overlay-container { display: none; }
-            .mobile-switch { display: block; }
-            .sign-in-container { opacity: 1; z-index: 2; transform: none; }
-            .sign-up-container { opacity: 0; z-index: 1; transform: none; pointer-events: none; }
-            .container.right-panel-active .sign-in-container { opacity: 0; pointer-events: none; transform: none; }
-            .container.right-panel-active .sign-up-container { opacity: 1; z-index: 5; pointer-events: all; transform: none; animation: fadeIn 0.5s; }
-            @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-            h1 { font-size: 1.8rem; }
-            input { padding: 15px; font-size: 1rem; }
-            button { width: 100%; padding: 15px; font-size: 1rem; }
+        .tab-btn {
+            width: 50%;
+            padding: 18px;
+            border: none;
+            background: transparent;
+            color: #aaa;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            outline: none;
         }
+
+        .tab-btn.active {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Active Tab Indicator Line */
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            box-shadow: 0 0 10px #00d2ff;
+        }
+
+        /* --- FORM AREA --- */
+        .form-content {
+            padding: 30px 25px;
+            min-height: 380px;
+        }
+
+        .form-box {
+            display: none; /* Hidden by default */
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .form-box.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 { text-align: center; margin-bottom: 25px; color: #fff; letter-spacing: 1px; }
+
+        /* --- INPUTS --- */
+        .input-group { position: relative; margin-bottom: 15px; }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: 0.3s;
+        }
+        
+        input:focus {
+            background: rgba(255,255,255,0.12);
+            border-color: #00d2ff;
+            box-shadow: 0 0 8px rgba(0, 210, 255, 0.3);
+        }
+
+        input::placeholder { color: #bbb; }
+        input[readonly] { background: rgba(46, 204, 113, 0.15); border-color: #2ecc71; color: #2ecc71; font-weight: bold; }
+
+        /* --- BUTTONS --- */
+        .btn-main {
+            width: 100%;
+            padding: 14px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 210, 255, 0.3);
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+
+        .btn-main:active { transform: scale(0.98); }
+        .btn-main:hover { box-shadow: 0 8px 20px rgba(0, 210, 255, 0.5); }
+
+        .social-container { text-align: center; margin: 20px 0; }
+        .social-container a {
+            display: inline-flex; justify-content: center; align-items: center;
+            width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.1);
+            color: #fff; margin: 0 5px; text-decoration: none; transition: 0.3s;
+        }
+        .social-container a:hover { background: #fff; color: #333; }
+
+        .forgot-pass { display: block; text-align: right; font-size: 0.8rem; color: #ccc; margin-top: 10px; text-decoration: none; }
+        .forgot-pass:hover { color: #fff; }
+
+        .msg-box { background: rgba(255, 77, 77, 0.2); color: #ff9999; padding: 10px; border-radius: 5px; text-align: center; margin-top: 15px; font-size: 0.85rem; display: none; border: 1px solid rgba(255, 77, 77, 0.3); }
+
     </style>
 </head>
 <body>
 
-    <div class="bg-glow"></div>
-
-    <div class="container" id="container">
-        
-        <!-- SIGN UP FORM -->
-        <div class="form-container sign-up-container">
-            <h1 style="font-size: 1.5rem;">Create Account</h1>
-            
-            <input type="text" id="r_name" placeholder="Full Name" />
-            <input type="email" id="r_email" placeholder="Email" />
-            <input type="tel" id="r_number" placeholder="Phone Number" />
-            <input type="password" id="r_pass" placeholder="Password (Min 6 chars)" />
-            <input type="password" id="r_passConfirm" placeholder="Confirm Password" />
-            
-            <!-- MANDATORY REFERRAL CODE -->
-            <input type="text" id="r_refCode" placeholder="Referral Code (Required)" />
-            
-            <button class="btn-submit" onclick="handleRegister(this)">Sign Up</button>
-            <div id="regMsg" class="msg-box">Error message</div>
-
-            <div class="mobile-switch">Already have an account? <span onclick="switchToLogin()">Sign In</span></div>
+    <div class="wrapper">
+        <!-- TABS -->
+        <div class="tabs-header">
+            <button class="tab-btn active" onclick="openTab('signin')" id="tab-signin">Sign In</button>
+            <button class="tab-btn" onclick="openTab('signup')" id="tab-signup">Sign Up</button>
         </div>
 
-        <!-- SIGN IN FORM -->
-        <div class="form-container sign-in-container">
-            <h1>Sign In</h1>
-            <div class="social-container">
-                <a href="#"><i class="fab fa-google"></i></a>
-                <a href="#"><i class="fas fa-fingerprint"></i></a>
-            </div>
-            <p style="color:#888; margin: 0 0 20px;">Use your registered email</p>
-            <input type="email" id="l_email" placeholder="Email" />
-            <input type="password" id="l_pass" placeholder="Password" />
-            <a href="#" style="color:#aaa; font-size:0.8rem; text-decoration:none; margin:10px 0;">Forgot your password?</a>
+        <div class="form-content">
             
-            <button class="btn-submit" onclick="handleLogin(this)">Sign In</button>
-            <div id="loginMsg" class="msg-box">Error message</div>
-
-            <div class="mobile-switch">Don't have an account? <span onclick="switchToSignup()">Create Account</span></div>
-        </div>
-
-        <!-- OVERLAY (PC ONLY) -->
-        <div class="overlay-container">
-            <div class="overlay">
-                <div class="overlay-panel overlay-left">
-                    <h1 class="light">Welcome Back!</h1>
-                    <p class="light">To keep connected with us please login with your personal info</p>
-                    <button class="ghost" id="signIn">Sign In</button>
+            <!-- SIGN IN FORM -->
+            <div id="signin" class="form-box active">
+                <h2>Welcome Back</h2>
+                <div class="social-container">
+                    <a href="#"><i class="fab fa-google"></i></a>
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
                 </div>
-                <div class="overlay-panel overlay-right">
-                    <h1 class="light">Hello, Earner!</h1>
-                    <p class="light">Enter your personal details and start your journey with us</p>
-                    <button class="ghost" id="signUp">Sign Up</button>
+                
+                <div class="input-group">
+                    <input type="email" id="l_email" placeholder="Email Address" />
                 </div>
+                <div class="input-group">
+                    <input type="password" id="l_pass" placeholder="Password" />
+                </div>
+                
+                <a href="#" class="forgot-pass">Forgot Password?</a>
+                <button class="btn-main" onclick="handleLogin(this)">Log In</button>
+                <div id="loginMsg" class="msg-box">Error Message</div>
             </div>
+
+            <!-- SIGN UP FORM (NO PHONE NUMBER) -->
+            <div id="signup" class="form-box">
+                <h2>Create Account</h2>
+                
+                <div class="input-group"><input type="text" id="r_name" placeholder="Full Name" /></div>
+                <div class="input-group"><input type="email" id="r_email" placeholder="Email Address" /></div>
+                <!-- Phone Number Removed -->
+                <div class="input-group"><input type="password" id="r_pass" placeholder="Password (Min 6 chars)" /></div>
+                <div class="input-group"><input type="password" id="r_passConfirm" placeholder="Confirm Password" /></div>
+                <div class="input-group"><input type="text" id="r_refCode" placeholder="Referral Code (Required)" /></div>
+
+                <button class="btn-main" onclick="handleRegister(this)">Register</button>
+                <div id="regMsg" class="msg-box">Error Message</div>
+            </div>
+
         </div>
     </div>
 
     <script>
-        const signUpButton = document.getElementById('signUp');
-        const signInButton = document.getElementById('signIn');
-        const container = document.getElementById('container');
+        // --- TAB SWITCHING LOGIC ---
+        function openTab(tabName) {
+            document.getElementById('signin').classList.remove('active');
+            document.getElementById('signup').classList.remove('active');
+            
+            document.getElementById('tab-signin').classList.remove('active');
+            document.getElementById('tab-signup').classList.remove('active');
 
-        signUpButton.addEventListener('click', () => container.classList.add("right-panel-active"));
-        signInButton.addEventListener('click', () => container.classList.remove("right-panel-active"));
-
-        function switchToSignup() { container.classList.add("right-panel-active"); }
-        function switchToLogin() { container.classList.remove("right-panel-active"); }
+            document.getElementById(tabName).classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
 
         // --- CHECK URL FOR REF CODE ---
         window.onload = function() {
@@ -187,27 +244,27 @@
             const ref = urlParams.get('ref');
             
             if(ref) {
-                container.classList.add("right-panel-active");
+                openTab('signup');
                 const refInput = document.getElementById('r_refCode');
                 refInput.value = ref;
                 refInput.readOnly = true; 
-                refInput.style.borderColor = "#2ecc71";
             }
         };
 
-        // --- REGISTER LOGIC ---
+        // --- FIREBASE LOGIC (UPDATED: NO PHONE) ---
+
         function handleRegister(btn) {
             const name = document.getElementById('r_name').value;
             const email = document.getElementById('r_email').value;
-            const number = document.getElementById('r_number').value;
+            // Phone variable removed
             const pass = document.getElementById('r_pass').value;
             const confirmPass = document.getElementById('r_passConfirm').value;
             const refCode = document.getElementById('r_refCode').value.trim();
             const msgBox = document.getElementById('regMsg');
 
-            // VALIDATION
-            if(!name || !email || !number || !pass || !confirmPass || !refCode) {
-                showError(msgBox, "All fields (Name, Email, Number, Password, Ref Code) are required."); return;
+            // Validation (Phone removed)
+            if(!name || !email || !pass || !confirmPass || !refCode) {
+                showError(msgBox, "All fields are required."); return;
             }
             if(pass.length < 6) {
                 showError(msgBox, "Password must be at least 6 characters."); return;
@@ -216,48 +273,46 @@
                 showError(msgBox, "Passwords do not match!"); return;
             }
 
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking Ref Code...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
             btn.style.opacity = "0.7";
 
-            // Verify Referral Code Exists
             db.ref('users').orderByChild('myRefCode').equalTo(refCode).once('value', snapshot => {
                 if(!snapshot.exists()) {
-                    showError(msgBox, "Invalid Referral Code! Check the link or ask admin.");
-                    resetBtn(btn, "Sign Up");
+                    showError(msgBox, "Invalid Referral Code!");
+                    resetBtn(btn, "Register");
                     return;
                 }
 
-                // If Valid, Create Account
                 auth.createUserWithEmailAndPassword(email, pass).then((cred) => {
                     const uid = cred.user.uid;
                     const myCode = "TASK" + Math.floor(100000 + Math.random() * 900000);
                     const today = new Date().toISOString().split('T')[0];
 
                     db.ref('users/' + uid).set({
-                        name: name,
-                        email: email,
-                        phone: number,
-                        password: pass, // Optional to save, Firebase handles auth
+                        name: name, 
+                        email: email, 
+                        // phone field removed
+                        password: pass, 
                         uid: uid,
-                        balance: 0,
-                        credits: 2, // Free credits
+                        balance: 0, 
+                        credits: 2, 
                         todayProfit: 0, 
                         totalProfit: 0, 
                         teamCount: 0, 
-                        partnerCount: 0,
+                        partnerCount: 0, 
                         regDate: today, 
                         myRefCode: myCode, 
                         referredBy: refCode, 
                         plan: "free"
                     }).then(() => {
                         updateReferrer(refCode);
-                        alert("Account Created! You can now login.");
+                        alert("Account Created Successfully!");
                         window.location.href = "Home.html";
                     });
 
                 }).catch(err => {
                     showError(msgBox, err.message);
-                    resetBtn(btn, "Sign Up");
+                    resetBtn(btn, "Register");
                 });
             });
         }
@@ -269,9 +324,7 @@
                         const refUid = u.key;
                         const data = u.val();
                         let updates = { teamCount: (data.teamCount || 0) + 1 };
-                        if(data.activePlan) {
-                            updates['activePlan/currentRef'] = (data.activePlan.currentRef || 0) + 1;
-                        }
+                        if(data.activePlan) updates['activePlan/currentRef'] = (data.activePlan.currentRef || 0) + 1;
                         db.ref('users/' + refUid).update(updates);
                     });
                 }
@@ -285,25 +338,23 @@
 
             if(!email || !pass) { showError(msgBox, "Please fill all fields."); return; }
 
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
             btn.style.opacity = "0.7";
 
             auth.signInWithEmailAndPassword(email, pass)
                 .then(() => {
-                    if(email === "rafsanvai388@gmail.com") {
-                        window.location.href = "Admin_home.html";
-                    } else {
-                        window.location.href = "Home.html";
-                    }
+                    if(email === "rafsanvai388@gmail.com") window.location.href = "Admin_home.html";
+                    else window.location.href = "Home.html";
                 })
                 .catch((error) => {
                     showError(msgBox, "Invalid Email or Password");
-                    resetBtn(btn, "Sign In");
+                    resetBtn(btn, "Log In");
                 });
         }
 
         function showError(el, msg) { el.innerText = msg; el.style.display = 'block'; }
         function resetBtn(btn, txt) { btn.innerHTML = txt; btn.style.opacity = "1"; }
+
     </script>
 </body>
 </html>
