@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TASK28 | Premium Feed</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        :root { --primary: #00d2ff; --accent: #ff0055; --dark-bg: #0a0a0a; --glass: rgba(255,255,255,0.08); }
+        body { background: var(--dark-bg); color: #fff; font-family: 'Outfit', sans-serif; margin: 0; padding-bottom: 50px; }
+        
+        header { 
+            position: sticky; top: 0; z-index: 100; background: rgba(10,10,10,0.95); 
+            padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .brand { font-size: 1.5rem; font-weight: 700; letter-spacing: 1px; }
+        .brand span { color: var(--primary); }
+
+        .feed-container { max-width: 500px; margin: 0 auto; padding: 10px; }
+        
+        /* ভিডিও কার্ড */
+        .video-card { 
+            background: var(--glass); border-radius: 20px; overflow: hidden; 
+            margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .video-header { padding: 15px; display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 40px; height: 40px; background: linear-gradient(45deg, var(--primary), #bd00ff); border-radius: 50%; }
+        .video-info h4 { margin: 0; font-size: 1rem; }
+        .video-info span { font-size: 0.8rem; color: #aaa; }
+
+        .iframe-wrap { position: relative; width: 100%; height: 0; padding-bottom: 177.77%; background: #000; }
+        
+        .action-bar { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
+        .left-actions { display: flex; gap: 20px; }
+        .act-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .act-btn span { font-size: 1rem; font-weight: 600; }
+        
+        .liked { color: var(--accent); }
+        .liked i { font-weight: 900; }
+
+        @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        
+        .loading { text-align: center; padding: 20px; color: #666; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">TASK<span>28</span></div>
+        <div style="width:30px; height:30px; background:#333; border-radius:50%;"></div>
+    </header>
+
+    <div class="feed-container" id="feed">
+        <div class="loading">Loading Videos...</div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDR4F_ELfW5AEfNd5k24IQc7oAirNjX3J4",
+            authDomain: "messager-ab591.firebaseapp.com",
+            databaseURL: "https://messager-ab591-default-rtdb.firebaseio.com",
+            projectId: "messager-ab591",
+            storageBucket: "messager-ab591.firebasestorage.app",
+            messagingSenderId: "780045771482",
+            appId: "1:780045771482:web:6c3626c3085e6d0b727be3"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const feedContainer = document.getElementById('feed');
+
+        // সব ভিডিও লোড করা
+        db.ref('task28_videos').orderByChild('timestamp').on('value', (snapshot) => {
+            feedContainer.innerHTML = "";
+            const videos = [];
+            snapshot.forEach(child => {
+                videos.push({ key: child.key, ...child.val() });
+            });
+
+            // নতুন ভিডিও উপরে দেখানোর জন্য রিভার্স করা হলো
+            videos.reverse().forEach(video => {
+                renderVideoCard(video);
+            });
+            
+            if(videos.length === 0) feedContainer.innerHTML = "<p class='loading'>No videos found.</p>";
+        });
+
+        function renderVideoCard(video) {
+            const stats = video.stats || { fakeViews:0, realViews:0, fakeLikes:0, realLikes:0 };
+            const totalViews = (stats.fakeViews || 0) + (stats.realViews || 0);
+            const totalLikes = (stats.fakeLikes || 0) + (stats.realLikes || 0);
+            
+            // লোকাল স্টোরেজ চেক (লাইক দিয়েছে কিনা)
+            const isLiked = localStorage.getItem(`liked_${video.key}`) === 'true';
+            const likeClass = isLiked ? 'liked' : '';
+            const heartType = isLiked ? 'fas' : 'far';
+
+            const card = document.createElement('div');
+            card.className = 'video-card';
+            card.innerHTML = `
+                <div class="video-header">
+                    <div class="avatar"></div>
+                    <div class="video-info">
+                        <h4>${video.title}</h4>
+                        <span>Premium • ${totalViews.toLocaleString()} views</span>
+                    </div>
+                </div>
+                
+                <div class="iframe-wrap">
+                    <iframe src="${video.src}" width="100%" height="100%" frameborder="0" allow="autoplay; fullscreen" style="position:absolute; top:0; left:0;"></iframe>
+                    <!-- ভিউ কাউন্টার ট্রিগার (Invisible overlay for click tracking is complex with iframe, so we count on load) -->
+                </div>
+
+                <div class="action-bar">
+                    <div class="left-actions">
+                        <button class="act-btn ${likeClass}" onclick="toggleLike('${video.key}')" id="btn_${video.key}">
+                            <i class="${heartType} fa-heart"></i>
+                            <span>${totalLikes.toLocaleString()}</span>
+                        </button>
+                        <button class="act-btn">
+                            <i class="far fa-comment"></i>
+                        </button>
+                        <button class="act-btn">
+                            <i class="fas fa-share-nodes"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            feedContainer.appendChild(card);
+            
+            // ভিডিও রেন্ডার হওয়ার সাথে সাথে রিয়েল ভিউ বাড়ানো (সেশনে একবার)
+            if (!sessionStorage.getItem(`viewed_${video.key}`)) {
+                db.ref(`task28_videos/${video.key}/stats/realViews`).transaction(views => (views || 0) + 1);
+                sessionStorage.setItem(`viewed_${video.key}`, 'true');
+            }
+        }
+
+        // লাইক ফাংশন
+        window.toggleLike = function(key) {
+            const isLiked = localStorage.getItem(`liked_${key}`) === 'true';
+            const likeRef = db.ref(`task28_videos/${key}/stats/realLikes`);
+
+            if (isLiked) {
+                // আনলাইক
+                likeRef.transaction(likes => (likes || 0) - 1);
+                localStorage.setItem(`liked_${key}`, 'false');
+            } else {
+                // লাইক
+                likeRef.transaction(likes => (likes || 0) + 1);
+                localStorage.setItem(`liked_${key}`, 'true');
+            }
+        };
+    </script>
+</body>
+</html>
