@@ -2,94 +2,250 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TASK28 | Premium Feed</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TASK28 | Ultra Fast Feed</title>
+    
+    <!-- ফন্ট এবং আইকন -->
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- Firebase SDK -->
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        :root { --primary: #00d2ff; --accent: #ff0055; --dark-bg: #0a0a0a; --glass: rgba(255,255,255,0.08); }
-        body { background: var(--dark-bg); color: #fff; font-family: 'Outfit', sans-serif; margin: 0; padding-bottom: 50px; }
-        
-        header { 
-            position: sticky; top: 0; z-index: 100; background: rgba(10,10,10,0.95); 
-            padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1);
-            display: flex; justify-content: space-between; align-items: center;
+        :root {
+            --primary: #00f2fe;
+            --accent: #ff0055; /* লাল রঙের হার্ট এর জন্য */
+            --bg: #050505;
+            --card-bg: #121212;
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-sub: #a0a0a0;
         }
-        .brand { font-size: 1.5rem; font-weight: 700; letter-spacing: 1px; }
-        .brand span { color: var(--primary); }
 
-        .feed-container { max-width: 500px; margin: 0 auto; padding: 10px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
+        body {
+            font-family: 'Urbanist', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            padding-bottom: 50px;
+        }
+
+        /* হেডার */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(5, 5, 5, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--primary), #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .feed-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 15px 10px;
+        }
+
         /* ভিডিও কার্ড */
-        .video-card { 
-            background: var(--glass); border-radius: 20px; overflow: hidden; 
-            margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1);
-            animation: fadeIn 0.5s ease;
+        .video-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+        }
+
+        /* ভিডিও প্লেয়ার এরিয়া (Click to Play) */
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 177.77%;
+            background: #000;
+            cursor: pointer;
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: none;
+        }
+
+        .play-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.6) 100%);
+            z-index: 2;
         }
         
-        .video-header { padding: 15px; display: flex; align-items: center; gap: 10px; }
-        .avatar { width: 40px; height: 40px; background: linear-gradient(45deg, var(--primary), #bd00ff); border-radius: 50%; }
-        .video-info h4 { margin: 0; font-size: 1rem; }
-        .video-info span { font-size: 0.8rem; color: #aaa; }
+        .play-btn {
+            width: 60px; height: 60px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: transform 0.2s;
+        }
+        
+        .play-btn i { font-size: 24px; color: white; margin-left: 4px; }
+        .video-wrapper:hover .play-btn { transform: scale(1.1); background: var(--primary); border-color: var(--primary); }
 
-        .iframe-wrap { position: relative; width: 100%; height: 0; padding-bottom: 177.77%; background: #000; }
-        
-        .action-bar { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
-        .left-actions { display: flex; gap: 20px; }
-        .act-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-        .act-btn span { font-size: 1rem; font-weight: 600; }
-        
-        .liked { color: var(--accent); }
-        .liked i { font-weight: 900; }
+        /* ইনফো সেকশন */
+        .meta-info {
+            padding: 15px 15px 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
 
-        @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        .video-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            line-height: 1.4;
+            flex: 1;
+            padding-right: 10px;
+        }
+
+        .view-count {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255,255,255,0.05);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        /* একশন বার */
+        .action-bar {
+            padding: 5px 15px 15px 15px;
+            display: flex;
+            gap: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .action-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .action-btn:hover { background: rgba(255,255,255,0.05); }
+        .action-btn i { font-size: 1.3rem; transition: 0.3s; }
         
-        .loading { text-align: center; padding: 20px; color: #666; }
+        /* লাইক বাটন স্টাইল (যখন লাইক দেওয়া হবে) */
+        .liked { 
+            color: var(--accent) !important; 
+            cursor: default; /* কার্সর চেঞ্জ হবে না */
+        }
+        .liked i { 
+            font-weight: 900; 
+            transform: scale(1.1); /* একটু বড় দেখাবে */
+        }
+
+        /* কমেন্ট সেকশন */
+        .comment-area {
+            background: #0e0e0e;
+            display: none;
+            padding: 15px;
+        }
+        .comment-area.active { display: block; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+
+        .input-box { display: flex; gap: 10px; position: relative; }
+        .c-input { width: 100%; background: #1a1a1a; border: 1px solid #333; padding: 12px; border-radius: 8px; color: white; outline: none; }
+        .c-btn { background: var(--primary); color: #000; border: none; padding: 0 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+
+        .comment-list { margin-top: 15px; max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .single-comment { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; font-size: 0.9rem; }
+        .single-comment strong { color: var(--primary); display: block; font-size: 0.8rem; margin-bottom: 2px; }
+
+        .alert-msg { color: #00ff88; background: rgba(0, 255, 136, 0.1); padding: 10px; border-radius: 8px; text-align: center; font-size: 0.9rem; display: none; }
+        .loading-spinner { text-align: center; padding: 50px; color: #666; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="brand">TASK<span>28</span></div>
-        <div style="width:30px; height:30px; background:#333; border-radius:50%;"></div>
+        <div class="logo">TASK28</div>
+        <div style="width:32px; height:32px; background:#222; border-radius:50%; border:1px solid #333;"></div>
     </header>
 
     <div class="feed-container" id="feed">
-        <div class="loading">Loading Videos...</div>
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i> Loading Feed...
+        </div>
     </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDR4F_ELfW5AEfNd5k24IQc7oAirNjX3J4",
-            authDomain: "messager-ab591.firebaseapp.com",
-            databaseURL: "https://messager-ab591-default-rtdb.firebaseio.com",
-            projectId: "messager-ab591",
-            storageBucket: "messager-ab591.firebasestorage.app",
-            messagingSenderId: "780045771482",
-            appId: "1:780045771482:web:6c3626c3085e6d0b727be3"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const feedContainer = document.getElementById('feed');
+        window.addEventListener('load', () => {
+            const firebaseConfig = {
+                apiKey: "AIzaSyDR4F_ELfW5AEfNd5k24IQc7oAirNjX3J4",
+                authDomain: "messager-ab591.firebaseapp.com",
+                databaseURL: "https://messager-ab591-default-rtdb.firebaseio.com",
+                projectId: "messager-ab591",
+                storageBucket: "messager-ab591.firebasestorage.app",
+                messagingSenderId: "780045771482",
+                appId: "1:780045771482:web:6c3626c3085e6d0b727be3"
+            };
 
-        // সব ভিডিও লোড করা
-        db.ref('task28_videos').orderByChild('timestamp').on('value', (snapshot) => {
-            feedContainer.innerHTML = "";
-            const videos = [];
-            snapshot.forEach(child => {
-                videos.push({ key: child.key, ...child.val() });
-            });
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            const db = firebase.database();
+            const feedContainer = document.getElementById('feed');
 
-            // নতুন ভিডিও উপরে দেখানোর জন্য রিভার্স করা হলো
-            videos.reverse().forEach(video => {
-                renderVideoCard(video);
+            db.ref('task28_videos').orderByChild('timestamp').limitToLast(20).on('value', (snapshot) => {
+                feedContainer.innerHTML = "";
+                const videos = [];
+                snapshot.forEach(child => {
+                    videos.push({ key: child.key, ...child.val() });
+                });
+
+                if(videos.length === 0) {
+                    feedContainer.innerHTML = "<p style='text-align:center; padding:20px; color:#666;'>No videos found.</p>";
+                    return;
+                }
+
+                for(let i = videos.length - 1; i >= 0; i--) {
+                    renderVideoCard(videos[i]);
+                }
             });
-            
-            if(videos.length === 0) feedContainer.innerHTML = "<p class='loading'>No videos found.</p>";
         });
 
         function renderVideoCard(video) {
@@ -97,67 +253,141 @@
             const totalViews = (stats.fakeViews || 0) + (stats.realViews || 0);
             const totalLikes = (stats.fakeLikes || 0) + (stats.realLikes || 0);
             
-            // লোকাল স্টোরেজ চেক (লাইক দিয়েছে কিনা)
+            // লাইক চেক: যদি আগে লাইক দিয়ে থাকে তবে 'liked' ক্লাস যোগ হবে এবং আইকন 'fas' হবে
             const isLiked = localStorage.getItem(`liked_${video.key}`) === 'true';
             const likeClass = isLiked ? 'liked' : '';
-            const heartType = isLiked ? 'fas' : 'far';
+            const heartIcon = isLiked ? 'fas' : 'far';
+            
+            // লাইক দেওয়া থাকলে বাটন ডিসএবল করার লজিক (অনক্লিক ইভেন্ট শর্তসাপেক্ষ)
+            const likeAction = isLiked ? '' : `onclick="givePermanentLike('${video.key}', this)"`;
+
+            // কমেন্ট চেক
+            const hasCommented = localStorage.getItem(`commented_${video.key}`) === 'true';
 
             const card = document.createElement('div');
             card.className = 'video-card';
+
+            let commentsHTML = '';
+            if(video.comments) {
+                const comms = Object.values(video.comments).reverse();
+                comms.forEach(c => {
+                    commentsHTML += `<div class="single-comment"><strong>User</strong>${c.text}</div>`;
+                });
+            } else {
+                commentsHTML = '<p style="color:#444; font-size:0.8rem; text-align:center;">No comments yet.</p>';
+            }
+
+            const inputHTML = hasCommented 
+                ? `<div class="alert-msg" style="display:block"><i class="fas fa-check"></i> You already commented</div>`
+                : `<div class="input-box" id="inputBox_${video.key}">
+                        <input type="text" class="c-input" id="input_${video.key}" placeholder="Add a comment...">
+                        <button class="c-btn" onclick="postComment('${video.key}')">Post</button>
+                   </div>
+                   <div class="alert-msg" id="msg_${video.key}"></div>`;
+
             card.innerHTML = `
-                <div class="video-header">
-                    <div class="avatar"></div>
-                    <div class="video-info">
-                        <h4>${video.title}</h4>
-                        <span>Premium • ${totalViews.toLocaleString()} views</span>
-                    </div>
+                <div class="video-wrapper" onclick="loadIframe(this, '${video.src}', '${video.key}')">
+                    <div class="play-overlay"><div class="play-btn"><i class="fas fa-play"></i></div></div>
                 </div>
-                
-                <div class="iframe-wrap">
-                    <iframe src="${video.src}" width="100%" height="100%" frameborder="0" allow="autoplay; fullscreen" style="position:absolute; top:0; left:0;"></iframe>
-                    <!-- ভিউ কাউন্টার ট্রিগার (Invisible overlay for click tracking is complex with iframe, so we count on load) -->
+
+                <div class="meta-info">
+                    <div class="video-title">${video.title}</div>
+                    <div class="view-count"><i class="fas fa-eye"></i> ${totalViews.toLocaleString()}</div>
                 </div>
 
                 <div class="action-bar">
-                    <div class="left-actions">
-                        <button class="act-btn ${likeClass}" onclick="toggleLike('${video.key}')" id="btn_${video.key}">
-                            <i class="${heartType} fa-heart"></i>
-                            <span>${totalLikes.toLocaleString()}</span>
-                        </button>
-                        <button class="act-btn">
-                            <i class="far fa-comment"></i>
-                        </button>
-                        <button class="act-btn">
-                            <i class="fas fa-share-nodes"></i>
-                        </button>
-                    </div>
+                    <!-- লাইক বাটন: এখানে 'givePermanentLike' ফাংশন ব্যবহার হয়েছে -->
+                    <button class="action-btn ${likeClass}" ${likeAction} id="btn_${video.key}">
+                        <i class="${heartIcon} fa-heart"></i>
+                        <span id="likeNum_${video.key}">${totalLikes}</span>
+                    </button>
+                    
+                    <button class="action-btn" onclick="toggleComments('${video.key}')">
+                        <i class="far fa-comment-dots"></i>
+                        <span>Comment</span>
+                    </button>
+
+                    <button class="action-btn">
+                        <i class="fas fa-share-nodes"></i>
+                        <span>Share</span>
+                    </button>
+                </div>
+
+                <div class="comment-area" id="commentArea_${video.key}">
+                    ${inputHTML}
+                    <div class="comment-list">${commentsHTML}</div>
                 </div>
             `;
+
+            document.getElementById('feed').appendChild(card);
+        }
+
+        // ----------------------------------------------------
+        // ১. Permanent Like Function (পরিবর্তিত)
+        // ----------------------------------------------------
+        function givePermanentLike(key, btnElement) {
+            // চেক করি যদি ইতিমধ্যে লোকাল স্টোরেজে লাইক দেওয়া থাকে
+            if (localStorage.getItem(`liked_${key}`) === 'true') {
+                return; // কিছু করবে না, বের হয়ে যাবে
+            }
+
+            // ডাটাবেসে ১ বাড়াবে (কমানোর কোনো অপশন নেই)
+            const dbRef = firebase.database().ref(`task28_videos/${key}/stats/realLikes`);
+            dbRef.transaction(likes => (likes || 0) + 1);
+
+            // লোকাল স্টোরেজে সেভ করা যে লাইক দেওয়া হয়েছে
+            localStorage.setItem(`liked_${key}`, 'true');
+
+            // UI সাথে সাথে আপডেট করা (Red Heart & Disabled)
+            btnElement.classList.add('liked'); // লাল রং
+            const icon = btnElement.querySelector('i');
+            icon.classList.remove('far'); // খালি হার্ট রিমুভ
+            icon.classList.add('fas');    // ভরা হার্ট অ্যাড
             
-            feedContainer.appendChild(card);
-            
-            // ভিডিও রেন্ডার হওয়ার সাথে সাথে রিয়েল ভিউ বাড়ানো (সেশনে একবার)
-            if (!sessionStorage.getItem(`viewed_${video.key}`)) {
-                db.ref(`task28_videos/${video.key}/stats/realViews`).transaction(views => (views || 0) + 1);
-                sessionStorage.setItem(`viewed_${video.key}`, 'true');
+            // বাটনটি আর ক্লিক করা যাবে না
+            btnElement.removeAttribute('onclick');
+        }
+
+        // ২. ভিডিও লোডার
+        function loadIframe(wrapper, src, key) {
+            if(wrapper.querySelector('iframe')) return;
+            if (!sessionStorage.getItem(`viewed_${key}`)) {
+                firebase.database().ref(`task28_videos/${key}/stats/realViews`).transaction(v => (v || 0) + 1);
+                sessionStorage.setItem(`viewed_${key}`, 'true');
+            }
+            wrapper.innerHTML = `<iframe src="${src}" allow="autoplay; fullscreen" width="100%" height="100%" style="border:none;"></iframe>`;
+        }
+
+        // ৩. কমেন্ট টগল
+        function toggleComments(key) {
+            const area = document.getElementById(`commentArea_${key}`);
+            if (area.style.display === 'block') {
+                area.style.display = 'none';
+            } else {
+                area.style.display = 'block';
+                const input = document.getElementById(`input_${key}`);
+                if(input) input.focus();
             }
         }
 
-        // লাইক ফাংশন
-        window.toggleLike = function(key) {
-            const isLiked = localStorage.getItem(`liked_${key}`) === 'true';
-            const likeRef = db.ref(`task28_videos/${key}/stats/realLikes`);
+        // ৪. কমেন্ট পোস্ট
+        function postComment(key) {
+            if(localStorage.getItem(`commented_${key}`) === 'true') return;
+            const input = document.getElementById(`input_${key}`);
+            const text = input.value.trim();
+            if(!text) return;
 
-            if (isLiked) {
-                // আনলাইক
-                likeRef.transaction(likes => (likes || 0) - 1);
-                localStorage.setItem(`liked_${key}`, 'false');
-            } else {
-                // লাইক
-                likeRef.transaction(likes => (likes || 0) + 1);
-                localStorage.setItem(`liked_${key}`, 'true');
-            }
-        };
+            firebase.database().ref(`task28_videos/${key}/comments`).push({
+                text: text,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                localStorage.setItem(`commented_${key}`, 'true');
+                document.getElementById(`inputBox_${key}`).style.display = 'none';
+                const msg = document.getElementById(`msg_${key}`);
+                msg.innerHTML = '<i class="fas fa-check"></i> Comment added successfully!';
+                msg.style.display = 'block';
+            });
+        }
     </script>
 </body>
 </html>
