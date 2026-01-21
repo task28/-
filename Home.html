@@ -187,7 +187,6 @@
             <p>Team</p>
         </div>
         <div class="stat">
-            <!-- PARTNER COUNT (Fixed) -->
             <h4 id="u_partner">0</h4>
             <p>Partners</p>
         </div>
@@ -227,14 +226,14 @@
             <i class="fas fa-calendar-week"></i>
             <span>Weekly Plan</span>
         </a>
-        
-        <!-- NEW BUTTON ADDED HERE -->
+
+        <!-- WORK VIDEO BUTTON ADDED HERE -->
         <a href="Work_Video.html" class="menu-item">
-            <i class="fas fa-play-circle" style="color: #ff4757;"></i>
+            <i class="fas fa-play-circle" style="color: #e74c3c;"></i>
             <span>Work Video</span>
         </a>
 
-        <!-- WITHDRAW BUTTON (Layout Adjusted) -->
+        <!-- WITHDRAW BUTTON -->
         <a href="Withdraw.html" class="menu-item" style="background: linear-gradient(90deg, #111, #1a1a1a);">
             <i class="fas fa-wallet" style="color: #fff;"></i>
             <span style="color: #d4af37;">WITHDRAW</span>
@@ -294,8 +293,7 @@
         auth.onAuthStateChanged((user) => {
             if (user) {
                 const uid = user.uid;
-
-                // 1. Basic User Info
+                
                 db.ref('users/' + uid).on('value', (snapshot) => {
                     const data = snapshot.val();
                     if(data) {
@@ -303,31 +301,38 @@
                             alert("ACCOUNT SUSPENDED!");
                             auth.signOut(); return;
                         }
+
+                        // Basic Info
                         document.getElementById('u_name').innerText = data.name;
                         document.getElementById('u_plan').innerText = (data.plan || "Free").toUpperCase();
                         document.getElementById('u_balance').innerText = parseFloat(data.balance || 0).toFixed(2);
                         document.getElementById('u_credits').innerText = data.credits || 0;
                         document.getElementById('u_date').innerText = data.regDate;
                         document.getElementById('u_uid').innerText = data.uid.substring(0,8) + "...";
-                        
-                        document.getElementById('u_team').innerText = data.teamCount || 0;
-                        // document.getElementById('u_partner').innerText = data.partnerCount || 0; // Removed old method
                         document.getElementById('u_today').innerText = parseFloat(data.todayProfit || 0).toFixed(2);
-                    }
-                });
+                        
+                        // Team Count (Total Downline)
+                        document.getElementById('u_team').innerText = data.teamCount || 0;
 
-                // 2. PARTNER COUNTING LOGIC (New & Accurate)
-                // এই পার্টটি ডাটাবেস চেক করে দেখবে কতজন ইউজার এই UID এর মাধ্যমে রেফার হয়েছে।
-                // 'referredBy' হলো সেই ফিল্ড যেখানে ইউজারের রেফারার এর UID থাকে। 
-                // তোমার ডাটাবেসে যদি 'referCode' বা অন্য নাম ব্যবহার হয়, তবে 'referredBy' চেঞ্জ করে সেটি দিও।
-                
-                db.ref('users').orderByChild('referredBy').equalTo(uid).on('value', (snap) => {
-                    // মোট কতজন পাওয়া গেছে তা গণনা করা হচ্ছে
-                    const realPartnerCount = snap.numChildren(); 
-                    document.getElementById('u_partner').innerText = realPartnerCount;
-                    
-                    // চাইলে ডাটাবেসেও আপডেট করে রাখা যায় (Optional)
-                    db.ref('users/' + uid).update({ partnerCount: realPartnerCount });
+                        // ============================================
+                        // PARTNER COUNT FIX (REAL-TIME CALCULATION)
+                        // ============================================
+                        // যেহেতু আপনার Screenshot এ দেখেছি 'Referral Code' দিয়ে জয়েন হয়।
+                        // তাই আমরা 'referralCode' ব্যবহার করে চেক করব কতজন জয়েন করেছে।
+                        
+                        const myReferralCode = data.referralCode; // আপনার কোড (যেমন: TASK827825)
+                        
+                        if(myReferralCode) {
+                            // 'referredBy' ফিল্ডে আপনার কোড খুঁজবে
+                            db.ref('users').orderByChild('referredBy').equalTo(myReferralCode).on('value', (partnerSnap) => {
+                                const count = partnerSnap.numChildren();
+                                document.getElementById('u_partner').innerText = count;
+                            });
+                        } else {
+                            // যদি কোড না থাকে, তাহলে 0 দেখাবে
+                             document.getElementById('u_partner').innerText = 0;
+                        }
+                    }
                 });
 
             } else {
