@@ -76,7 +76,7 @@
 
         .bal-label { color: #888; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
         .bal-amount {
-            font-family: 'Orbitron', sans-serif; font-size: 2.8rem;
+            font-family: 'Orbitron', sans-serif; font-size: 2.5rem;
             color: #fff; margin: 10px 0; font-weight: 700;
             text-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
         }
@@ -103,7 +103,7 @@
             padding: 15px 0; color: #fff; font-size: 1rem;
             font-family: 'Montserrat', sans-serif; outline: none;
         }
-        .select-field { cursor: pointer; }
+        .select-field { cursor: pointer; appearance: none; }
         option { background: #000; color: #fff; }
 
         .withdraw-btn {
@@ -116,6 +116,7 @@
             transition: 0.3s; margin-top: 10px;
         }
         .withdraw-btn:active { transform: scale(0.98); }
+        .withdraw-btn:disabled { background: #444; color: #888; cursor: not-allowed; box-shadow: none; }
 
         /* HISTORY SECTION */
         .history-container { margin-top: 40px; padding: 0 20px; }
@@ -128,13 +129,14 @@
             border: 1px solid #222; border-radius: 10px;
             padding: 15px; display: flex; justify-content: space-between; align-items: center;
         }
-        .h-left h4 { font-size: 1rem; color: #fff; margin-bottom: 3px; }
-        .h-left p { font-size: 0.75rem; color: #666; }
+        
+        .h-left h4 { font-size: 1rem; color: #fff; margin-bottom: 3px; font-weight: bold; }
+        .h-left p { font-size: 0.75rem; color: #888; }
         
         .badge { font-size: 0.7rem; padding: 4px 8px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
-        .b-pending { background: rgba(255, 255, 0, 0.1); color: #f1c40f; border: 1px solid #f1c40f; }
-        .b-paid { background: rgba(0, 255, 0, 0.1); color: #2ecc71; border: 1px solid #2ecc71; }
-        .b-rejected { background: rgba(255, 0, 0, 0.1); color: #e74c3c; border: 1px solid #e74c3c; }
+        .b-pending { background: rgba(255, 193, 7, 0.15); color: #ffc107; border: 1px solid #ffc107; }
+        .b-paid { background: rgba(46, 204, 113, 0.15); color: #2ecc71; border: 1px solid #2ecc71; }
+        .b-rejected { background: rgba(231, 76, 60, 0.15); color: #e74c3c; border: 1px solid #e74c3c; }
 
     </style>
 </head>
@@ -152,21 +154,23 @@
     <div class="wallet-card">
         <div class="bal-label">Available Balance</div>
         <div class="bal-amount">$<span id="myBal">0.00</span></div>
-        <div class="min-info"><i class="fas fa-info-circle"></i> Min Withdraw: $2.00</div>
+        <div class="min-info" id="minInfo"><i class="fas fa-info-circle"></i> Loading Min Withdraw...</div>
     </div>
 
     <!-- FORM -->
     <div class="form-container">
         
         <div class="input-group">
-            <label class="label">Select Method</label>
+            <label class="label">Payment Method</label>
             <div class="input-box">
                 <i class="fas fa-university input-icon"></i>
                 <select class="select-field" id="methodSelect" onchange="updateUI()">
                     <option value="USDT">USDT (BEP20)</option>
                     <option value="SHOPPING28">SHOPPING28 ID</option>
+                    <option value="BINANCE">Binance Pay ID</option>
+                    <option value="NAGAD">Nagad (Personal)</option>
+                    <option value="BKASH">Bkash (Personal)</option>
                 </select>
-                <i class="fas fa-chevron-down" style="color:#666; font-size:0.8rem;"></i>
             </div>
         </div>
 
@@ -186,45 +190,56 @@
             </div>
         </div>
 
-        <button class="withdraw-btn" onclick="submitWithdraw()">REQUEST WITHDRAW</button>
+        <button class="withdraw-btn" id="submitBtn" onclick="submitWithdraw()">REQUEST WITHDRAW</button>
     </div>
 
     <!-- HISTORY -->
     <div class="history-container">
         <div class="h-header">Recent Transactions</div>
         <div class="history-list" id="historyList">
-            <div style="text-align:center; color:#444; font-size:0.9rem; padding:20px;">Loading History...</div>
+            <div style="text-align:center; color:#666; font-size:0.9rem; padding:20px;">Loading History...</div>
         </div>
     </div>
 
     <script>
         let currentBalance = 0;
-        let minWithdraw = 2; // Default
+        let minWithdraw = 2.00; // Default fallback
+        let currentUser = null;
 
         // 1. Auth & Data Load
         auth.onAuthStateChanged(user => {
             if(user) {
-                // Get Admin Settings (Min Withdraw)
-                db.ref('adminSettings/minWithdraw').on('value', snap => {
-                    if(snap.exists()) minWithdraw = parseFloat(snap.val());
-                    document.querySelector('.min-info').innerHTML = `<i class="fas fa-info-circle"></i> Min Withdraw: $${minWithdraw.toFixed(2)}`;
-                });
-
-                // Get User Balance
-                db.ref('users/' + user.uid).on('value', snap => {
-                    const data = snap.val();
-                    currentBalance = parseFloat(data.balance || 0);
-                    document.getElementById('myBal').innerText = currentBalance.toFixed(2);
-                });
-
-                // Load History
-                loadHistory(user.uid);
+                currentUser = user;
+                loadUserData();
+                loadAdminSettings();
+                loadHistory();
             } else {
                 window.location.href = "registration_login.html";
             }
         });
 
-        // 2. UI Updates
+        // 2. Load User Balance
+        function loadUserData() {
+            db.ref('users/' + currentUser.uid).on('value', snap => {
+                const data = snap.val();
+                if(data) {
+                    currentBalance = parseFloat(data.balance || 0);
+                    document.getElementById('myBal').innerText = currentBalance.toFixed(2);
+                }
+            });
+        }
+
+        // 3. Load Min Withdraw Limit from Admin
+        function loadAdminSettings() {
+            db.ref('adminSettings/minWithdraw').on('value', snap => {
+                if(snap.exists()) {
+                    minWithdraw = parseFloat(snap.val());
+                }
+                document.getElementById('minInfo').innerHTML = `<i class="fas fa-info-circle"></i> Min Withdraw: $${minWithdraw.toFixed(2)}`;
+            });
+        }
+
+        // 4. Update UI based on Method
         function updateUI() {
             const method = document.getElementById('methodSelect').value;
             const label = document.getElementById('destLabel');
@@ -235,97 +250,115 @@
                 label.innerText = "Wallet Address (BEP20)";
                 icon.className = "fas fa-wallet input-icon";
                 input.placeholder = "Paste USDT Address";
-            } else {
+            } else if(method === "SHOPPING28") {
                 label.innerText = "Shopping28 User ID";
                 icon.className = "fas fa-id-card input-icon";
                 input.placeholder = "Enter User ID";
+            } else if(method === "BINANCE") {
+                label.innerText = "Binance Pay ID";
+                icon.className = "fas fa-qrcode input-icon";
+                input.placeholder = "Enter Binance Pay ID";
+            } else {
+                label.innerText = method + " Number";
+                icon.className = "fas fa-mobile-alt input-icon";
+                input.placeholder = "Enter Mobile Number";
             }
         }
 
-        // 3. Submit Logic
+        // 5. Submit Request Logic
         function submitWithdraw() {
             const method = document.getElementById('methodSelect').value;
             const dest = document.getElementById('destination').value.trim();
-            const amount = parseFloat(document.getElementById('amount').value);
+            const amountStr = document.getElementById('amount').value;
+            const amount = parseFloat(amountStr);
+            const btn = document.getElementById('submitBtn');
 
-            if(!amount || !dest) {
-                alert("Please fill all fields."); return;
-            }
+            // Validation
+            if(!amount || !dest) return alert("Please fill all fields.");
+            if(amount < minWithdraw) return alert(`Minimum withdraw amount is $${minWithdraw.toFixed(2)}`);
+            if(amount > currentBalance) return alert("Insufficient Balance!");
 
-            if(amount < minWithdraw) {
-                alert(`Minimum withdraw amount is $${minWithdraw}`); return;
-            }
+            // Confirmation
+            if(!confirm(`Withdraw $${amount.toFixed(2)} via ${method}?`)) return;
 
-            if(amount > currentBalance) {
-                alert("Insufficient Balance!"); return;
-            }
+            btn.disabled = true;
+            btn.innerText = "PROCESSING...";
 
-            // Confirm & Process
-            if(confirm(`Withdraw $${amount} via ${method}?`)) {
-                const uid = auth.currentUser.uid;
-                const btn = document.querySelector('.withdraw-btn');
-                btn.innerText = "PROCESSING...";
-                btn.style.opacity = "0.7";
-                
-                // Deduct Balance First
-                db.ref('users/' + uid).update({
-                    balance: currentBalance - amount
-                }).then(() => {
-                    // Create Request
-                    const reqId = db.ref('withdrawals').push().key;
-                    db.ref('withdrawals/' + reqId).set({
-                        uid: uid,
-                        amount: amount,
-                        destination: dest,
-                        method: method,
-                        status: "pending",
-                        date: new Date().toISOString()
-                    }).then(() => {
-                        alert("Request Submitted Successfully!");
-                        document.getElementById('amount').value = "";
-                        document.getElementById('destination').value = "";
-                        btn.innerText = "REQUEST WITHDRAW";
-                        btn.style.opacity = "1";
-                    });
-                }).catch(err => {
-                    alert("Error: " + err.message);
-                    btn.innerText = "REQUEST WITHDRAW";
-                    btn.style.opacity = "1";
-                });
-            }
+            // Database Transaction
+            const withdrawalRef = db.ref('withdrawals').push();
+            const withdrawId = withdrawalRef.key;
+            
+            // Transaction Data
+            const withdrawData = {
+                id: withdrawId,
+                uid: currentUser.uid,
+                email: currentUser.email,
+                amount: amount,
+                destination: dest,
+                method: method,
+                status: "pending", // Default status
+                date: new Date().toISOString()
+            };
+
+            // 1. Deduct Balance
+            db.ref('users/' + currentUser.uid).update({
+                balance: (currentBalance - amount).toFixed(4)
+            }).then(() => {
+                // 2. Save Withdrawal Request
+                return withdrawalRef.set(withdrawData);
+            }).then(() => {
+                alert("Withdrawal Request Submitted!");
+                // Reset Form
+                document.getElementById('amount').value = "";
+                document.getElementById('destination').value = "";
+                btn.disabled = false;
+                btn.innerText = "REQUEST WITHDRAW";
+            }).catch(error => {
+                alert("Error: " + error.message);
+                btn.disabled = false;
+                btn.innerText = "REQUEST WITHDRAW";
+            });
         }
 
-        // 4. Load History
-        function loadHistory(uid) {
-            db.ref('withdrawals').orderByChild('uid').equalTo(uid).on('value', snap => {
+        // 6. Load Transaction History
+        function loadHistory() {
+            db.ref('withdrawals').orderByChild('uid').equalTo(currentUser.uid).on('value', snap => {
                 const list = document.getElementById('historyList');
                 list.innerHTML = "";
-                
+
                 if(!snap.exists()) {
-                    list.innerHTML = '<div style="text-align:center; color:#444;">No transactions found.</div>';
+                    list.innerHTML = '<div style="text-align:center; color:#666;">No transactions found.</div>';
                     return;
                 }
 
+                // Convert Object to Array & Reverse (Newest First)
                 const items = [];
-                snap.forEach(c => items.push(c.val()));
-                items.reverse(); // Newest first
+                snap.forEach(child => items.push(child.val()));
+                items.reverse();
 
                 items.forEach(item => {
                     let badgeClass = "b-pending";
-                    if(item.status === "paid") badgeClass = "b-paid";
-                    if(item.status === "rejected") badgeClass = "b-rejected";
+                    let statusText = "Pending";
 
-                    const date = item.date.split('T')[0];
-                    const methodShort = item.method === "USDT" ? "USDT" : "ID";
+                    if(item.status === "approved" || item.status === "paid") {
+                        badgeClass = "b-paid";
+                        statusText = "Paid";
+                    } else if(item.status === "rejected") {
+                        badgeClass = "b-rejected";
+                        statusText = "Rejected";
+                    }
+
+                    const dateObj = new Date(item.date);
+                    const dateStr = dateObj.toLocaleDateString() + " " + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
                     const html = `
                         <div class="h-item">
                             <div class="h-left">
                                 <h4>$${parseFloat(item.amount).toFixed(2)}</h4>
-                                <p>${methodShort}: ${item.destination.substring(0, 15)}...</p>
-                                <p style="font-size:0.65rem; margin-top:2px;">${date}</p>
+                                <p>${item.method} • ${item.destination.substring(0, 12)}...</p>
+                                <p style="font-size:0.65rem; margin-top:2px; color:#888;">${dateStr}</p>
                             </div>
-                            <span class="badge ${badgeClass}">${item.status}</span>
+                            <span class="badge ${badgeClass}">${statusText}</span>
                         </div>
                     `;
                     list.innerHTML += html;
