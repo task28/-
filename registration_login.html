@@ -50,7 +50,7 @@
         /* --- CARD CONTAINER --- */
         .wrapper {
             width: 100%;
-            max-width: 450px; /* Perfect for mobile width */
+            max-width: 450px;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
@@ -86,7 +86,6 @@
             background: rgba(255, 255, 255, 0.05);
         }
 
-        /* Active Tab Indicator Line */
         .tab-btn.active::after {
             content: '';
             position: absolute;
@@ -105,7 +104,7 @@
         }
 
         .form-box {
-            display: none; /* Hidden by default */
+            display: none;
             animation: fadeIn 0.4s ease-in-out;
         }
         .form-box.active { display: block; }
@@ -207,13 +206,12 @@
                 <div id="loginMsg" class="msg-box">Error Message</div>
             </div>
 
-            <!-- SIGN UP FORM (NO PHONE NUMBER) -->
+            <!-- SIGN UP FORM -->
             <div id="signup" class="form-box">
                 <h2>Create Account</h2>
                 
                 <div class="input-group"><input type="text" id="r_name" placeholder="Full Name" /></div>
                 <div class="input-group"><input type="email" id="r_email" placeholder="Email Address" /></div>
-                <!-- Phone Number Removed -->
                 <div class="input-group"><input type="password" id="r_pass" placeholder="Password (Min 6 chars)" /></div>
                 <div class="input-group"><input type="password" id="r_passConfirm" placeholder="Confirm Password" /></div>
                 <div class="input-group"><input type="text" id="r_refCode" placeholder="Referral Code (Required)" /></div>
@@ -226,23 +224,19 @@
     </div>
 
     <script>
-        // --- TAB SWITCHING LOGIC ---
+        // --- TAB LOGIC ---
         function openTab(tabName) {
             document.getElementById('signin').classList.remove('active');
             document.getElementById('signup').classList.remove('active');
-            
             document.getElementById('tab-signin').classList.remove('active');
             document.getElementById('tab-signup').classList.remove('active');
-
             document.getElementById(tabName).classList.add('active');
             document.getElementById('tab-' + tabName).classList.add('active');
         }
 
-        // --- CHECK URL FOR REF CODE ---
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
             const ref = urlParams.get('ref');
-            
             if(ref) {
                 openTab('signup');
                 const refInput = document.getElementById('r_refCode');
@@ -251,18 +245,15 @@
             }
         };
 
-        // --- FIREBASE LOGIC (UPDATED: NO PHONE) ---
-
+        // --- REGISTER LOGIC ---
         function handleRegister(btn) {
             const name = document.getElementById('r_name').value;
             const email = document.getElementById('r_email').value;
-            // Phone variable removed
             const pass = document.getElementById('r_pass').value;
             const confirmPass = document.getElementById('r_passConfirm').value;
             const refCode = document.getElementById('r_refCode').value.trim();
             const msgBox = document.getElementById('regMsg');
 
-            // Validation (Phone removed)
             if(!name || !email || !pass || !confirmPass || !refCode) {
                 showError(msgBox, "All fields are required."); return;
             }
@@ -276,6 +267,7 @@
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
             btn.style.opacity = "0.7";
 
+            // Check if Referrer Exists
             db.ref('users').orderByChild('myRefCode').equalTo(refCode).once('value', snapshot => {
                 if(!snapshot.exists()) {
                     showError(msgBox, "Invalid Referral Code!");
@@ -283,29 +275,33 @@
                     return;
                 }
 
+                // Create User
                 auth.createUserWithEmailAndPassword(email, pass).then((cred) => {
                     const uid = cred.user.uid;
                     const myCode = "TASK" + Math.floor(100000 + Math.random() * 900000);
                     const today = new Date().toISOString().split('T')[0];
 
-                    db.ref('users/' + uid).set({
+                    const userData = {
                         name: name, 
                         email: email, 
-                        // phone field removed
-                        password: pass, 
+                        password: pass, // Note: Not recommended to store pass in DB, used as per request
                         uid: uid,
                         balance: 0, 
                         credits: 2, 
                         todayProfit: 0, 
                         totalProfit: 0, 
-                        teamCount: 0, 
-                        partnerCount: 0, 
+                        teamCount: 0,     // Starts at 0
+                        partnerCount: 0,  // Starts at 0
                         regDate: today, 
                         myRefCode: myCode, 
                         referredBy: refCode, 
                         plan: "free"
-                    }).then(() => {
-                        updateReferrer(refCode);
+                    };
+
+                    db.ref('users/' + uid).set(userData).then(() => {
+                        // RECURSIVE UPDATE: Update Team Count for ALL uplines
+                        updateUplineCounts(refCode);
+                        
                         alert("Account Created Successfully!");
                         window.location.href = "Home.html";
                     });
@@ -317,20 +313,43 @@
             });
         }
 
-        function updateReferrer(code) {
-            db.ref('users').orderByChild('myRefCode').equalTo(code).once('value', snap => {
-                if(snap.exists()) {
-                    snap.forEach(u => {
-                        const refUid = u.key;
-                        const data = u.val();
-                        let updates = { teamCount: (data.teamCount || 0) + 1 };
-                        if(data.activePlan) updates['activePlan/currentRef'] = (data.activePlan.currentRef || 0) + 1;
-                        db.ref('users/' + refUid).update(updates);
+        // --- RECURSIVE TEAM COUNT UPDATE ---
+        async function updateUplineCounts(startRefCode) {
+            let currentCode = startRefCode;
+            let loopLimit = 50; // Max 50 levels up to prevent infinite loops
+
+            while (currentCode && currentCode !== "Admin" && loopLimit > 0) {
+                // Find the user with this code
+                const snapshot = await db.ref('users').orderByChild('myRefCode').equalTo(currentCode).once('value');
+                
+                if (snapshot.exists()) {
+                    let uplineUid = null;
+                    let uplineData = null;
+
+                    // Get UID and Data safely
+                    snapshot.forEach(child => {
+                        uplineUid = child.key;
+                        uplineData = child.val();
                     });
+
+                    if (uplineUid) {
+                        // 1. Update Team Count (Recursive for everyone)
+                        const newTeamCount = (uplineData.teamCount || 0) + 1;
+                        await db.ref('users/' + uplineUid).update({ teamCount: newTeamCount });
+
+                        // 2. Move up the chain
+                        currentCode = uplineData.referredBy;
+                        loopLimit--;
+                    } else {
+                        break; 
+                    }
+                } else {
+                    break; // Invalid code in chain
                 }
-            });
+            }
         }
 
+        // --- LOGIN LOGIC ---
         function handleLogin(btn) {
             const email = document.getElementById('l_email').value;
             const pass = document.getElementById('l_pass').value;
