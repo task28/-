@@ -92,12 +92,32 @@
             background: #0f0f0f; border: 1px solid #222;
             padding: 15px; border-radius: 12px; text-align: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            position: relative;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
         .stat-val { font-family: 'Orbitron'; font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 5px; }
         .stat-lbl { font-size: 0.65rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
 
         .val-profit { color: #2ecc71; } /* Green */
         .val-life { color: #d4af37; }   /* Gold */
+
+        /* HISTORY BUTTON STYLE */
+        .history-btn-small {
+            margin-top: 8px;
+            background: rgba(212, 175, 55, 0.15);
+            color: #d4af37;
+            border: 1px solid #d4af37;
+            padding: 4px 10px;
+            font-size: 0.6rem;
+            border-radius: 15px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .history-btn-small:hover {
+            background: #d4af37;
+            color: #000;
+        }
 
         /* BANNER SLIDER */
         .banner-box {
@@ -166,13 +186,13 @@
 
     <!-- 4 STATS BOXES -->
     <div class="stats-grid">
-        <!-- TOTAL TEAM (Recursive Count from DB) -->
+        <!-- TOTAL TEAM -->
         <div class="stat-box">
             <div class="stat-val" id="u_team">0</div>
             <div class="stat-lbl">Total Team</div>
         </div>
 
-        <!-- MY PARTNERS (Direct Referrals) -->
+        <!-- MY PARTNERS -->
         <div class="stat-box">
             <div class="stat-val" id="u_partner">0</div>
             <div class="stat-lbl">My Partners</div>
@@ -184,10 +204,15 @@
             <div class="stat-lbl">Today's Profit</div>
         </div>
 
-        <!-- LIFETIME EARN -->
+        <!-- LIFETIME EARN (With History Button) -->
         <div class="stat-box">
             <div class="stat-val val-life">$<span id="u_lifetime">0.00</span></div>
             <div class="stat-lbl">Lifetime Earn</div>
+            
+            <!-- HISTORY BUTTON -->
+            <a href="History.html" class="history-btn-small">
+                <i class="fas fa-history"></i> History
+            </a>
         </div>
     </div>
 
@@ -276,20 +301,22 @@
                     if(data) {
                         if(data.isBanned) { alert("ACCOUNT BANNED"); auth.signOut(); return; }
 
-                        // 1. Basic Info
+                        // Basic Info
                         document.getElementById('u_name').innerText = data.name;
                         document.getElementById('u_plan').innerText = (data.plan || "Free").toUpperCase();
                         document.getElementById('u_credits').innerText = data.credits || 0;
                         document.getElementById('u_date').innerText = data.regDate;
                         document.getElementById('u_uid').innerText = uid.substring(0,8);
 
-                        // 2. Real Balance
+                        // Real Balance
                         document.getElementById('u_balance').innerText = parseFloat(data.balance || 0).toFixed(2);
 
-                        // 3. Lifetime Earn (Total accumulated)
+                        // Lifetime Earn (Total Accumulated Profit)
+                        // Note: Ensure your Task/Referral logic updates 'totalEarnings' properly.
+                        // It acts as a history counter that never decreases.
                         document.getElementById('u_lifetime').innerText = parseFloat(data.totalEarnings || 0).toFixed(2);
 
-                        // 4. Today's Profit (Resets daily)
+                        // Today's Profit
                         const todayStr = new Date().toLocaleDateString('en-CA');
                         if(data.lastProfitDate === todayStr) {
                             document.getElementById('u_today').innerText = parseFloat(data.todayProfit || 0).toFixed(2);
@@ -297,10 +324,10 @@
                             document.getElementById('u_today').innerText = "0.00";
                         }
 
-                        // 5. Total Team (Recursive - Comes from DB)
+                        // Total Team
                         document.getElementById('u_team').innerText = data.teamCount || 0;
 
-                        // 6. My Partners (Direct - Realtime Count)
+                        // My Partners
                         const myCode = data.myRefCode;
                         if(myCode) {
                             db.ref('users').orderByChild('referredBy').equalTo(myCode).on('value', (partnerSnap) => {
