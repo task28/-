@@ -92,7 +92,6 @@
             background: #0f0f0f; border: 1px solid #222;
             padding: 15px; border-radius: 12px; text-align: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            position: relative;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
         .stat-val { font-family: 'Orbitron'; font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 5px; }
@@ -100,24 +99,6 @@
 
         .val-profit { color: #2ecc71; } /* Green */
         .val-life { color: #d4af37; }   /* Gold */
-
-        /* HISTORY BUTTON STYLE */
-        .history-btn-small {
-            margin-top: 8px;
-            background: rgba(212, 175, 55, 0.15);
-            color: #d4af37;
-            border: 1px solid #d4af37;
-            padding: 4px 10px;
-            font-size: 0.6rem;
-            border-radius: 15px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: 0.3s;
-        }
-        .history-btn-small:hover {
-            background: #d4af37;
-            color: #000;
-        }
 
         /* BANNER SLIDER */
         .banner-box {
@@ -147,15 +128,29 @@
         .menu-item i { font-size: 1.5rem; color: #d4af37; margin-bottom: 12px; display: block; }
         .menu-item span { font-size: 0.8rem; font-weight: 600; }
 
-        /* LOGOUT */
+        /* BOTTOM ACTIONS (History & Logout) */
+        .bottom-actions {
+            padding: 0 20px;
+            margin-bottom: 20px;
+        }
+
+        .history-btn-block {
+            display: block; width: 100%;
+            padding: 15px; background: rgba(0, 210, 255, 0.1); color: #00d2ff;
+            border: 1px solid #00d2ff; border-radius: 12px; font-weight: bold; cursor: pointer;
+            text-transform: uppercase; transition: 0.3s; margin-bottom: 15px;
+            font-size: 0.8rem;
+        }
+        .history-btn-block:hover { background: #00d2ff; color: #000; }
+
         .logout-btn {
-            display: block; width: calc(100% - 40px); margin: 0 auto;
+            display: block; width: 100%; 
             padding: 15px; background: rgba(180, 20, 20, 0.1); color: #e74c3c;
-            border: 1px solid #e74c3c; border-radius: 10px; font-weight: bold; cursor: pointer;
+            border: 1px solid #e74c3c; border-radius: 12px; font-weight: bold; cursor: pointer;
             text-transform: uppercase; font-size: 0.8rem;
         }
 
-        .footer-info { text-align: center; color: #444; font-size: 0.7rem; margin-bottom: 15px; margin-top: 30px; }
+        .footer-info { text-align: center; color: #444; font-size: 0.7rem; margin-bottom: 15px; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -204,15 +199,10 @@
             <div class="stat-lbl">Today's Profit</div>
         </div>
 
-        <!-- LIFETIME EARN (With History Button) -->
+        <!-- LIFETIME EARN (Locked Total Record) -->
         <div class="stat-box">
             <div class="stat-val val-life">$<span id="u_lifetime">0.00</span></div>
             <div class="stat-lbl">Lifetime Earn</div>
-            
-            <!-- HISTORY BUTTON -->
-            <a href="History.html" class="history-btn-small">
-                <i class="fas fa-history"></i> History
-            </a>
         </div>
     </div>
 
@@ -255,7 +245,15 @@
         UID: <span id="u_uid">...</span> | Join: <span id="u_date">...</span>
     </div>
 
-    <button class="logout-btn" onclick="auth.signOut()">LOGOUT ACCOUNT</button>
+    <!-- BOTTOM ACTIONS (HISTORY & LOGOUT) -->
+    <div class="bottom-actions">
+        <!-- HISTORY BUTTON AT THE BOTTOM -->
+        <button class="history-btn-block" onclick="window.location.href='History.html'">
+            <i class="fas fa-history"></i> View Transaction History
+        </button>
+
+        <button class="logout-btn" onclick="auth.signOut()">LOGOUT ACCOUNT</button>
+    </div>
 
     <script>
         // --- BANNER LOGIC ---
@@ -312,8 +310,8 @@
                         document.getElementById('u_balance').innerText = parseFloat(data.balance || 0).toFixed(2);
 
                         // Lifetime Earn (Total Accumulated Profit)
-                        // Note: Ensure your Task/Referral logic updates 'totalEarnings' properly.
-                        // It acts as a history counter that never decreases.
+                        // Shows TOTAL earnings ever made. Doesn't decrease on withdraw.
+                        // Logic: totalEarnings = (Task Income + Refer Income) cumulative.
                         document.getElementById('u_lifetime').innerText = parseFloat(data.totalEarnings || 0).toFixed(2);
 
                         // Today's Profit
