@@ -257,17 +257,19 @@
                     if (data) {
                         myRefCode = data.myRefCode || "ERROR";
                         
-                        // NOTE: Direct partner count is now handled in loadPartnerList() for accuracy
+                        // Total team count (Downline - Recursive from DB)
+                        const teamMembers = data.teamCount || 0; 
                         
-                        const teamMembers = data.teamCount || 0; // Total team (including indirect)
-                        const lifetimeComm = data.totalProfit || 0; 
+                        // Only Referral Earnings (NOT main balance)
+                        // Make sure to save commission earnings in 'totalCommission' field in DB
+                        const commissionEarned = data.totalCommission || 0; 
 
                         // Update UI
                         document.getElementById('displayCode').innerText = myRefCode;
                         document.getElementById('displayLink').innerText = `${baseURL}?ref=${myRefCode}`;
                         
                         document.getElementById('teamCount').innerText = teamMembers;
-                        document.getElementById('totalComm').innerText = "$" + parseFloat(lifetimeComm).toFixed(2);
+                        document.getElementById('totalComm').innerText = "$" + parseFloat(commissionEarned).toFixed(2);
 
                         // Load List & Calculate Direct Count
                         loadPartnerList(myRefCode);
@@ -299,15 +301,15 @@
             setTimeout(() => { toast.style.display = "none"; }, 2000);
         }
 
-        // --- FIXED: Load List AND Count Direct Partners ---
+        // Load Direct Partners (Who used MY code)
         function loadPartnerList(code) {
             db.ref('users').orderByChild('referredBy').equalTo(code).on('value', snap => {
                 const listDiv = document.getElementById('partnerList');
                 const countBox = document.getElementById('partnerCount');
                 
-                // IMPORTANT: Calculate count from actual list size
+                // Calculate count from actual list size (Direct Partners)
                 const actualCount = snap.exists() ? snap.numChildren() : 0;
-                countBox.innerText = actualCount; // Update the UI with actual count
+                countBox.innerText = actualCount; 
 
                 listDiv.innerHTML = "";
 
