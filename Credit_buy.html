@@ -43,12 +43,28 @@
 
         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
 
+        /* FREE CLAIM BOX */
+        .free-claim-box {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #000; padding: 15px; border-radius: 10px;
+            text-align: center; margin-bottom: 25px; cursor: pointer;
+            font-weight: 800; box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+            display: none; /* Initially hidden until checked */
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        .free-claim-text { font-family: 'Orbitron'; font-size: 1.2rem; }
+        .free-sub { font-size: 0.8rem; font-weight: 600; }
+
         /* WALLET BOX */
         .wallet-box {
             background: linear-gradient(135deg, #111, #1a1a1a);
             border: 1px solid #d4af37; border-radius: 12px; padding: 20px;
             text-align: center; margin-bottom: 30px;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
         }
         .w-title { color: #2ecc71; font-weight: bold; margin-bottom: 10px; font-size: 0.9rem; }
         .w-address {
@@ -63,7 +79,6 @@
 
         /* PACKAGES GRID */
         .pkg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
-        
         .pkg-card {
             background: #111; border: 1px solid #333; border-radius: 10px; padding: 15px;
             text-align: center; cursor: pointer; transition: 0.3s; position: relative;
@@ -81,9 +96,7 @@
         
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; color: #888; font-size: 0.8rem; margin-bottom: 5px; }
-        .input-group input {
-            width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: #fff; border-radius: 5px; outline: none;
-        }
+        .input-group input { width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: #fff; border-radius: 5px; outline: none; }
 
         .pay-btn {
             width: 100%; padding: 15px; background: #2ecc71; color: #000;
@@ -91,6 +104,24 @@
             font-size: 1rem; margin-top: 10px;
         }
         .pay-btn:disabled { background: #444; color: #888; cursor: not-allowed; }
+
+        /* HISTORY SECTION */
+        .history-box { margin-top: 40px; border-top: 2px solid #222; padding-top: 20px; }
+        .h-item {
+            background: #111; padding: 15px; border-radius: 8px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #444;
+        }
+        .h-item.pending { border-left-color: #f1c40f; }
+        .h-item.approved { border-left-color: #2ecc71; }
+        .h-item.rejected { border-left-color: #e74c3c; }
+
+        .h-left h4 { font-size: 1rem; color: #fff; margin-bottom: 2px; }
+        .h-left p { font-size: 0.75rem; color: #888; }
+        
+        .status-badge { font-size: 0.7rem; font-weight: bold; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
+        .badge-pending { background: rgba(241, 196, 15, 0.2); color: #f1c40f; }
+        .badge-approved { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+        .badge-rejected { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
 
     </style>
 </head>
@@ -104,6 +135,12 @@
 
     <div class="container">
         
+        <!-- FREE CLAIM BUTTON -->
+        <div id="freeClaimBtn" class="free-claim-box" onclick="claimFreeCredits()">
+            <div class="free-claim-text"><i class="fas fa-gift"></i> CLAIM FREE 5 CREDITS</div>
+            <div class="free-sub">One time offer for new users!</div>
+        </div>
+
         <!-- ADMIN WALLET -->
         <div class="wallet-box">
             <div class="w-title">SEND PAYMENT HERE (USDT BEP20)</div>
@@ -113,10 +150,10 @@
 
         <h3 style="color:#fff; margin-bottom:15px; font-size:1rem;">CHOOSE PACKAGE</h3>
         <div class="pkg-grid" id="pkgList">
-            <!-- Packages will load here -->
+            <!-- Packages load here -->
         </div>
 
-        <!-- PAYMENT DETAILS FORM -->
+        <!-- PAYMENT FORM -->
         <div class="pay-form" id="paymentSection">
             <h3 style="color:#fff; margin-bottom:15px;">PAYMENT PROOF</h3>
             
@@ -138,30 +175,79 @@
             <button class="pay-btn" id="submitBtn" onclick="submitRequest()">CONFIRM PURCHASE</button>
         </div>
 
+        <!-- REQUEST HISTORY -->
+        <div class="history-box">
+            <h3 style="color:#fff; margin-bottom:15px; font-size:1rem;">REQUEST HISTORY</h3>
+            <div id="historyList">
+                <p style="color:#666; font-size:0.9rem; text-align:center;">Loading history...</p>
+            </div>
+        </div>
+
     </div>
 
     <script>
         let selectedPkgData = null;
         let finalPrice = 0;
         let finalCredits = 0;
+        let currentUser = null;
 
         auth.onAuthStateChanged(user => {
             if(user) {
+                currentUser = user;
                 loadAdminWallet();
                 loadPackages();
+                checkFreeClaim();
+                loadHistory();
             } else {
                 window.location.href = "registration_login.html";
             }
         });
 
-        // 1. LOAD WALLET
+        // --- 1. FREE CLAIM SYSTEM ---
+        function checkFreeClaim() {
+            db.ref('users/' + currentUser.uid).once('value', snap => {
+                const data = snap.val();
+                // If 'freeClaimed' does not exist or is false, show button
+                if (!data || !data.freeClaimed) {
+                    document.getElementById('freeClaimBtn').style.display = 'block';
+                }
+            });
+        }
+
+        function claimFreeCredits() {
+            if(!confirm("Are you sure you want to claim 5 FREE Credits? This is a one-time offer.")) return;
+
+            const userRef = db.ref('users/' + currentUser.uid);
+            
+            userRef.once('value', snap => {
+                const userData = snap.val();
+                if(userData.freeClaimed) {
+                    alert("You have already claimed this reward!");
+                    document.getElementById('freeClaimBtn').style.display = 'none';
+                    return;
+                }
+
+                const currentCredits = parseFloat(userData.credits || 0);
+                
+                // Update Database
+                userRef.update({
+                    credits: currentCredits + 5,
+                    freeClaimed: true
+                }).then(() => {
+                    alert("Success! 5 Credits added to your account.");
+                    document.getElementById('freeClaimBtn').style.display = 'none';
+                    window.location.reload(); // Refresh to update balance in other pages
+                });
+            });
+        }
+
+        // --- 2. LOAD DATA ---
         function loadAdminWallet() {
             db.ref('adminSettings/walletAddress').on('value', snap => {
                 document.getElementById('adminAddr').innerText = snap.val() || "Contact Admin";
             });
         }
 
-        // 2. LOAD PACKAGES
         function loadPackages() {
             db.ref('adminSettings/packages').on('value', snap => {
                 const list = document.getElementById('pkgList');
@@ -170,7 +256,6 @@
                 if(snap.exists()) {
                     snap.forEach(child => {
                         const pkg = child.val();
-                        // Only show if data is valid
                         if(pkg.credits && pkg.finalPrice) {
                             const div = document.createElement('div');
                             div.className = 'pkg-card';
@@ -189,28 +274,18 @@
             });
         }
 
-        // 3. SELECTION LOGIC
+        // --- 3. SELECTION & PAYMENT ---
         function selectPackage(element, pkg) {
-            // UI Update
             document.querySelectorAll('.pkg-card').forEach(e => e.classList.remove('selected'));
             element.classList.add('selected');
-            
-            // Enable Payment Form
             document.getElementById('paymentSection').classList.add('active');
             
-            // Data Update
             selectedPkgData = pkg;
             finalPrice = pkg.finalPrice;
             finalCredits = pkg.credits;
-            
-            updateTotalDisplay();
-        }
-
-        function updateTotalDisplay() {
             document.getElementById('finalPay').innerText = parseFloat(finalPrice).toFixed(2);
         }
 
-        // 4. SUBMIT REQUEST
         function submitRequest() {
             const sender = document.getElementById('senderAddr').value;
             const txn = document.getElementById('txnId').value;
@@ -223,8 +298,8 @@
             btn.innerText = "Processing...";
 
             const reqData = {
-                uid: auth.currentUser.uid,
-                email: auth.currentUser.email,
+                uid: currentUser.uid,
+                email: currentUser.email,
                 credits: parseFloat(finalCredits),
                 pricePaid: parseFloat(finalPrice),
                 senderAddress: sender,
@@ -235,12 +310,58 @@
             };
 
             db.ref('credit_requests').push(reqData).then(() => {
-                alert("Request Sent! Admin will check and approve shortly.");
-                window.location.href = "Home.html";
+                alert("Request Sent! Check history below.");
+                window.location.reload();
             }).catch(e => {
                 alert("Error: " + e.message);
                 btn.disabled = false;
                 btn.innerText = "CONFIRM PURCHASE";
+            });
+        }
+
+        // --- 4. HISTORY SYSTEM ---
+        function loadHistory() {
+            db.ref('credit_requests').orderByChild('uid').equalTo(currentUser.uid).on('value', snap => {
+                const list = document.getElementById('historyList');
+                list.innerHTML = "";
+
+                if(!snap.exists()) {
+                    list.innerHTML = "<p style='color:#666; text-align:center;'>No purchase history found.</p>";
+                    return;
+                }
+
+                // Convert to array and reverse to show newest first
+                const reqArray = [];
+                snap.forEach(child => reqArray.push(child.val()));
+                reqArray.reverse();
+
+                reqArray.forEach(data => {
+                    let statusClass = 'pending';
+                    let statusText = 'Pending';
+                    
+                    if(data.status === 'approved') {
+                        statusClass = 'approved';
+                        statusText = 'Complete';
+                    } else if(data.status === 'rejected') {
+                        statusClass = 'rejected';
+                        statusText = 'Rejected';
+                    }
+
+                    const dateStr = new Date(data.date).toLocaleDateString();
+
+                    const html = `
+                        <div class="h-item ${statusClass}">
+                            <div class="h-left">
+                                <h4>+${data.credits} Credits</h4>
+                                <p>Paid: $${data.pricePaid} • ${dateStr}</p>
+                            </div>
+                            <div class="h-right">
+                                <span class="status-badge badge-${statusClass}">${statusText}</span>
+                            </div>
+                        </div>
+                    `;
+                    list.innerHTML += html;
+                });
             });
         }
 
