@@ -69,25 +69,22 @@
             text-align: center; cursor: pointer; transition: 0.3s; position: relative;
         }
         .pkg-card:hover { border-color: #d4af37; transform: translateY(-3px); }
-        .pkg-card.selected { border-color: #2ecc71; background: rgba(46, 204, 113, 0.1); }
+        .pkg-card.selected { border-color: #2ecc71; background: rgba(46, 204, 113, 0.1); box-shadow: 0 0 10px rgba(46, 204, 113, 0.2); }
         
         .pkg-cr { font-size: 1.5rem; color: #fff; font-weight: 800; font-family: 'Orbitron'; }
         .pkg-price { color: #d4af37; font-weight: bold; margin: 5px 0; }
         .pkg-save { font-size: 0.7rem; color: #2ecc71; background: rgba(46, 204, 113, 0.1); padding: 2px 8px; border-radius: 4px; display: inline-block; }
 
-        /* CUSTOM BUY */
-        .custom-box {
-            background: #111; border: 1px solid #333; padding: 20px; border-radius: 10px; margin-bottom: 30px;
-        }
+        /* PAYMENT FORM */
+        .pay-form { border-top: 1px solid #222; padding-top: 20px; opacity: 0.5; pointer-events: none; transition: 0.3s; }
+        .pay-form.active { opacity: 1; pointer-events: all; }
+        
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; color: #888; font-size: 0.8rem; margin-bottom: 5px; }
         .input-group input {
             width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: #fff; border-radius: 5px; outline: none;
         }
-        .rate-info { font-size: 0.75rem; color: #666; text-align: right; }
 
-        /* PAYMENT FORM */
-        .pay-form { border-top: 1px solid #222; padding-top: 20px; }
         .pay-btn {
             width: 100%; padding: 15px; background: #2ecc71; color: #000;
             font-weight: 800; border: none; border-radius: 8px; cursor: pointer;
@@ -119,25 +116,12 @@
             <!-- Packages will load here -->
         </div>
 
-        <!-- CUSTOM AMOUNT -->
-        <div class="custom-box" onclick="selectCustom()">
-            <h3 style="color:#d4af37; font-size:1rem; margin-bottom:15px;">OR CUSTOM AMOUNT</h3>
-            <div class="input-group">
-                <label>Enter Amount (USD)</label>
-                <input type="number" id="customAmount" placeholder="Min $1" oninput="calcCustom()">
-            </div>
-            <div class="rate-info">Standard Rate: $1 = 1 Credit</div>
-            <div style="margin-top:10px; font-weight:bold; color:#fff;">
-                YOU GET: <span id="customGet" style="color:#2ecc71">0</span> Credits
-            </div>
-        </div>
-
         <!-- PAYMENT DETAILS FORM -->
-        <div class="pay-form">
+        <div class="pay-form" id="paymentSection">
             <h3 style="color:#fff; margin-bottom:15px;">PAYMENT PROOF</h3>
             
             <div class="input-group">
-                <label>Your Wallet Address (Sender)</label>
+                <label>Your Wallet Address (Sender) <span style="color:red">*</span></label>
                 <input type="text" id="senderAddr" placeholder="Paste your USDT address">
             </div>
 
@@ -157,7 +141,6 @@
     </div>
 
     <script>
-        let selectedType = 'none'; // 'package' or 'custom'
         let selectedPkgData = null;
         let finalPrice = 0;
         let finalCredits = 0;
@@ -201,7 +184,7 @@
                         }
                     });
                 } else {
-                    list.innerHTML = "<p style='color:#666; grid-column:span 2;'>No special packages available.</p>";
+                    list.innerHTML = "<p style='color:#666; grid-column:span 2;'>No packages available.</p>";
                 }
             });
         }
@@ -211,35 +194,15 @@
             // UI Update
             document.querySelectorAll('.pkg-card').forEach(e => e.classList.remove('selected'));
             element.classList.add('selected');
-            document.querySelector('.custom-box').style.borderColor = '#333';
+            
+            // Enable Payment Form
+            document.getElementById('paymentSection').classList.add('active');
             
             // Data Update
-            selectedType = 'package';
             selectedPkgData = pkg;
             finalPrice = pkg.finalPrice;
             finalCredits = pkg.credits;
             
-            updateTotalDisplay();
-        }
-
-        function selectCustom() {
-            // UI Update
-            document.querySelectorAll('.pkg-card').forEach(e => e.classList.remove('selected'));
-            document.querySelector('.custom-box').style.borderColor = '#d4af37';
-            
-            // Data Update
-            selectedType = 'custom';
-            calcCustom(); // Recalculate based on input
-        }
-
-        function calcCustom() {
-            if(selectedType !== 'custom') selectCustom();
-
-            const amount = parseFloat(document.getElementById('customAmount').value) || 0;
-            finalPrice = amount; // Rate $1 = 1 Credit
-            finalCredits = amount; // Rate 1:1
-
-            document.getElementById('customGet').innerText = finalCredits;
             updateTotalDisplay();
         }
 
@@ -252,7 +215,7 @@
             const sender = document.getElementById('senderAddr').value;
             const txn = document.getElementById('txnId').value;
 
-            if(finalPrice <= 0) return alert("Please select a package or enter amount!");
+            if(finalPrice <= 0) return alert("Please select a package first!");
             if(!sender) return alert("Please enter your Wallet Address (Sender)!");
 
             const btn = document.getElementById('submitBtn');
@@ -266,7 +229,7 @@
                 pricePaid: parseFloat(finalPrice),
                 senderAddress: sender,
                 txnId: txn || "N/A",
-                type: selectedType,
+                type: 'package',
                 status: 'pending',
                 date: Date.now()
             };
