@@ -47,118 +47,55 @@
             100% { background-position: 0% 50%; } 
         }
 
-        /* --- CARD CONTAINER --- */
         .wrapper {
-            width: 100%;
-            max-width: 450px;
+            width: 100%; max-width: 450px;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            overflow: hidden;
-            position: relative;
+            overflow: hidden; position: relative;
         }
 
-        /* --- TABS HEADER --- */
-        .tabs-header {
-            display: flex;
-            background: rgba(0,0,0,0.2);
-        }
+        .tabs-header { display: flex; background: rgba(0,0,0,0.2); }
         
         .tab-btn {
-            width: 50%;
-            padding: 18px;
-            border: none;
-            background: transparent;
-            color: #aaa;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            position: relative;
-            outline: none;
+            width: 50%; padding: 18px; border: none; background: transparent;
+            color: #aaa; font-size: 1rem; font-weight: 600; cursor: pointer;
+            transition: 0.3s; position: relative; outline: none;
         }
-
-        .tab-btn.active {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
+        .tab-btn.active { color: #fff; background: rgba(255, 255, 255, 0.05); }
         .tab-btn.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
-            box-shadow: 0 0 10px #00d2ff;
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5); box-shadow: 0 0 10px #00d2ff;
         }
 
-        /* --- FORM AREA --- */
-        .form-content {
-            padding: 30px 25px;
-            min-height: 380px;
-        }
-
-        .form-box {
-            display: none;
-            animation: fadeIn 0.4s ease-in-out;
-        }
+        .form-content { padding: 30px 25px; min-height: 380px; }
+        .form-box { display: none; animation: fadeIn 0.4s ease-in-out; }
         .form-box.active { display: block; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         h2 { text-align: center; margin-bottom: 25px; color: #fff; letter-spacing: 1px; }
 
-        /* --- INPUTS --- */
         .input-group { position: relative; margin-bottom: 15px; }
-        
         input {
-            width: 100%;
-            padding: 12px 15px;
-            background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px;
-            color: #fff;
-            font-size: 0.95rem;
-            outline: none;
-            transition: 0.3s;
+            width: 100%; padding: 12px 15px;
+            background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; color: #fff; font-size: 0.95rem; outline: none; transition: 0.3s;
         }
-        
-        input:focus {
-            background: rgba(255,255,255,0.12);
-            border-color: #00d2ff;
-            box-shadow: 0 0 8px rgba(0, 210, 255, 0.3);
-        }
-
+        input:focus { background: rgba(255,255,255,0.12); border-color: #00d2ff; box-shadow: 0 0 8px rgba(0, 210, 255, 0.3); }
         input::placeholder { color: #bbb; }
         input[readonly] { background: rgba(46, 204, 113, 0.15); border-color: #2ecc71; color: #2ecc71; font-weight: bold; }
 
-        /* --- BUTTONS --- */
         .btn-main {
-            width: 100%;
-            padding: 14px;
-            margin-top: 15px;
-            border: none;
-            border-radius: 50px;
+            width: 100%; padding: 14px; margin-top: 15px;
+            border: none; border-radius: 50px;
             background: linear-gradient(90deg, #00d2ff, #3a7bd5);
-            color: white;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0, 210, 255, 0.3);
-            transition: 0.3s;
-            text-transform: uppercase;
+            color: white; font-size: 1rem; font-weight: 700; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 210, 255, 0.3); transition: 0.3s; text-transform: uppercase;
         }
-
         .btn-main:active { transform: scale(0.98); }
-        .btn-main:hover { box-shadow: 0 8px 20px rgba(0, 210, 255, 0.5); }
 
         .social-container { text-align: center; margin: 20px 0; }
         .social-container a {
@@ -169,8 +106,6 @@
         .social-container a:hover { background: #fff; color: #333; }
 
         .forgot-pass { display: block; text-align: right; font-size: 0.8rem; color: #ccc; margin-top: 10px; text-decoration: none; }
-        .forgot-pass:hover { color: #fff; }
-
         .msg-box { background: rgba(255, 77, 77, 0.2); color: #ff9999; padding: 10px; border-radius: 5px; text-align: center; margin-top: 15px; font-size: 0.85rem; display: none; border: 1px solid rgba(255, 77, 77, 0.3); }
 
     </style>
@@ -194,12 +129,8 @@
                     <a href="#"><i class="fab fa-facebook-f"></i></a>
                 </div>
                 
-                <div class="input-group">
-                    <input type="email" id="l_email" placeholder="Email Address" />
-                </div>
-                <div class="input-group">
-                    <input type="password" id="l_pass" placeholder="Password" />
-                </div>
+                <div class="input-group"><input type="email" id="l_email" placeholder="Email Address" /></div>
+                <div class="input-group"><input type="password" id="l_pass" placeholder="Password" /></div>
                 
                 <a href="#" class="forgot-pass">Forgot Password?</a>
                 <button class="btn-main" onclick="handleLogin(this)">Log In</button>
@@ -219,17 +150,14 @@
                 <button class="btn-main" onclick="handleRegister(this)">Register</button>
                 <div id="regMsg" class="msg-box">Error Message</div>
             </div>
-
         </div>
     </div>
 
     <script>
-        // --- TAB LOGIC ---
+        // --- TABS & URL PARAMS ---
         function openTab(tabName) {
-            document.getElementById('signin').classList.remove('active');
-            document.getElementById('signup').classList.remove('active');
-            document.getElementById('tab-signin').classList.remove('active');
-            document.getElementById('tab-signup').classList.remove('active');
+            document.querySelectorAll('.form-box').forEach(e => e.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(e => e.classList.remove('active'));
             document.getElementById(tabName).classList.add('active');
             document.getElementById('tab-' + tabName).classList.add('active');
         }
@@ -245,7 +173,7 @@
             }
         };
 
-        // --- REGISTER LOGIC ---
+        // --- REGISTER WITH RECURSIVE TEAM UPDATE ---
         function handleRegister(btn) {
             const name = document.getElementById('r_name').value;
             const email = document.getElementById('r_email').value;
@@ -267,7 +195,7 @@
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
             btn.style.opacity = "0.7";
 
-            // Check if Referrer Exists
+            // 1. Verify Referrer Code
             db.ref('users').orderByChild('myRefCode').equalTo(refCode).once('value', snapshot => {
                 if(!snapshot.exists()) {
                     showError(msgBox, "Invalid Referral Code!");
@@ -275,32 +203,24 @@
                     return;
                 }
 
-                // Create User
+                // 2. Create Auth User
                 auth.createUserWithEmailAndPassword(email, pass).then((cred) => {
                     const uid = cred.user.uid;
                     const myCode = "TASK" + Math.floor(100000 + Math.random() * 900000);
-                    const today = new Date().toISOString().split('T')[0];
+                    const today = new Date().toLocaleDateString('en-CA');
 
                     const userData = {
-                        name: name, 
-                        email: email, 
-                        password: pass, // Note: Not recommended to store pass in DB, used as per request
-                        uid: uid,
-                        balance: 0, 
-                        credits: 2, 
-                        todayProfit: 0, 
-                        totalProfit: 0, 
-                        teamCount: 0,     // Starts at 0
-                        partnerCount: 0,  // Starts at 0
-                        regDate: today, 
-                        myRefCode: myCode, 
-                        referredBy: refCode, 
-                        plan: "free"
+                        name: name, email: email, password: pass, uid: uid,
+                        balance: 0, credits: 2, 
+                        todayProfit: 0, totalProfit: 0, 
+                        teamCount: 0, partnerCount: 0, 
+                        regDate: today, myRefCode: myCode, 
+                        referredBy: refCode, plan: "free"
                     };
 
+                    // 3. Save User & Update Uplines
                     db.ref('users/' + uid).set(userData).then(() => {
-                        // RECURSIVE UPDATE: Update Team Count for ALL uplines
-                        updateUplineCounts(refCode);
+                        updateUplineCounts(refCode); // RECURSIVE UPDATE CALL
                         
                         alert("Account Created Successfully!");
                         window.location.href = "Home.html";
@@ -313,38 +233,36 @@
             });
         }
 
-        // --- RECURSIVE TEAM COUNT UPDATE ---
+        // --- RECURSIVE FUNCTION (User A <- User B <- User C) ---
         async function updateUplineCounts(startRefCode) {
             let currentCode = startRefCode;
-            let loopLimit = 50; // Max 50 levels up to prevent infinite loops
+            let loopLimit = 50; // Safety limit
 
             while (currentCode && currentCode !== "Admin" && loopLimit > 0) {
-                // Find the user with this code
                 const snapshot = await db.ref('users').orderByChild('myRefCode').equalTo(currentCode).once('value');
                 
                 if (snapshot.exists()) {
                     let uplineUid = null;
                     let uplineData = null;
 
-                    // Get UID and Data safely
                     snapshot.forEach(child => {
                         uplineUid = child.key;
                         uplineData = child.val();
                     });
 
                     if (uplineUid) {
-                        // 1. Update Team Count (Recursive for everyone)
+                        // Increase Team Count
                         const newTeamCount = (uplineData.teamCount || 0) + 1;
                         await db.ref('users/' + uplineUid).update({ teamCount: newTeamCount });
 
-                        // 2. Move up the chain
+                        // Move Up
                         currentCode = uplineData.referredBy;
                         loopLimit--;
                     } else {
-                        break; 
+                        break;
                     }
                 } else {
-                    break; // Invalid code in chain
+                    break;
                 }
             }
         }
