@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction History</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDuxSz3j5xMYDw5U9kLA0cjkpOE82D06MI",
+            authDomain: "part-1-f6d87.firebaseapp.com",
+            databaseURL: "https://part-1-f6d87-default-rtdb.firebaseio.com",
+            projectId: "part-1-f6d87",
+            storageBucket: "part-1-f6d87.firebasestorage.app",
+            messagingSenderId: "682699403122",
+            appId: "1:682699403122:web:038ffca84d489a6c0db7eb"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+    </script>
+
+    <style>
+        body { background-color: #050505; color: #fff; font-family: 'Montserrat', sans-serif; padding: 20px; }
+        
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 15px; }
+        .page-title { color: #d4af37; font-weight: 800; font-size: 1.2rem; }
+        .back-btn { color: #fff; font-size: 1.2rem; cursor: pointer; }
+
+        .history-list { display: flex; flex-direction: column; gap: 10px; }
+
+        .h-card {
+            background: #111; border: 1px solid #333; border-radius: 10px;
+            padding: 15px; display: flex; justify-content: space-between; align-items: center;
+            border-left: 4px solid #444; transition: 0.3s;
+        }
+        
+        /* Dynamic Colors based on Type */
+        .type-income { border-left-color: #2ecc71; } /* Green for Task/Commission/Gift */
+        .type-expense { border-left-color: #e74c3c; } /* Red for Withdraw */
+        
+        .h-left h4 { font-size: 0.9rem; margin-bottom: 3px; font-weight: bold; }
+        .h-left p { font-size: 0.7rem; color: #888; }
+        
+        .h-right { text-align: right; }
+        .amount { font-weight: 800; font-size: 1rem; }
+        .plus { color: #2ecc71; }
+        .minus { color: #e74c3c; }
+
+        .empty-msg { text-align: center; color: #666; margin-top: 50px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <i class="fas fa-arrow-left back-btn" onclick="window.location.href='Home.html'"></i>
+        <div class="page-title">HISTORY (Last 10)</div>
+        <div style="width: 20px;"></div>
+    </div>
+
+    <div class="history-list" id="listArea">
+        <div class="empty-msg">Loading history...</div>
+    </div>
+
+    <script>
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                loadHistory(user.uid);
+            } else {
+                window.location.href = "registration_login.html";
+            }
+        });
+
+        function loadHistory(uid) {
+            // limitToLast(10) ensures only the latest 10 entries are shown
+            db.ref('history/' + uid).limitToLast(10).on('value', snap => {
+                const list = document.getElementById('listArea');
+                list.innerHTML = "";
+
+                if(!snap.exists()) {
+                    list.innerHTML = "<div class='empty-msg'>No transactions found.</div>";
+                    return;
+                }
+
+                // Convert to array and reverse to show newest on top
+                let items = [];
+                snap.forEach(child => items.push(child.val()));
+                items.reverse(); 
+
+                items.forEach(item => {
+                    let isIncome = true;
+                    let icon = "fa-check-circle";
+                    let sign = "+";
+                    let colorClass = "plus";
+                    let borderClass = "type-income";
+
+                    // Logic for Withdraw or Expense
+                    if(item.type === 'withdraw') {
+                        isIncome = false;
+                        icon = "fa-arrow-up";
+                        sign = "-";
+                        colorClass = "minus";
+                        borderClass = "type-expense";
+                    } else if(item.type === 'gift') {
+                        icon = "fa-gift";
+                    } else if(item.type === 'commission') {
+                        icon = "fa-users";
+                    }
+
+                    const dateStr = new Date(item.date).toLocaleString();
+
+                    const html = `
+                        <div class="h-card ${borderClass}">
+                            <div class="h-left">
+                                <h4><i class="fas ${icon}"></i> ${item.desc}</h4>
+                                <p>${dateStr}</p>
+                            </div>
+                            <div class="h-right">
+                                <div class="amount ${colorClass}">${sign}$${parseFloat(item.amount).toFixed(2)}</div>
+                                <div style="font-size:0.6rem; color:#666;">${item.type.toUpperCase()}</div>
+                            </div>
+                        </div>
+                    `;
+                    list.innerHTML += html;
+                });
+            });
+        }
+    </script>
+</body>
+</html>
