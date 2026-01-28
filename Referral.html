@@ -9,12 +9,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    <!-- FIREBASE SDK -->
+    <!-- FIREBASE SDK (v8.10.1) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
+        // আপনার কনফিগারেশন
         const firebaseConfig = {
             apiKey: "AIzaSyDuxSz3j5xMYDw5U9kLA0cjkpOE82D06MI",
             authDomain: "part-1-f6d87.firebaseapp.com",
@@ -117,15 +118,17 @@
 </head>
 <body>
 
+    <!-- HEADER -->
     <div class="header">
         <i class="fas fa-arrow-left back-btn" onclick="window.location.href='Home.html'"></i>
         <div class="page-title">Refer & Earn</div>
-        <div style="width:20px;"></div>
+        <div style="width:20px;"></div> <!-- Spacer for centering -->
     </div>
 
+    <!-- MAIN CONTAINER -->
     <div class="container">
         
-        <!-- INFO & LINKS -->
+        <!-- INFO & LINKS CARD -->
         <div class="info-card">
             <div class="info-text">
                 Earn <b>20% Commission</b> from every task your direct partners complete.
@@ -134,20 +137,20 @@
                 If your team earns $10 collectively, you instantly receive <b>$2 (20%)</b>.
             </div>
 
-            <!-- CODE -->
+            <!-- CODE COPY -->
             <div class="copy-group">
                 <span class="copy-label">Your Referral Code</span>
                 <div class="copy-box">
-                    <span class="copy-val" id="displayCode">...</span>
+                    <span class="copy-val" id="displayCode">Loading...</span>
                     <button class="btn-copy" onclick="copyText('code')">Copy</button>
                 </div>
             </div>
 
-            <!-- LINK -->
+            <!-- LINK COPY -->
             <div class="copy-group">
                 <span class="copy-label">Your Referral Link</span>
                 <div class="copy-box">
-                    <span class="copy-val" id="displayLink">...</span>
+                    <span class="copy-val" id="displayLink">Loading...</span>
                     <button class="btn-copy" onclick="copyText('link')">Copy</button>
                 </div>
             </div>
@@ -155,72 +158,82 @@
 
         <!-- STATS GRID -->
         <div class="stats-grid">
-            <!-- DIRECT PARTNERS (Calculated) -->
+            <!-- DIRECT PARTNERS -->
             <div class="stat-card">
                 <i class="fas fa-user-friends stat-icon"></i>
                 <div class="stat-num" id="partnerCount">0</div>
                 <div class="stat-lbl">DIRECT PARTNERS</div>
             </div>
 
-            <!-- TOTAL TEAM (From DB) -->
+            <!-- TOTAL TEAM -->
             <div class="stat-card">
                 <i class="fas fa-users stat-icon"></i>
                 <div class="stat-num" id="teamCount">0</div>
                 <div class="stat-lbl">TOTAL TEAM</div>
             </div>
 
-            <!-- LIFETIME COMMISSION (From DB) -->
+            <!-- LIFETIME COMMISSION (UPDATED AUTOMATICALLY) -->
             <div class="stat-card full-card">
                 <i class="fas fa-wallet stat-icon" style="font-size:2rem; margin-bottom:5px;"></i>
-                <div class="stat-num" style="font-size:1.8rem;">$<span id="totalComm">0.00</span></div>
+                <div class="stat-num" style="font-size:1.8rem;">
+                    $<span id="totalComm">0.00</span>
+                </div>
                 <div class="stat-lbl">LIFETIME COMMISSION EARNINGS</div>
             </div>
         </div>
 
-        <!-- PARTNER LIST -->
+        <!-- PARTNER LIST SECTION -->
         <div class="list-header">
             <i class="fas fa-list"></i> My Team Members
         </div>
         <div id="partnerList">
-            <p style="text-align:center; color:#666; font-size:0.8rem;">Loading members...</p>
+            <p style="text-align:center; color:#666; font-size:0.8rem; padding:10px;">Loading members...</p>
         </div>
 
     </div>
 
+    <!-- TOAST NOTIFICATION -->
     <div class="toast" id="toastMsg">Copied!</div>
 
     <script>
         let myRefCode = "";
-        const baseURL = "https://task28.github.io/-/registration_login.html"; // Update your URL if needed
+        // আপনার Registration পেজের লিংক নিচে বসান
+        const baseURL = "https://task28.github.io/-/registration_login.html"; 
 
         auth.onAuthStateChanged(user => {
             if(user) {
-                // Fetch User Main Stats
+                // Realtime Listener for User Stats
+                // যখনই ডাটাবেসে totalCommission আপডেট হবে, এটি সাথে সাথে এখানে আপডেট হবে।
                 db.ref('users/' + user.uid).on('value', snap => {
                     const data = snap.val();
                     if(data) {
                         myRefCode = data.myRefCode || "N/A";
                         
-                        // 1. Total Team: সরাসরি ডাটাবেস থেকে (Registration Logic এ এটি আপডেট করতে হবে)
+                        // 1. Total Team Count (Registration এর সময় আপডেট হতে হবে)
                         document.getElementById('teamCount').innerText = data.teamCount || 0;
 
-                        // 2. Lifetime Commission: শুধুমাত্র কমিশন ইনকাম
-                        document.getElementById('totalComm').innerText = parseFloat(data.totalCommission || 0).toFixed(2);
+                        // 2. LIFETIME COMMISSION (Old + New)
+                        // ডাটাবেসে 'totalCommission' ফিল্ডে মোট যোগফল থাকতে হবে।
+                        // এখানে আমরা শুধু সেই টোটাল ভ্যালুটি দেখাচ্ছি।
+                        let comm = parseFloat(data.totalCommission || 0);
+                        document.getElementById('totalComm').innerText = comm.toFixed(2);
 
-                        // Update Codes
+                        // Update Referral Codes UI
                         document.getElementById('displayCode').innerText = myRefCode;
                         document.getElementById('displayLink').innerText = `${baseURL}?ref=${myRefCode}`;
 
-                        // 3. Direct Partners & List Load
+                        // 3. Load Direct Partners List
                         loadPartners(myRefCode);
                     }
                 });
             } else {
+                // ইউজার লগইন না থাকলে লগইন পেজে পাঠান
                 window.location.href = "registration_login.html";
             }
         });
 
         function loadPartners(code) {
+            // "referredBy" ফিল্ড চেক করে পার্টনারদের লিস্ট আনা হচ্ছে
             db.ref('users').orderByChild('referredBy').equalTo(code).on('value', snap => {
                 const list = document.getElementById('partnerList');
                 const countElem = document.getElementById('partnerCount');
@@ -228,41 +241,48 @@
                 list.innerHTML = "";
                 
                 if(snap.exists()) {
-                    // Direct Partner Count
+                    // ডিরেক্ট পার্টনার সংখ্যা
                     countElem.innerText = snap.numChildren();
 
-                    // Generate List
+                    // লিস্ট জেনারেট করা
                     snap.forEach(child => {
                         const u = child.val();
-                        const isActive = u.activePlan ? true : false; // Check logic based on your plan system
+                        // একটিভ স্ট্যাটাস চেক (আপনার সিস্টেম অনুযায়ী activePlan চেক করুন)
+                        const isActive = u.activePlan ? true : false; 
                         
                         list.innerHTML += `
                             <div class="partner-item">
                                 <div>
-                                    <div class="p-name">${u.name}</div>
+                                    <div class="p-name">${u.name || 'User'}</div>
                                     <div class="p-date">Joined: ${u.regDate || 'N/A'}</div>
                                 </div>
-                                <div class="p-badge ${isActive ? 'active' : ''}">${isActive ? 'Premium' : 'Free'}</div>
+                                <div class="p-badge ${isActive ? 'active' : ''}">
+                                    ${isActive ? 'Premium' : 'Free'}
+                                </div>
                             </div>
                         `;
                     });
                 } else {
                     countElem.innerText = "0";
-                    list.innerHTML = "<p style='text-align:center; color:#666; padding:10px;'>No partners found.</p>";
+                    list.innerHTML = "<p style='text-align:center; color:#666; padding:10px;'>No partners found yet.</p>";
                 }
             });
         }
 
+        // কপি করার ফাংশন
         function copyText(type) {
             let txt = "";
             if(type === 'code') txt = document.getElementById('displayCode').innerText;
             else txt = document.getElementById('displayLink').innerText;
 
-            if(txt !== "..." && txt !== "N/A") {
-                navigator.clipboard.writeText(txt);
-                const t = document.getElementById('toastMsg');
-                t.style.display = 'block';
-                setTimeout(() => t.style.display = 'none', 2000);
+            if(txt !== "Loading..." && txt !== "N/A") {
+                navigator.clipboard.writeText(txt).then(() => {
+                    const t = document.getElementById('toastMsg');
+                    t.style.display = 'block';
+                    setTimeout(() => t.style.display = 'none', 2000);
+                }).catch(err => {
+                    console.error('Copy failed', err);
+                });
             }
         }
     </script>
