@@ -3,19 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Refer & Earn</title>
+    <title>Refer & Earn - TASK28</title>
 
-    <!-- Google Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // আপনার রিয়েল কনফিগারেশন
         const firebaseConfig = {
             apiKey: "AIzaSyDuxSz3j5xMYDw5U9kLA0cjkpOE82D06MI",
             authDomain: "part-1-f6d87.firebaseapp.com",
@@ -33,75 +30,164 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: #1a1a2e; color: #fff; 
+            background: #0f0f1e; color: #fff; 
             font-family: 'Poppins', sans-serif; padding-bottom: 50px;
         }
 
-        /* HEADER */
         .header {
-            padding: 20px; background: #16213e;
+            padding: 20px; background: linear-gradient(135deg, #16213e, #1a1a2e);
             display: flex; align-items: center; justify-content: space-between;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             position: sticky; top: 0; z-index: 100;
         }
-        .page-title { font-size: 1.1rem; font-weight: 700; }
-        .back-btn { font-size: 1.2rem; cursor: pointer; color: #fff; }
+        .page-title { font-size: 1.2rem; font-weight: 700; color: #00d2ff; }
+        .back-btn { font-size: 1.2rem; cursor: pointer; color: #fff; transition: 0.3s; }
+        .back-btn:hover { color: #00d2ff; }
 
-        .container { padding: 20px; }
+        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
 
-        /* INFO CARD */
-        .info-card {
-            background: linear-gradient(135deg, #16213e, #0f3460);
-            border-radius: 15px; padding: 20px;
-            border: 1px solid #1f4068; margin-bottom: 20px;
+        /* Commission Card - Highlighted */
+        .commission-card {
+            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+            border-radius: 20px; padding: 25px;
+            text-align: center; margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0, 210, 255, 0.3);
+            position: relative; overflow: hidden;
+            animation: slideUp 0.5s ease;
         }
-        .info-text { font-size: 0.85rem; color: #e0e0e0; line-height: 1.6; margin-bottom: 15px; }
-
-        /* COPY BOXES */
-        .copy-group { margin-bottom: 15px; }
-        .copy-label { font-size: 0.75rem; color: #888; margin-bottom: 5px; display: block; }
-        .copy-box {
-            background: rgba(0,0,0,0.2); border: 1px solid #1f4068;
-            border-radius: 8px; padding: 5px 5px 5px 15px;
-            display: flex; justify-content: space-between; align-items: center;
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .copy-val { font-family: monospace; color: #00d2ff; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; }
-        .btn-copy {
-            background: #00d2ff; color: #000; border: none;
-            padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer;
-        }
-
-        /* STATS */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        .stat-card {
-            background: #1f2a48; border-radius: 12px; padding: 20px 10px;
-            text-align: center; border: 1px solid #2a3b55;
-        }
-        .stat-icon { font-size: 1.5rem; color: #00d2ff; margin-bottom: 10px; }
-        .stat-num { font-size: 1.4rem; font-weight: bold; color: #fff; margin-bottom: 5px; }
-        .stat-lbl { font-size: 0.7rem; color: #aaa; text-transform: uppercase; }
-
-        .full-card {
-            grid-column: span 2; background: linear-gradient(45deg, #1f2a48, #2a3b55);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 25px;
-        }
-
-        /* TEAM LIST */
-        .list-header { font-size: 1rem; font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .partner-item {
-            background: #1f2a48; padding: 12px; border-radius: 8px;
-            margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;
-            border-left: 3px solid #00d2ff;
-        }
-        .p-name { font-weight: 600; font-size: 0.9rem; color: #fff; }
-        .p-date { font-size: 0.7rem; color: #888; margin-top: 2px; }
         
-        /* TOAST */
+        .commission-card::before {
+            content: ''; position: absolute; top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .comm-label { 
+            position: relative; z-index: 1;
+            font-size: 0.9rem; color: rgba(255,255,255,0.9); 
+            text-transform: uppercase; letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+        .comm-amount { 
+            position: relative; z-index: 1;
+            font-size: 2.5rem; font-weight: 800; color: #fff;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+        .comm-amount.update { animation: bounce 0.5s; color: #ffff00; }
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .comm-rate { 
+            position: relative; z-index: 1;
+            font-size: 0.8rem; background: rgba(0,0,0,0.2);
+            display: inline-block; padding: 5px 15px; border-radius: 20px;
+            margin-top: 10px;
+        }
+
+        /* Stats Grid */
+        .stats-grid { 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; 
+            margin-bottom: 25px; 
+        }
+        .stat-card {
+            background: #1f2a48; border-radius: 15px; padding: 20px;
+            text-align: center; border: 1px solid #2a3b55;
+            transition: 0.3s;
+        }
+        .stat-card:hover { border-color: #00d2ff; transform: translateY(-2px); }
+        .stat-icon { font-size: 1.8rem; color: #00d2ff; margin-bottom: 10px; }
+        .stat-num { font-size: 1.6rem; font-weight: bold; color: #fff; margin-bottom: 5px; }
+        .stat-lbl { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Referral Info Card */
+        .info-card {
+            background: #1a1a2e; border-radius: 15px; padding: 20px;
+            border: 1px solid #2a3b55; margin-bottom: 20px;
+        }
+        .info-title { font-size: 0.9rem; color: #00d2ff; margin-bottom: 15px; font-weight: 600; }
+        
+        .copy-group { margin-bottom: 15px; }
+        .copy-label { font-size: 0.75rem; color: #888; margin-bottom: 8px; display: block; }
+        .copy-box {
+            background: rgba(0,0,0,0.3); border: 1px solid #3a7bd5;
+            border-radius: 10px; padding: 12px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: 0.3s;
+        }
+        .copy-box:hover { border-color: #00d2ff; box-shadow: 0 0 10px rgba(0,210,255,0.2); }
+        .copy-val { 
+            font-family: 'Courier New', monospace; 
+            color: #00d2ff; font-weight: bold; 
+            font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            max-width: 200px;
+        }
+        .btn-copy {
+            background: transparent; color: #fff; border: none;
+            padding: 8px; cursor: pointer; font-size: 1rem;
+            transition: 0.3s;
+        }
+        .btn-copy:hover { color: #00d2ff; transform: scale(1.1); }
+        .btn-copy.copied { color: #2ecc71; }
+
+        /* Team List */
+        .team-header { 
+            font-size: 1rem; font-weight: 700; margin-bottom: 15px; 
+            display: flex; align-items: center; gap: 10px;
+            color: #fff;
+        }
+        .team-count { 
+            background: #00d2ff; color: #000; 
+            padding: 2px 10px; border-radius: 20px; 
+            font-size: 0.8rem;
+        }
+
+        .team-list { display: flex; flex-direction: column; gap: 10px; }
+
+        .partner-item {
+            background: #1f2a48; padding: 15px; border-radius: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-left: 4px solid #00d2ff; transition: 0.3s;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .partner-info h4 { font-weight: 600; font-size: 0.95rem; color: #fff; margin-bottom: 3px; }
+        .partner-info p { font-size: 0.75rem; color: #888; }
+        
+        .partner-stats { text-align: right; }
+        .partner-earn { font-size: 0.9rem; color: #2ecc71; font-weight: bold; }
+        .partner-status { 
+            font-size: 0.65rem; padding: 3px 8px; border-radius: 10px;
+            display: inline-block; margin-top: 5px;
+        }
+        .status-active { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+        .status-inactive { background: rgba(149, 165, 166, 0.2); color: #95a5a6; }
+
+        .empty-state { text-align: center; color: #666; padding: 40px; }
+        .empty-state i { font-size: 3rem; margin-bottom: 10px; color: #333; }
+
+        /* Toast */
         .toast {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            background: #00d2ff; color: #000; padding: 10px 20px;
-            border-radius: 20px; font-weight: bold; display: none; z-index: 200;
+            background: #2ecc71; color: #000; padding: 12px 25px;
+            border-radius: 25px; font-weight: bold; display: none; z-index: 200;
+            box-shadow: 0 5px 20px rgba(46, 204, 113, 0.4);
+            animation: popUp 0.3s ease;
+        }
+        @keyframes popUp {
+            from { transform: translateX(-50%) translateY(20px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
         }
     </style>
 </head>
@@ -109,158 +195,270 @@
 
     <div class="header">
         <i class="fas fa-arrow-left back-btn" onclick="window.location.href='Home.html'"></i>
-        <div class="page-title">Refer & Earn</div>
+        <div class="page-title"><i class="fas fa-users"></i> Refer & Earn</div>
         <div style="width:20px;"></div>
     </div>
 
     <div class="container">
         
-        <div class="info-card">
-            <div class="info-text">
-                Earn <b>20% Commission</b> from every task your direct partners complete.
-            </div>
-
-            <!-- CODE -->
-            <div class="copy-group">
-                <span class="copy-label">Your Referral Code</span>
-                <div class="copy-box">
-                    <span class="copy-val" id="displayCode">...</span>
-                    <button class="btn-copy" onclick="copyText('code')">Copy</button>
-                </div>
-            </div>
-
-            <!-- LINK -->
-            <div class="copy-group">
-                <span class="copy-label">Your Referral Link</span>
-                <div class="copy-box">
-                    <span class="copy-val" id="displayLink">...</span>
-                    <button class="btn-copy" onclick="copyText('link')">Copy</button>
-                </div>
-            </div>
+        <!-- COMMISSION CARD - MAIN -->
+        <div class="commission-card">
+            <div class="comm-label"><i class="fas fa-wallet"></i> Total Commission Earned</div>
+            <div class="comm-amount" id="totalComm">$0.00</div>
+            <div class="comm-rate"><i class="fas fa-percentage"></i> 20% Every Referral Task</div>
         </div>
 
-        <!-- STATS GRID -->
+        <!-- STATS -->
         <div class="stats-grid">
-            <!-- ডিরেক্ট পার্টনার (মেইন টপিক: ৩১ মেম্বার) -->
             <div class="stat-card">
                 <i class="fas fa-user-friends stat-icon"></i>
-                <div class="stat-num" id="partnerCount">0</div>
-                <div class="stat-lbl">DIRECT PARTNERS</div>
+                <div class="stat-num" id="directCount">0</div>
+                <div class="stat-lbl">Direct Partners</div>
             </div>
-
-            <!-- টোটাল টিম -->
+            
             <div class="stat-card">
-                <i class="fas fa-users stat-icon"></i>
-                <div class="stat-num" id="teamCount">0</div>
-                <div class="stat-lbl">TOTAL TEAM</div>
+                <i class="fas fa-network-wired stat-icon"></i>
+                <div class="stat-num" id="teamSize">0</div>
+                <div class="stat-lbl">Total Team</div>
             </div>
+        </div>
 
-            <!-- মেইন ইনকাম সেকশন (0.81 ডলার) -->
-            <div class="stat-card full-card">
-                <i class="fas fa-wallet stat-icon" style="font-size:2rem; margin-bottom:5px;"></i>
-                <div class="stat-num" style="font-size:1.8rem;">
-                    $<span id="totalComm">0.00</span>
+        <!-- COPY SECTION -->
+        <div class="info-card">
+            <div class="info-title"><i class="fas fa-link"></i> Your Referral Link</div>
+            
+            <div class="copy-group">
+                <span class="copy-label">Referral Code</span>
+                <div class="copy-box">
+                    <span class="copy-val" id="refCode">...</span>
+                    <button class="btn-copy" onclick="copyText('code', this)" title="Copy Code">
+                        <i class="fas fa-copy"></i>
+                    </button>
                 </div>
-                <div class="stat-lbl">LIFETIME COMMISSION EARNINGS</div>
+            </div>
+
+            <div class="copy-group">
+                <span class="copy-label">Full Link</span>
+                <div class="copy-box">
+                    <span class="copy-val" id="refLink">...</span>
+                    <button class="btn-copy" onclick="copyText('link', this)" title="Copy Link">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- LIST -->
-        <div class="list-header">
-            <i class="fas fa-list"></i> My Team Members
+        <!-- TEAM LIST -->
+        <div class="team-header">
+            <i class="fas fa-list"></i> My Team 
+            <span class="team-count" id="teamBadge">0</span>
         </div>
-        <div id="partnerList">
-            <p style="text-align:center; color:#666; font-size:0.8rem; padding:10px;">Checking database...</p>
+        
+        <div class="team-list" id="teamList">
+            <div class="empty-state">
+                <i class="fas fa-users-slash"></i>
+                <p>No referrals yet. Share your link!</p>
+            </div>
         </div>
 
     </div>
 
-    <div class="toast" id="toastMsg">Copied!</div>
+    <div class="toast" id="toastMsg"><i class="fas fa-check-circle"></i> Copied!</div>
 
     <script>
-        const baseURL = "https://task28.github.io/-/registration_login.html"; 
+        const BASE_URL = window.location.origin + "/registration_login.html";
+        let currentUser = null;
+        let previousCommission = 0;
+        let teamMembers = [];
 
         auth.onAuthStateChanged(user => {
             if(user) {
-                // ১. ইউজার ডাটা এবং ইনকাম লোড করা (Real DB Value)
-                db.ref('users/' + user.uid).on('value', snap => {
-                    const data = snap.val();
-                    if(data) {
-                        // রেফার কোড এবং লিংক
-                        const myRefCode = data.myRefCode || "N/A";
-                        document.getElementById('displayCode').innerText = myRefCode;
-                        document.getElementById('displayLink').innerText = `${baseURL}?ref=${myRefCode}`;
-
-                        // টোটাল টিম সংখ্যা (ডাটাবেস থেকে যা আছে তাই)
-                        document.getElementById('teamCount').innerText = data.teamCount || 0;
-
-                        // *** আসল ইনকাম শো করার লজিক (0.81) ***
-                        // ডাটাবেসে 'totalCommission' নামে যদি 0.81 থাকে, সেটাই এখানে দেখাবে।
-                        let commission = parseFloat(data.totalCommission);
-                        
-                        // যদি ডাটাবেসে ভ্যালু না থাকে বা ভুল থাকে তবে 0 দেখাবে
-                        if(isNaN(commission)) commission = 0;
-                        
-                        document.getElementById('totalComm').innerText = commission.toFixed(2);
-
-                        // ২. ৩১ জন মেম্বার লোড করা
-                        loadMyTeam(myRefCode);
-                    }
-                });
+                currentUser = user;
+                loadUserData(user.uid);
             } else {
                 window.location.href = "registration_login.html";
             }
         });
 
-        function loadMyTeam(code) {
-            // ডাটাবেস থেকে ঠিক সেই ইউজারদের আনবে যারা আপনার কোড ব্যবহার করেছে
-            db.ref('users').orderByChild('referredBy').equalTo(code).on('value', snap => {
-                const list = document.getElementById('partnerList');
-                const countElem = document.getElementById('partnerCount'); // Direct Partners Count
+        function loadUserData(uid) {
+            // 1. Load Main User Data & Real-time Commission
+            db.ref('users/' + uid).on('value', snap => {
+                const data = snap.val();
+                if(!data) return;
+
+                // Set Referral Info
+                const myCode = data.myRefCode || "N/A";
+                const fullLink = `${BASE_URL}?ref=${myCode}`;
                 
-                list.innerHTML = ""; // আগের লিস্ট ক্লিয়ার
+                document.getElementById('refCode').innerText = myCode;
+                document.getElementById('refLink').innerText = fullLink;
+                document.getElementById('teamSize').innerText = data.teamCount || 0;
+
+                // 2. Calculate TOTAL COMMISSION PROPERLY
+                // Method: Read from history where type='commission' (Most Accurate)
+                calculateRealCommission(uid);
+                
+                // Backup: If totalCommission field exists, show it with animation
+                const currentComm = parseFloat(data.totalCommission || data.commissionBalance || 0);
+                if(currentComm > previousCommission && previousCommission > 0) {
+                    animateCommission(currentComm);
+                } else {
+                    updateCommissionDisplay(currentComm);
+                }
+                previousCommission = currentComm;
+            });
+
+            // 2. Load Direct Partners & Their Earnings
+            loadTeamMembers(uid);
+        }
+
+        // REAL COMMISSION CALCULATION FROM HISTORY
+        function calculateRealCommission(uid) {
+            db.ref('history/' + uid).orderByChild('type').equalTo('commission').on('value', snap => {
+                let total = 0;
+                let count = 0;
                 
                 if(snap.exists()) {
-                    // মেম্বার সংখ্যা আপডেট (Real Count from DB)
-                    const totalMembers = snap.numChildren();
-                    countElem.innerText = totalMembers;
-
-                    // লিস্ট বানানো
                     snap.forEach(child => {
-                        const u = child.val();
-                        const isActive = u.activePlan ? true : false;
-                        
-                        list.innerHTML += `
-                            <div class="partner-item">
-                                <div>
-                                    <div class="p-name">${u.name || 'Unknown User'}</div>
-                                    <div class="p-date">Joined: ${u.regDate || 'N/A'}</div>
-                                </div>
-                                <div style="font-size:0.7rem; color:${isActive ? '#2ecc71' : '#888'}; font-weight:bold;">
-                                    ${isActive ? 'Premium' : 'Free'}
-                                </div>
-                            </div>
-                        `;
+                        const item = child.val();
+                        total += parseFloat(item.amount || 0);
+                        count++;
                     });
-                } else {
-                    countElem.innerText = "0";
-                    list.innerHTML = "<p style='text-align:center; color:#666; padding:20px;'>No team members found.</p>";
+                }
+                
+                // Update display with calculated value (more accurate)
+                if(total > 0) {
+                    updateCommissionDisplay(total);
+                    // Also update the field in database for backup
+                    db.ref('users/' + uid).update({ totalCommission: total });
                 }
             });
         }
 
-        // কপি ফাংশন
-        function copyText(type) {
-            let txt = "";
-            if(type === 'code') txt = document.getElementById('displayCode').innerText;
-            else txt = document.getElementById('displayLink').innerText;
+        function updateCommissionDisplay(amount) {
+            const el = document.getElementById('totalComm');
+            el.innerText = '$' + amount.toFixed(2);
+        }
 
-            if(txt !== "..." && txt !== "N/A") {
-                navigator.clipboard.writeText(txt);
-                const t = document.getElementById('toastMsg');
-                t.style.display = 'block';
-                setTimeout(() => t.style.display = 'none', 2000);
+        function animateCommission(newAmount) {
+            const el = document.getElementById('totalComm');
+            el.classList.add('update');
+            
+            // Count up animation
+            const start = previousCommission;
+            const duration = 1000;
+            const startTime = performance.now();
+            
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const ease = 1 - Math.pow(1 - progress, 3);
+                const current = start + (newAmount - start) * ease;
+                
+                el.innerText = '$' + current.toFixed(2);
+                
+                if(progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    el.innerText = '$' + newAmount.toFixed(2);
+                    setTimeout(() => el.classList.remove('update'), 1000);
+                }
             }
+            
+            requestAnimationFrame(update);
+        }
+
+        function loadTeamMembers(uid) {
+            db.ref('users/' + uid + '/myRefCode').once('value').then(codeSnap => {
+                const myRefCode = codeSnap.val();
+                if(!myRefCode) return;
+
+                // Listen for referrals in real-time
+                db.ref('users').orderByChild('referredBy').equalTo(myRefCode).on('value', snap => {
+                    const list = document.getElementById('teamList');
+                    const countBadge = document.getElementById('teamBadge');
+                    const directCount = document.getElementById('directCount');
+                    
+                    list.innerHTML = '';
+                    
+                    if(!snap.exists()) {
+                        list.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-users-slash"></i>
+                                <p>No referrals yet. Share your link!</p>
+                            </div>`;
+                        countBadge.innerText = '0';
+                        directCount.innerText = '0';
+                        return;
+                    }
+
+                    const members = [];
+                    snap.forEach(child => {
+                        members.push({ key: child.key, ...child.val() });
+                    });
+
+                    // Update counts
+                    countBadge.innerText = members.length;
+                    directCount.innerText = members.length;
+
+                    // Sort by registration date (newest first)
+                    members.reverse();
+
+                    // Render list
+                    members.forEach(member => {
+                        // Calculate how much this member earned you
+                        const memberEarned = (member.totalTasksDone || 0) * 0.20; // Assuming $0.20 per task commission
+                        
+                        const div = document.createElement('div');
+                        div.className = 'partner-item';
+                        div.innerHTML = `
+                            <div class="partner-info">
+                                <h4>${member.name || 'Unknown'}</h4>
+                                <p>Joined: ${member.regDate || 'N/A'}</p>
+                            </div>
+                            <div class="partner-stats">
+                                <div class="partner-earn">+$${memberEarned.toFixed(2)}</div>
+                                <span class="partner-status ${member.plan === 'premium' ? 'status-active' : 'status-inactive'}">
+                                    ${member.plan === 'premium' ? 'Premium' : 'Free'}
+                                </span>
+                            </div>
+                        `;
+                        list.appendChild(div);
+                    });
+                });
+            });
+        }
+
+        // Copy Function
+        function copyText(type, btn) {
+            let text = '';
+            if(type === 'code') text = document.getElementById('refCode').innerText;
+            else text = document.getElementById('refLink').innerText;
+
+            if(text && text !== '...') {
+                navigator.clipboard.writeText(text).then(() => {
+                    // Visual feedback
+                    const icon = btn.querySelector('i');
+                    icon.classList.remove('fa-copy');
+                    icon.classList.add('fa-check');
+                    btn.classList.add('copied');
+                    
+                    showToast('Copied to clipboard!');
+                    
+                    setTimeout(() => {
+                        icon.classList.remove('fa-check');
+                        icon.classList.add('fa-copy');
+                        btn.classList.remove('copied');
+                    }, 2000);
+                });
+            }
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toastMsg');
+            t.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 2000);
         }
     </script>
 </body>
