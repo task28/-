@@ -7,7 +7,7 @@
 
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -35,7 +35,7 @@
         body {
             background: linear-gradient(135deg, #1c1c1c, #2a2a72, #009ffd);
             background-size: 300% 300%;
-            animation: gradientBG 10s ease infinite;
+            animation: gradientBG 15s ease infinite;
             display: flex; justify-content: center; align-items: center;
             font-family: 'Poppins', sans-serif; min-height: 100vh; color: #fff;
             padding: 20px;
@@ -78,15 +78,59 @@
 
         h2 { text-align: center; margin-bottom: 25px; color: #fff; letter-spacing: 1px; }
 
-        .input-group { position: relative; margin-bottom: 15px; }
-        input {
-            width: 100%; padding: 12px 15px;
-            background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px; color: #fff; font-size: 0.95rem; outline: none; transition: 0.3s;
+        .input-group { 
+            position: relative; 
+            margin-bottom: 15px; 
         }
-        input:focus { background: rgba(255,255,255,0.12); border-color: #00d2ff; box-shadow: 0 0 8px rgba(0, 210, 255, 0.3); }
+        
+        /* Left Icon (Lock/User/Email) */
+        .input-group .left-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+        
+        /* Right Icon (Eye) */
+        .input-group .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.3s;
+            z-index: 2;
+        }
+        .input-group .toggle-password:hover { color: #00d2ff; }
+        
+        input {
+            width: 100%; 
+            padding: 12px 40px; /* Left 40px for lock, Right 40px for eye */
+            background: rgba(255,255,255,0.07); 
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; 
+            color: #fff; 
+            font-size: 0.95rem; 
+            outline: none; 
+            transition: 0.3s;
+        }
+        input:focus { 
+            background: rgba(255,255,255,0.12); 
+            border-color: #00d2ff; 
+            box-shadow: 0 0 8px rgba(0, 210, 255, 0.3); 
+        }
         input::placeholder { color: #bbb; }
-        input[readonly] { background: rgba(46, 204, 113, 0.15); border-color: #2ecc71; color: #2ecc71; font-weight: bold; }
+        input[readonly] { 
+            background: rgba(46, 204, 113, 0.15); 
+            border-color: #2ecc71; 
+            color: #2ecc71; 
+            font-weight: bold; 
+        }
 
         .btn-main {
             width: 100%; padding: 14px; margin-top: 15px;
@@ -94,8 +138,11 @@
             background: linear-gradient(90deg, #00d2ff, #3a7bd5);
             color: white; font-size: 1rem; font-weight: 700; cursor: pointer;
             box-shadow: 0 5px 15px rgba(0, 210, 255, 0.3); transition: 0.3s; text-transform: uppercase;
+            position: relative; overflow: hidden;
         }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 210, 255, 0.4); }
         .btn-main:active { transform: scale(0.98); }
+        .btn-main:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
         .social-container { text-align: center; margin: 20px 0; }
         .social-container a {
@@ -103,11 +150,50 @@
             width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.1);
             color: #fff; margin: 0 5px; text-decoration: none; transition: 0.3s;
         }
-        .social-container a:hover { background: #fff; color: #333; }
+        .social-container a:hover { background: #fff; color: #333; transform: translateY(-3px); }
 
-        .forgot-pass { display: block; text-align: right; font-size: 0.8rem; color: #ccc; margin-top: 10px; text-decoration: none; }
-        .msg-box { background: rgba(255, 77, 77, 0.2); color: #ff9999; padding: 10px; border-radius: 5px; text-align: center; margin-top: 15px; font-size: 0.85rem; display: none; border: 1px solid rgba(255, 77, 77, 0.3); }
+        .forgot-pass { 
+            display: block; 
+            text-align: right; 
+            font-size: 0.8rem; 
+            color: #ccc; 
+            margin-top: 10px; 
+            text-decoration: none; 
+            transition: 0.3s; 
+        }
+        .forgot-pass:hover { color: #00d2ff; }
+        
+        .msg-box { 
+            background: rgba(255, 77, 77, 0.2); 
+            color: #ff9999; 
+            padding: 12px; 
+            border-radius: 5px; 
+            text-align: center; 
+            margin-top: 15px; 
+            font-size: 0.85rem; 
+            display: none; 
+            border: 1px solid rgba(255, 77, 77, 0.3); 
+            animation: shake 0.5s;
+        }
+        .msg-box.success { 
+            background: rgba(46, 204, 113, 0.2); 
+            color: #2ecc71; 
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
 
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block; width: 20px; height: 20px;
+            border: 3px solid rgba(255,255,255,.3); border-radius: 50%;
+            border-top-color: #fff; animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -125,15 +211,23 @@
             <div id="signin" class="form-box active">
                 <h2>Welcome Back</h2>
                 <div class="social-container">
-                    <a href="#"><i class="fab fa-google"></i></a>
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" onclick="socialLogin('google')"><i class="fab fa-google"></i></a>
+                    <a href="#" onclick="socialLogin('facebook')"><i class="fab fa-facebook-f"></i></a>
                 </div>
                 
-                <div class="input-group"><input type="email" id="l_email" placeholder="Email Address" /></div>
-                <div class="input-group"><input type="password" id="l_pass" placeholder="Password" /></div>
+                <div class="input-group">
+                    <i class="fas fa-envelope left-icon"></i>
+                    <input type="email" id="l_email" placeholder="Email Address" autocomplete="email"/>
+                </div>
                 
-                <a href="#" class="forgot-pass">Forgot Password?</a>
-                <button class="btn-main" onclick="handleLogin(this)">Log In</button>
+                <div class="input-group">
+                    <i class="fas fa-lock left-icon"></i>
+                    <input type="password" id="l_pass" placeholder="Password" autocomplete="current-password"/>
+                    <i class="fas fa-eye toggle-password" onclick="togglePassword('l_pass', this)"></i>
+                </div>
+                
+                <a href="#" class="forgot-pass" onclick="resetPassword()">Forgot Password?</a>
+                <button class="btn-main" id="loginBtn" onclick="handleLogin(this)">Log In</button>
                 <div id="loginMsg" class="msg-box">Error Message</div>
             </div>
 
@@ -141,13 +235,34 @@
             <div id="signup" class="form-box">
                 <h2>Create Account</h2>
                 
-                <div class="input-group"><input type="text" id="r_name" placeholder="Full Name" /></div>
-                <div class="input-group"><input type="email" id="r_email" placeholder="Email Address" /></div>
-                <div class="input-group"><input type="password" id="r_pass" placeholder="Password (Min 6 chars)" /></div>
-                <div class="input-group"><input type="password" id="r_passConfirm" placeholder="Confirm Password" /></div>
-                <div class="input-group"><input type="text" id="r_refCode" placeholder="Referral Code (Required)" /></div>
+                <div class="input-group">
+                    <i class="fas fa-user left-icon"></i>
+                    <input type="text" id="r_name" placeholder="Full Name" autocomplete="name"/>
+                </div>
+                
+                <div class="input-group">
+                    <i class="fas fa-envelope left-icon"></i>
+                    <input type="email" id="r_email" placeholder="Email Address" autocomplete="email"/>
+                </div>
+                
+                <div class="input-group">
+                    <i class="fas fa-lock left-icon"></i>
+                    <input type="password" id="r_pass" placeholder="Password (Min 6 chars)" autocomplete="new-password"/>
+                    <i class="fas fa-eye toggle-password" onclick="togglePassword('r_pass', this)"></i>
+                </div>
+                
+                <div class="input-group">
+                    <i class="fas fa-lock left-icon"></i>
+                    <input type="password" id="r_passConfirm" placeholder="Confirm Password" autocomplete="new-password"/>
+                    <i class="fas fa-eye toggle-password" onclick="togglePassword('r_passConfirm', this)"></i>
+                </div>
+                
+                <div class="input-group">
+                    <i class="fas fa-gift left-icon"></i>
+                    <input type="text" id="r_refCode" placeholder="Referral Code (Required)" autocomplete="off"/>
+                </div>
 
-                <button class="btn-main" onclick="handleRegister(this)">Register</button>
+                <button class="btn-main" id="regBtn" onclick="handleRegister(this)">Register</button>
                 <div id="regMsg" class="msg-box">Error Message</div>
             </div>
         </div>
@@ -160,6 +275,10 @@
             document.querySelectorAll('.tab-btn').forEach(e => e.classList.remove('active'));
             document.getElementById(tabName).classList.add('active');
             document.getElementById('tab-' + tabName).classList.add('active');
+            
+            // Clear messages when switching tabs
+            hideMsg('loginMsg');
+            hideMsg('regMsg');
         }
 
         window.onload = function() {
@@ -168,80 +287,173 @@
             if(ref) {
                 openTab('signup');
                 const refInput = document.getElementById('r_refCode');
-                refInput.value = ref;
+                refInput.value = ref.toUpperCase();
                 refInput.readOnly = true; 
             }
+            
+            // Check if already logged in
+            auth.onAuthStateChanged(user => {
+                if(user) {
+                    if(user.email === "rafsanvai388@gmail.com") {
+                        window.location.href = "Admin_home.html";
+                    } else {
+                        window.location.href = "Home.html";
+                    }
+                }
+            });
         };
 
-        // --- REGISTER WITH RECURSIVE TEAM UPDATE ---
+        // --- PASSWORD TOGGLE (Show/Hide) ---
+        function togglePassword(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if(input.type === "password") {
+                input.type = "text";
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = "password";
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // --- MESSAGE HELPERS ---
+        function showError(elId, msg) {
+            const el = document.getElementById(elId);
+            el.innerText = msg;
+            el.classList.remove('success');
+            el.style.display = 'block';
+            setTimeout(() => hideMsg(elId), 5000);
+        }
+        
+        function showSuccess(elId, msg) {
+            const el = document.getElementById(elId);
+            el.innerText = msg;
+            el.classList.add('success');
+            el.style.display = 'block';
+        }
+        
+        function hideMsg(elId) {
+            document.getElementById(elId).style.display = 'none';
+        }
+
+        function setLoading(btn, isLoading, defaultText) {
+            if(isLoading) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner"></span> Processing...';
+            } else {
+                btn.disabled = false;
+                btn.innerText = defaultText;
+            }
+        }
+
+        // --- REGISTER ---
         function handleRegister(btn) {
-            const name = document.getElementById('r_name').value;
-            const email = document.getElementById('r_email').value;
+            const name = document.getElementById('r_name').value.trim();
+            const email = document.getElementById('r_email').value.trim();
             const pass = document.getElementById('r_pass').value;
             const confirmPass = document.getElementById('r_passConfirm').value;
-            const refCode = document.getElementById('r_refCode').value.trim();
-            const msgBox = document.getElementById('regMsg');
+            const refCode = document.getElementById('r_refCode').value.trim().toUpperCase();
 
+            // Validation
             if(!name || !email || !pass || !confirmPass || !refCode) {
-                showError(msgBox, "All fields are required."); return;
+                showError('regMsg', "All fields are required."); return;
+            }
+            if(name.length < 2) {
+                showError('regMsg', "Please enter a valid name."); return;
             }
             if(pass.length < 6) {
-                showError(msgBox, "Password must be at least 6 characters."); return;
+                showError('regMsg', "Password must be at least 6 characters."); return;
             }
             if(pass !== confirmPass) {
-                showError(msgBox, "Passwords do not match!"); return;
+                showError('regMsg', "Passwords do not match!"); return;
+            }
+            if(!validateEmail(email)) {
+                showError('regMsg', "Please enter a valid email address."); return;
             }
 
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-            btn.style.opacity = "0.7";
+            setLoading(btn, true, "Register");
 
-            // 1. Verify Referrer Code
-            db.ref('users').orderByChild('myRefCode').equalTo(refCode).once('value', snapshot => {
+            // 1. Verify Referrer Code Exists
+            db.ref('users').orderByChild('myRefCode').equalTo(refCode).once('value')
+            .then(snapshot => {
                 if(!snapshot.exists()) {
-                    showError(msgBox, "Invalid Referral Code!");
-                    resetBtn(btn, "Register");
+                    showError('regMsg', "Invalid Referral Code! Please check and try again.");
+                    setLoading(btn, false, "Register");
                     return;
                 }
 
+                // Get referrer UID
+                let referrerUid = null;
+                snapshot.forEach(child => { referrerUid = child.key; });
+
                 // 2. Create Auth User
-                auth.createUserWithEmailAndPassword(email, pass).then((cred) => {
-                    const uid = cred.user.uid;
-                    const myCode = "TASK" + Math.floor(100000 + Math.random() * 900000);
-                    const today = new Date().toLocaleDateString('en-CA');
+                return auth.createUserWithEmailAndPassword(email, pass);
+            })
+            .then((cred) => {
+                if(!cred) return; 
+                
+                const uid = cred.user.uid;
+                const myCode = generateRefCode();
+                const today = new Date().toISOString().split('T')[0];
 
-                    const userData = {
-                        name: name, email: email, password: pass, uid: uid,
-                        balance: 0, credits: 2, 
-                        todayProfit: 0, totalProfit: 0, 
-                        teamCount: 0, partnerCount: 0, 
-                        regDate: today, myRefCode: myCode, 
-                        referredBy: refCode, plan: "free"
-                    };
+                const userData = {
+                    name: name, 
+                    email: email, 
+                    uid: uid,
+                    balance: 0.00, 
+                    credits: 2, 
+                    todayProfit: 0.00, 
+                    totalProfit: 0.00, 
+                    totalEarnings: 0.00,
+                    teamCount: 0, 
+                    partnerCount: 0, 
+                    regDate: today, 
+                    myRefCode: myCode, 
+                    referredBy: refCode,
+                    referredByUid: referrerUid,
+                    plan: "free",
+                    status: "active",
+                    createdAt: firebase.database.ServerValue.TIMESTAMP
+                };
 
-                    // 3. Save User & Update Uplines
-                    db.ref('users/' + uid).set(userData).then(() => {
-                        updateUplineCounts(refCode); // RECURSIVE UPDATE CALL
-                        
-                        alert("Account Created Successfully!");
-                        window.location.href = "Home.html";
-                    });
-
-                }).catch(err => {
-                    showError(msgBox, err.message);
-                    resetBtn(btn, "Register");
-                });
+                // 3. Save User Data (Password NOT stored)
+                return db.ref('users/' + uid).set(userData);
+            })
+            .then(() => {
+                // 4. Update Upline Team Counts
+                return updateUplineCounts(refCode);
+            })
+            .then(() => {
+                showSuccess('regMsg', "Account Created Successfully! Redirecting...");
+                setTimeout(() => {
+                    window.location.href = "Home.html";
+                }, 1500);
+            })
+            .catch(err => {
+                console.error(err);
+                let errorMsg = err.message;
+                if(err.code === 'auth/email-already-in-use') errorMsg = "Email already registered. Please login.";
+                if(err.code === 'auth/invalid-email') errorMsg = "Invalid email format.";
+                if(err.code === 'auth/weak-password') errorMsg = "Password is too weak.";
+                
+                showError('regMsg', errorMsg);
+                setLoading(btn, false, "Register");
             });
         }
 
-        // --- RECURSIVE FUNCTION (User A <- User B <- User C) ---
+        // --- RECURSIVE TEAM COUNT UPDATE ---
         async function updateUplineCounts(startRefCode) {
             let currentCode = startRefCode;
-            let loopLimit = 50; // Safety limit
+            let loopLimit = 20;
+            const updates = {};
 
             while (currentCode && currentCode !== "Admin" && loopLimit > 0) {
-                const snapshot = await db.ref('users').orderByChild('myRefCode').equalTo(currentCode).once('value');
-                
-                if (snapshot.exists()) {
+                try {
+                    const snapshot = await db.ref('users').orderByChild('myRefCode').equalTo(currentCode).once('value');
+                    
+                    if (!snapshot.exists()) break;
+                    
                     let uplineUid = null;
                     let uplineData = null;
 
@@ -251,47 +463,95 @@
                     });
 
                     if (uplineUid) {
-                        // Increase Team Count
                         const newTeamCount = (uplineData.teamCount || 0) + 1;
-                        await db.ref('users/' + uplineUid).update({ teamCount: newTeamCount });
-
-                        // Move Up
+                        updates[`users/${uplineUid}/teamCount`] = newTeamCount;
                         currentCode = uplineData.referredBy;
                         loopLimit--;
                     } else {
                         break;
                     }
-                } else {
+                } catch (error) {
+                    console.error("Upline update error:", error);
                     break;
                 }
+            }
+            
+            if(Object.keys(updates).length > 0) {
+                await db.ref().update(updates);
             }
         }
 
         // --- LOGIN LOGIC ---
         function handleLogin(btn) {
-            const email = document.getElementById('l_email').value;
+            const email = document.getElementById('l_email').value.trim();
             const pass = document.getElementById('l_pass').value;
-            const msgBox = document.getElementById('loginMsg');
 
-            if(!email || !pass) { showError(msgBox, "Please fill all fields."); return; }
+            if(!email || !pass) { 
+                showError('loginMsg', "Please fill all fields."); return; 
+            }
 
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
-            btn.style.opacity = "0.7";
+            setLoading(btn, true, "Log In");
 
             auth.signInWithEmailAndPassword(email, pass)
-                .then(() => {
-                    if(email === "rafsanvai388@gmail.com") window.location.href = "Admin_home.html";
-                    else window.location.href = "Home.html";
-                })
-                .catch((error) => {
-                    showError(msgBox, "Invalid Email or Password");
-                    resetBtn(btn, "Log In");
+            .then((userCredential) => {
+                const user = userCredential.user;
+                
+                // Check if account is banned
+                return db.ref('users/' + user.uid + '/status').once('value').then(snap => {
+                    if(snap.val() === 'banned') {
+                        throw new Error("Your account has been suspended. Contact support.");
+                    }
+                    return user;
                 });
+            })
+            .then((user) => {
+                if(email.toLowerCase() === "rafsanvai388@gmail.com") {
+                    window.location.href = "Admin_home.html";
+                } else {
+                    window.location.href = "Home.html";
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+                let msg = "Invalid Email or Password";
+                if(error.message.includes('suspended')) msg = error.message;
+                if(error.code === 'auth/user-not-found') msg = "Account not found. Please register.";
+                if(error.code === 'auth/too-many-requests') msg = "Too many attempts. Try again later.";
+                
+                showError('loginMsg', msg);
+                setLoading(btn, false, "Log In");
+            });
         }
 
-        function showError(el, msg) { el.innerText = msg; el.style.display = 'block'; }
-        function resetBtn(btn, txt) { btn.innerHTML = txt; btn.style.opacity = "1"; }
+        // --- PASSWORD RESET ---
+        function resetPassword() {
+            const email = document.getElementById('l_email').value.trim();
+            if(!email) {
+                showError('loginMsg', "Please enter your email address first.");
+                return;
+            }
+            
+            auth.sendPasswordResetEmail(email)
+            .then(() => {
+                showSuccess('loginMsg', "Password reset email sent! Check your inbox.");
+            })
+            .catch(err => {
+                showError('loginMsg', err.message);
+            });
+        }
 
+        // --- HELPERS ---
+        function generateRefCode() {
+            return "TASK" + Math.floor(100000 + Math.random() * 900000);
+        }
+
+        function validateEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function socialLogin(provider) {
+            alert("Social login coming soon!");
+        }
     </script>
 </body>
 </html>
