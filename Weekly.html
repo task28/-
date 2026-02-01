@@ -5,78 +5,257 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TASK28 - Weekly Target</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        const firebaseConfig = { apiKey: "AIzaSyDuxSz3j5xMYDw5U9kLA0cjkpOE82D06MI", authDomain: "part-1-f6d87.firebaseapp.com", databaseURL: "https://part-1-f6d87-default-rtdb.firebaseio.com", projectId: "part-1-f6d87", storageBucket: "part-1-f6d87.firebasestorage.app", messagingSenderId: "682699403122", appId: "1:682699403122:web:038ffca84d489a6c0db7eb" };
+        const firebaseConfig = { 
+            apiKey: "AIzaSyDuxSz3j5xMYDw5U9kLA0cjkpOE82D06MI", 
+            authDomain: "part-1-f6d87.firebaseapp.com", 
+            databaseURL: "https://part-1-f6d87-default-rtdb.firebaseio.com", 
+            projectId: "part-1-f6d87", 
+            storageBucket: "part-1-f6d87.firebasestorage.app", 
+            messagingSenderId: "682699403122", 
+            appId: "1:682699403122:web:038ffca84d489a6c0db7eb" 
+        };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
     </script>
 
     <style>
-        body { background: #050505; color: #fff; font-family: 'Montserrat', sans-serif; padding-bottom: 60px; }
-        .header { padding: 20px; display: flex; justify-content: space-between; background: rgba(10,10,10,0.9); border-bottom: 1px solid rgba(212,175,55,0.2); position: sticky; top: 0; z-index: 100; }
-        .page-title { color: #d4af37; font-weight: 800; font-size: 1.1rem; }
+        body { 
+            background: linear-gradient(135deg, #0a0a0a 0%, #0f2027 100%); 
+            color: #fff; 
+            font-family: 'Montserrat', sans-serif; 
+            padding-bottom: 60px; 
+            min-height: 100vh;
+        }
         
-        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+        .header { 
+            padding: 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            background: rgba(10,10,10,0.95); 
+            border-bottom: 2px solid rgba(0,210,255,0.5); 
+            position: sticky; 
+            top: 0; 
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
         
-        .credit-bal { text-align: center; margin-bottom: 20px; background: #111; padding: 10px; border-radius: 10px; border: 1px solid #333; }
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .back-btn:hover { 
+            background: #00d2ff; 
+            color: #000; 
+            transform: translateX(-3px);
+        }
+        
+        .page-title { 
+            color: #00d2ff; 
+            font-weight: 800; 
+            font-size: 1.2rem;
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 10px rgba(0,210,255,0.3);
+        }
+        
+        .container { 
+            padding: 20px; 
+            max-width: 600px; 
+            margin: 0 auto; 
+        }
+        
+        .credit-bal { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            background: linear-gradient(145deg, #1a1a1a, #111); 
+            padding: 15px; 
+            border-radius: 50px; 
+            border: 1px solid rgba(0,210,255,0.3);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .credit-bal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,210,255,0.2), transparent);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
         
         .plan-card { 
-            background: linear-gradient(145deg, #111, #0a0a0a); 
-            padding: 20px; border-radius: 15px; margin-bottom: 15px;
-            border: 1px solid #333; position: relative; overflow: hidden;
+            background: linear-gradient(145deg, #1a1a1a, #0f0f0f); 
+            padding: 25px; 
+            border-radius: 20px; 
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1); 
+            position: relative; 
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: all 0.3s;
         }
-        .p-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .p-name { font-size: 1.2rem; font-weight: 800; color: #fff; }
-        .p-reward { color: #2ecc71; font-weight: bold; font-size: 1.1rem; }
         
-        .p-req { font-size: 0.85rem; color: #aaa; margin-bottom: 15px; line-height: 1.6; }
-        .hl { color: #d4af37; font-weight: bold; }
+        .plan-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0,210,255,0.3);
+            box-shadow: 0 15px 40px rgba(0,210,255,0.1);
+        }
+        
+        .plan-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00d2ff, transparent);
+            opacity: 0.5;
+        }
+        
+        .p-head { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 15px; 
+        }
+        
+        .p-name { 
+            font-size: 1.3rem; 
+            font-weight: 800; 
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .p-reward { 
+            color: #2ecc71; 
+            font-weight: bold; 
+            font-size: 1.2rem;
+            text-shadow: 0 0 10px rgba(46,204,113,0.3);
+        }
+        
+        .p-req { 
+            font-size: 0.9rem; 
+            color: #aaa; 
+            margin-bottom: 20px; 
+            line-height: 1.6; 
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 3px solid #00d2ff;
+        }
+        
+        .hl { 
+            color: #00d2ff; 
+            font-weight: bold; 
+        }
 
         .buy-btn { 
-            width: 100%; padding: 12px; background: #d4af37; color: #000; 
-            border: none; border-radius: 8px; font-weight: bold; cursor: pointer; 
-            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; 
+            padding: 15px; 
+            background: linear-gradient(135deg, #00d2ff, #3a7bd5); 
+            color: #000; 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: 800; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        .buy-btn:hover { background: #fff; }
+        
+        .buy-btn:hover { 
+            background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+            transform: scale(1.02);
+            box-shadow: 0 5px 20px rgba(0,210,255,0.4);
+        }
+        
+        .buy-btn:active {
+            transform: scale(0.98);
+        }
+
+        .telegram-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(0,136,204,0.2);
+            color: #00d2ff;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-top: 10px;
+            border: 1px solid rgba(0,136,204,0.3);
+        }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <i class="fas fa-chevron-left" onclick="window.location.href='Home.html'" style="cursor:pointer; color:#fff;"></i>
+        <button class="back-btn" onclick="window.location.href='Home.html'">
+            <i class="fas fa-chevron-left"></i>
+        </button>
         <div class="page-title">WEEKLY TARGETS</div>
-        <div></div>
+        <div style="width:40px;"></div>
     </div>
 
     <div class="container">
         <div class="credit-bal">
-            My Credits: <span id="myCredits" style="color:#d4af37; font-weight:bold;">Loading...</span>
+            <i class="fas fa-coins" style="color:#00d2ff; margin-right:8px;"></i>
+            My Credits: <span id="myCredits" style="color:#00d2ff; font-weight:bold;">Loading...</span>
         </div>
 
         <div id="planList">
-            <div style="text-align:center; color:#666;">Loading Plans...</div>
+            <div style="text-align:center; color:#666; padding:20px;">
+                <i class="fas fa-circle-notch fa-spin" style="font-size:2rem; margin-bottom:10px; color:#00d2ff;"></i><br>
+                Loading Plans...
+            </div>
         </div>
     </div>
 
     <script>
-        const ADMIN_TELEGRAM = "RAFSAN_ART_CREATOR"; 
+        const ADMIN_TELEGRAM = "TASK28_ADMIN"; 
         let userCredits = 0;
         let myData = {};
 
         auth.onAuthStateChanged(user => {
             if(user) {
                 db.ref('users/' + user.uid).on('value', snap => {
-                    myData = snap.val();
-                    userCredits = myData.credits || 0;
-                    document.getElementById('myCredits').innerText = userCredits;
-                    loadPlans();
+                    if(snap.exists()) {
+                        myData = snap.val();
+                        userCredits = myData.credits || 0;
+                        document.getElementById('myCredits').innerText = userCredits;
+                        loadPlans();
+                    }
                 });
             } else {
                 window.location.href = 'registration_login.html';
@@ -89,7 +268,8 @@
                 list.innerHTML = "";
                 
                 if(!snap.exists()) {
-                    list.innerHTML = "<p style='text-align:center'>No plans available.</p>"; return;
+                    list.innerHTML = "<p style='text-align:center; color:#666; padding:20px;'>No plans available.</p>"; 
+                    return;
                 }
 
                 snap.forEach(child => {
@@ -97,17 +277,20 @@
                     const html = `
                         <div class="plan-card">
                             <div class="p-head">
-                                <div class="p-name">${p.name}</div>
-                                <div class="p-reward">Win $${p.reward}</div>
+                                <div class="p-name"><i class="fas fa-bolt" style="color:#00d2ff; margin-right:8px;"></i>${p.name}</div>
+                                <div class="p-reward">$${p.reward}</div>
                             </div>
                             <div class="p-req">
-                                • Referrals Needed: <span class="hl">${p.targetRef}</span><br>
-                                • Downline Tasks: <span class="hl">${p.targetTask}</span><br>
-                                • Duration: <span class="hl">${p.duration} Days</span>
+                                <i class="fas fa-users" style="color:#00d2ff; margin-right:5px;"></i> Referrals Needed: <span class="hl">${p.targetRef}</span><br>
+                                <i class="fas fa-tasks" style="color:#00d2ff; margin-right:5px;"></i> Downline Tasks: <span class="hl">${p.targetTask}</span><br>
+                                <i class="fas fa-clock" style="color:#00d2ff; margin-right:5px;"></i> Duration: <span class="hl">${p.duration} Days</span>
                             </div>
                             <button class="buy-btn" onclick="buyPlan('${p.name}', ${p.cost}, ${p.reward}, ${p.targetRef}, ${p.targetTask})">
-                                UNLOCK FOR ${p.cost} CREDITS <i class="fab fa-telegram"></i>
+                                <i class="fab fa-telegram"></i> UNLOCK FOR ${p.cost} CREDITS
                             </button>
+                            <div class="telegram-badge">
+                                <i class="fas fa-check-circle"></i> Contact: @${ADMIN_TELEGRAM}
+                            </div>
                         </div>
                     `;
                     list.innerHTML += html;
@@ -117,15 +300,14 @@
 
         function buyPlan(name, cost, reward, ref, task) {
             if(userCredits < cost) {
-                alert("Insufficient Credits! You need " + cost + " credits."); return;
+                alert("Insufficient Credits! You need " + cost + " credits."); 
+                return;
             }
 
             if(confirm(`Spend ${cost} Credits to unlock ${name}?`)) {
-                // 1. Deduct Credit
                 db.ref('users/' + auth.currentUser.uid).update({
                     credits: userCredits - cost
                 }).then(() => {
-                    // 2. Open Telegram
                     openTelegram(name, cost, reward, ref, task);
                 });
             }
@@ -133,7 +315,7 @@
 
         function openTelegram(name, cost, reward, ref, task) {
             const text = `
-🎯 *TARGET PLAN REQUEST*
+🎯 *WEEKLY TARGET REQUEST*
 --------------------------
 👤 *User:* ${myData.name}
 📧 *Email:* ${myData.email}
