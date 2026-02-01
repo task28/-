@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TASK28 - Home</title>
+    <title>TASK28 - Dashboard</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -28,145 +30,561 @@
     </script>
 
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-gold: #ffd700;
+            --secondary-gold: #d4af37;
+            --accent-cyan: #00d4ff;
+            --accent-purple: #a855f7;
+            --bg-dark: #0a0a0f;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --border-glow: rgba(255, 215, 0, 0.2);
+        }
+
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
 
         body {
-            background-color: #050505; color: #fff;
-            font-family: 'Montserrat', sans-serif;
-            padding-bottom: 90px; overflow-x: hidden;
+            background: var(--bg-dark);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
         }
 
-        .bg-glow {
-            position: fixed; top: -20%; left: -20%; width: 140%; height: 140%;
-            background: radial-gradient(circle at 50% 20%, rgba(212, 175, 55, 0.1) 0%, transparent 60%);
-            z-index: -1; pointer-events: none;
+        /* Animated Background Mesh */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
+            filter: blur(80px);
+            z-index: -2;
+            animation: meshMove 20s ease infinite;
         }
 
+        @keyframes meshMove {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        /* Grid Overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Glass Header */
         .header {
-            padding: 20px; display: flex; align-items: center; justify-content: space-between;
-            background: rgba(10, 10, 10, 0.95);
-            position: sticky; top: 0; z-index: 100;
-            border-bottom: 1px solid #222;
+            padding: 20px;
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: sticky; 
+            top: 0; 
+            z-index: 100;
         }
-        .user-info h2 { font-size: 1.1rem; font-weight: 800; color: #fff; text-transform: uppercase; }
-        .user-info p { font-size: 0.7rem; color: #888; letter-spacing: 1px; margin-top: 2px; }
-        .user-info span { color: #d4af37; font-weight: bold; }
+        
+        .user-info h2 { 
+            font-size: 1.4rem; 
+            font-weight: 700; 
+            background: linear-gradient(135deg, #fff 0%, var(--secondary-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+        
+        .user-info p { 
+            font-size: 0.75rem; 
+            color: rgba(255,255,255,0.5); 
+            margin-top: 4px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .user-info span { 
+            color: var(--primary-gold);
+            font-weight: 700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
         
         .avatar {
-            width: 40px; height: 40px;
-            background: #d4af37; border-radius: 50%; 
-            display: flex; justify-content: center; align-items: center;
-            font-size: 1.2rem; color: #000;
+            width: 50px; 
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-gold), #ff6b6b); 
+            border-radius: 16px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            font-size: 1.4rem; 
+            color: #000;
+            box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .avatar::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s;
+        }
+        
+        .avatar:hover { 
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 12px 40px rgba(255, 215, 0, 0.4);
+        }
+        
+        .avatar:hover::before {
+            left: 100%;
         }
 
+        /* Premium Wallet Bar */
         .wallet-bar {
-            margin: 15px 20px 20px;
-            background: #111; border: 1px solid #333;
-            border-radius: 50px; padding: 10px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            margin: 24px 20px;
+            background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(0,212,255,0.05));
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glow);
+            border-radius: 24px; 
+            padding: 24px;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.4),
+                inset 0 1px 0 rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
         }
-        .wb-left { display: flex; align-items: center; gap: 8px; font-weight: bold; color: #d4af37; }
+        
+        .wallet-bar::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .wb-left { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            font-weight: 700; 
+            color: var(--primary-gold);
+            font-size: 1.2rem;
+            z-index: 1;
+        }
         
         .buy-btn {
-            background: #d4af37; color: #000; border: none; 
-            padding: 4px 12px; border-radius: 20px; 
-            font-size: 0.7rem; font-weight: 800; cursor: pointer; text-decoration: none;
-        }
-
-        .wb-right { text-align: right; }
-        .wb-label { font-size: 0.6rem; color: #666; display: block; }
-        .wb-balance { font-size: 0.9rem; font-weight: bold; color: #fff; font-family: 'Orbitron'; }
-
-        .stats-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-            padding: 0 20px; margin-bottom: 25px;
-        }
-        .stat-box {
-            background: #0f0f0f; border: 1px solid #222;
-            padding: 15px; border-radius: 12px; text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            position: relative; overflow: hidden;
-        }
-        .stat-box.profit-glow {
-            animation: profitPulse 0.6s ease;
-        }
-        @keyframes profitPulse {
-            0% { box-shadow: 0 0 0 rgba(46, 204, 113, 0); border-color: #222; }
-            50% { box-shadow: 0 0 20px rgba(46, 204, 113, 0.5); border-color: #2ecc71; transform: scale(1.02); }
-            100% { box-shadow: 0 4px 10px rgba(0,0,0,0.3); border-color: #222; }
+            background: linear-gradient(135deg, var(--primary-gold), var(--secondary-gold)); 
+            color: #000;
+            border: none;
+            padding: 8px 18px; 
+            border-radius: 20px; 
+            font-size: 0.75rem; 
+            font-weight: 800; 
+            cursor: pointer; 
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
-        .stat-val { font-family: 'Orbitron'; font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 5px; transition: 0.3s; }
-        .stat-val.update-flash { color: #2ecc71; text-shadow: 0 0 10px rgba(46, 204, 113, 0.8); }
-        .stat-lbl { font-size: 0.65rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
-
-        .val-profit { color: #2ecc71; }
-        .val-life { color: #d4af37; }
-
-        .banner-box {
-            width: calc(100% - 40px); margin: 0 auto 25px;
-            aspect-ratio: 16/7; background: #1a1a1a;
-            border-radius: 15px; overflow: hidden;
-            border: 1px solid #333; position: relative;
+        .buy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
         }
-        .banner-box img { width: 100%; height: 100%; object-fit: cover; }
+
+        .wb-right { 
+            text-align: right;
+            z-index: 1;
+        }
+        
+        .wb-label { 
+            font-size: 0.65rem; 
+            color: rgba(255,255,255,0.4); 
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        
+        .wb-balance { 
+            font-size: 1.5rem; 
+            font-weight: 800; 
+            color: #fff;
+            font-family: 'Space Grotesk', sans-serif;
+            text-shadow: 0 0 20px rgba(255,255,255,0.2);
+            letter-spacing: -0.5px;
+        }
+
+        /* Stats Grid - 3D Cards */
+        .stats-grid {
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 16px;
+            padding: 0 20px; 
+            margin-bottom: 28px;
+        }
+        
+        .stat-box {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px; 
+            padding: 24px 16px; 
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+        }
+        
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        }
+        
+        .stat-box:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: rgba(255,255,255,0.1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        
+        .stat-val { 
+            font-family: 'Space Grotesk', sans-serif; 
+            font-size: 1.6rem; 
+            font-weight: 700; 
+            color: #fff; 
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .stat-val::after {
+            content: '';
+            position: absolute;
+            bottom: -4px; left: 50%; transform: translateX(-50%);
+            width: 20px; height: 2px;
+            background: currentColor;
+            border-radius: 2px;
+            opacity: 0.5;
+        }
+        
+        .stat-lbl { 
+            font-size: 0.7rem; 
+            color: rgba(255,255,255,0.4); 
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+
+        .val-profit { 
+            color: #10b981;
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        }
+        .val-life { 
+            color: var(--primary-gold);
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+        }
+
+        /* Banner - Cinematic */
+        .banner-box {
+            width: calc(100% - 40px); 
+            margin: 0 auto 32px;
+            aspect-ratio: 16/7; 
+            background: #0f0f0f;
+            border-radius: 24px; 
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        
+        .banner-box::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.4));
+            pointer-events: none;
+        }
+        
+        .banner-box img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .banner-box:hover img { 
+            transform: scale(1.05); 
+        }
         
         .slider-btn {
-            position: absolute; top: 50%; transform: translateY(-50%);
-            background: rgba(0,0,0,0.5); color: #fff; border: none;
-            padding: 10px; cursor: pointer; font-size: 1.2rem; z-index: 10;
+            position: absolute; 
+            top: 50%; 
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.6); 
+            color: #fff; 
+            border: 1px solid rgba(255,255,255,0.1);
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            cursor: pointer; 
+            font-size: 1rem;
+            z-index: 10;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .prev-btn { left: 0; }
-        .next-btn { right: 0; }
+        
+        .slider-btn:hover { 
+            background: var(--primary-gold);
+            color: #000;
+            border-color: var(--primary-gold);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .prev-btn { left: 16px; }
+        .next-btn { right: 16px; }
 
-        .grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 20px; margin-bottom: 30px; }
+        /* Menu Grid - Glassmorphism Icons */
+        .grid-menu { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 16px; 
+            padding: 0 20px; 
+            margin-bottom: 32px; 
+        }
+        
         .menu-item {
-            background: #111; border: 1px solid #222;
-            border-radius: 15px; padding: 25px 15px; text-align: center; text-decoration: none;
-            color: #fff; transition: 0.2s;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px; 
+            padding: 28px 16px; 
+            text-align: center; 
+            text-decoration: none;
+            color: #fff; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
         }
-        .menu-item:hover { border-color: #d4af37; background: #161616; transform: translateY(-3px); }
-        .menu-item i { font-size: 1.5rem; color: #d4af37; margin-bottom: 12px; display: block; }
-        .menu-item span { font-size: 0.8rem; font-weight: 600; }
+        
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, rgba(255,215,0,0.15), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .menu-item:hover { 
+            border-color: rgba(255, 215, 0, 0.3); 
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        
+        .menu-item:hover::before { 
+            opacity: 1; 
+        }
+        
+        .menu-item i { 
+            font-size: 2rem; 
+            background: linear-gradient(135deg, var(--primary-gold), #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: all 0.3s;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+        }
+        
+        .menu-item:hover i { 
+            transform: scale(1.2) rotate(5deg);
+            filter: drop-shadow(0 8px 12px rgba(255,215,0,0.3));
+        }
+        
+        .menu-item span { 
+            font-size: 0.85rem; 
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            position: relative;
+            z-index: 1;
+            color: rgba(255,255,255,0.9);
+        }
 
+        /* Special colors for specific icons */
+        .menu-item:nth-child(5) i {
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .menu-item:nth-child(6) i {
+            background: linear-gradient(135deg, #fff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Bottom Actions */
         .bottom-actions {
             padding: 0 20px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .history-btn-block {
-            display: block; width: 100%;
-            padding: 15px; background: rgba(0, 210, 255, 0.1); color: #00d2ff;
-            border: 1px solid #00d2ff; border-radius: 12px; font-weight: bold; cursor: pointer;
-            text-transform: uppercase; transition: 0.3s; margin-bottom: 15px;
-            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 18px; 
+            background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,212,255,0.05));
+            color: var(--accent-cyan);
+            border: 1px solid rgba(0,212,255,0.2); 
+            border-radius: 16px; 
+            font-weight: 700; 
+            cursor: pointer;
+            text-transform: uppercase; 
+            transition: all 0.3s; 
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
         }
-        .history-btn-block:hover { background: #00d2ff; color: #000; }
+        
+        .history-btn-block::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,212,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .history-btn-block:hover { 
+            background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,212,255,0.1));
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .history-btn-block:hover::before { 
+            left: 100%; 
+        }
 
         .logout-btn {
-            display: block; width: 100%; 
-            padding: 15px; background: rgba(180, 20, 20, 0.1); color: #e74c3c;
-            border: 1px solid #e74c3c; border-radius: 12px; font-weight: bold; cursor: pointer;
-            text-transform: uppercase; font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%; 
+            padding: 18px; 
+            background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(239,68,68,0.05));
+            color: #ef4444;
+            border: 1px solid rgba(239,68,68,0.2); 
+            border-radius: 16px; 
+            font-weight: 700; 
+            cursor: pointer;
+            text-transform: uppercase; 
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        
+        .logout-btn:hover { 
+            background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.1));
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.2);
+            transform: translateY(-2px);
         }
 
-        .footer-info { text-align: center; color: #444; font-size: 0.7rem; margin-bottom: 15px; margin-top: 10px; }
-        
-        /* Auto Count Animation */
-        @keyframes countUp {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); color: #fff; }
-            100% { transform: scale(1); }
+        .footer-info { 
+            text-align: center; 
+            color: rgba(255,255,255,0.25); 
+            font-size: 0.75rem; 
+            margin-bottom: 20px; 
+            margin-top: 16px;
+            letter-spacing: 1px;
+            font-family: 'Space Grotesk', sans-serif;
         }
-        .counting { animation: countUp 0.3s ease; }
+
+        /* Loading Animation */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 8px;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Responsive */
+        @media (max-width: 380px) {
+            .stats-grid { gap: 12px; }
+            .stat-box { padding: 20px 12px; }
+            .stat-val { font-size: 1.3rem; }
+            .wb-balance { font-size: 1.2rem; }
+        }
+
+        /* Pulse animation for live data */
+        @keyframes pulse-gold {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); }
+        }
+        
+        .live-update {
+            animation: pulse-gold 2s infinite;
+        }
     </style>
 </head>
 <body>
 
-    <div class="bg-glow"></div>
-
+    <!-- HEADER -->
     <div class="header">
         <div class="user-info">
             <h2 id="u_name">Loading...</h2>
@@ -175,6 +593,7 @@
         <div class="avatar"><i class="fas fa-user"></i></div>
     </div>
 
+    <!-- WALLET BAR -->
     <div class="wallet-bar">
         <div class="wb-left">
             <i class="fas fa-coins"></i> 
@@ -187,37 +606,41 @@
         </div>
     </div>
 
+    <!-- 4 STATS BOXES -->
     <div class="stats-grid">
+        <!-- TOTAL TEAM -->
         <div class="stat-box">
             <div class="stat-val" id="u_team">0</div>
             <div class="stat-lbl">Total Team</div>
         </div>
 
+        <!-- MY PARTNERS -->
         <div class="stat-box">
             <div class="stat-val" id="u_partner">0</div>
             <div class="stat-lbl">My Partners</div>
         </div>
 
-        <!-- TODAY'S PROFIT WITH AUTO COUNT -->
-        <div class="stat-box" id="profitBox">
-            <div class="stat-val val-profit" id="u_today">
-                $<span id="todayAmount">0.00</span>
-            </div>
+        <!-- TODAY'S PROFIT -->
+        <div class="stat-box">
+            <div class="stat-val val-profit">$<span id="u_today">0.00</span></div>
             <div class="stat-lbl">Today's Profit</div>
         </div>
 
+        <!-- LIFETIME EARN -->
         <div class="stat-box">
             <div class="stat-val val-life">$<span id="u_lifetime">0.00</span></div>
             <div class="stat-lbl">Lifetime Earn</div>
         </div>
     </div>
 
+    <!-- BANNER SLIDER -->
     <div class="banner-box">
-        <button class="slider-btn prev-btn" onclick="changeBanner(-1)">&#10094;</button>
+        <button class="slider-btn prev-btn" onclick="changeBanner(-1)"><i class="fas fa-chevron-left"></i></button>
         <img id="bannerImg" src="https://via.placeholder.com/600x300/111/333?text=TASK28+Ads" style="display: block;">
-        <button class="slider-btn next-btn" onclick="changeBanner(1)">&#10095;</button>
+        <button class="slider-btn next-btn" onclick="changeBanner(1)"><i class="fas fa-chevron-right"></i></button>
     </div>
 
+    <!-- MAIN MENU -->
     <div class="grid-menu">
         <a href="Task.html" class="menu-item">
             <i class="fas fa-tasks"></i>
@@ -236,11 +659,11 @@
             <span>Weekly Plan</span>
         </a>
         <a href="Work_Video.html" class="menu-item">
-            <i class="fas fa-play-circle" style="color: #e74c3c;"></i>
+            <i class="fas fa-play-circle"></i>
             <span>Work Video</span>
         </a>
         <a href="Withdraw.html" class="menu-item">
-            <i class="fas fa-wallet" style="color: #fff;"></i>
+            <i class="fas fa-wallet"></i>
             <span>WITHDRAW</span>
         </a>
     </div>
@@ -249,20 +672,23 @@
         UID: <span id="u_uid">...</span> | Join: <span id="u_date">...</span>
     </div>
 
+    <!-- BOTTOM ACTIONS -->
     <div class="bottom-actions">
         <button class="history-btn-block" onclick="window.location.href='History.html'">
             <i class="fas fa-history"></i> View Transaction History
         </button>
-        <button class="logout-btn" onclick="auth.signOut()">LOGOUT ACCOUNT</button>
+        <button class="logout-btn" onclick="auth.signOut()">
+            <i class="fas fa-sign-out-alt"></i> LOGOUT ACCOUNT
+        </button>
     </div>
 
     <script>
+        // --- BANNER LOGIC ---
         let bannerImages = [];
         let currentIndex = 0;
         let slideInterval;
         let previousProfit = 0;
 
-        // Banner Logic
         db.ref('adminSettings/banners').on('value', snap => {
             bannerImages = [];
             if(snap.exists()) {
@@ -291,66 +717,42 @@
             slideInterval = setInterval(() => { showBanner(currentIndex + 1); }, 5000);
         }
 
-        // Main User Data Logic with Auto Count
+        // --- USER DATA LOGIC ---
         auth.onAuthStateChanged((user) => {
             if (user) {
                 const uid = user.uid;
                 
-                // Real-time listener for auto updates
                 db.ref('users/' + uid).on('value', (snapshot) => {
                     const data = snapshot.val();
                     if(data) {
-                        if(data.isBanned) { 
-                            alert("ACCOUNT BANNED"); 
-                            auth.signOut(); 
-                            return; 
-                        }
+                        if(data.isBanned) { alert("ACCOUNT BANNED"); auth.signOut(); return; }
 
                         // Basic Info
                         document.getElementById('u_name').innerText = data.name || 'User';
                         document.getElementById('u_plan').innerText = (data.plan || "Free").toUpperCase();
                         document.getElementById('u_credits').innerText = data.credits || 0;
-                        document.getElementById('u_date').innerText = data.regDate || 'N/A';
+                        document.getElementById('u_date').innerText = data.regDate || '--';
                         document.getElementById('u_uid').innerText = uid.substring(0,8);
 
-                        // Real Balance
-                        document.getElementById('u_balance').innerText = parseFloat(data.balance || 0).toFixed(2);
+                        // Real Balance with animation
+                        animateValue('u_balance', parseFloat(document.getElementById('u_balance').innerText), parseFloat(data.balance || 0), 1000);
 
                         // Lifetime Earn
-                        document.getElementById('u_lifetime').innerText = parseFloat(data.totalEarnings || 0).toFixed(2);
+                        animateValue('u_lifetime', parseFloat(document.getElementById('u_lifetime').innerText), parseFloat(data.totalEarnings || 0), 1000);
 
-                        // TODAY'S PROFIT AUTO COUNT LOGIC
+                        // Today's Profit
                         const todayStr = new Date().toLocaleDateString('en-CA');
-                        let currentTodayProfit = 0;
-
-                        // Check if new day
-                        if(data.lastProfitDate !== todayStr) {
-                            // Auto reset in database if it's a new day
-                            db.ref('users/' + uid).update({
-                                todayProfit: 0,
-                                lastProfitDate: todayStr
-                            });
-                            currentTodayProfit = 0;
-                        } else {
-                            currentTodayProfit = parseFloat(data.todayProfit || 0);
-                        }
-
-                        // Animate if profit increased
-                        if(currentTodayProfit > previousProfit && previousProfit !== 0) {
-                            animateProfitIncrease(currentTodayProfit);
-                        } else {
-                            updateProfitDisplay(currentTodayProfit);
-                        }
-                        previousProfit = currentTodayProfit;
+                        const todayProfit = (data.lastProfitDate === todayStr) ? parseFloat(data.todayProfit || 0) : 0;
+                        animateValue('u_today', parseFloat(document.getElementById('u_today').innerText), todayProfit, 1000);
 
                         // Total Team
-                        document.getElementById('u_team').innerText = data.teamCount || 0;
+                        animateValue('u_team', parseInt(document.getElementById('u_team').innerText), data.teamCount || 0, 1000);
 
-                        // My Partners (Real-time count)
+                        // My Partners
                         const myCode = data.myRefCode;
                         if(myCode) {
                             db.ref('users').orderByChild('referredBy').equalTo(myCode).on('value', (partnerSnap) => {
-                                document.getElementById('u_partner').innerText = partnerSnap.numChildren();
+                                animateValue('u_partner', parseInt(document.getElementById('u_partner').innerText), partnerSnap.numChildren(), 500);
                             });
                         }
                     }
@@ -360,54 +762,30 @@
             }
         });
 
-        // Profit Update with Animation
-        function updateProfitDisplay(amount) {
-            const display = document.getElementById('todayAmount');
-            display.innerText = amount.toFixed(2);
-        }
-
-        function animateProfitIncrease(newAmount) {
-            const box = document.getElementById('profitBox');
-            const display = document.getElementById('u_today');
+        // Number animation function
+        function animateValue(id, start, end, duration) {
+            if (start === end) return;
+            const range = end - start;
+            const obj = document.getElementById(id);
+            const increment = end > start ? 1 : -1;
+            const stepTime = Math.abs(Math.floor(duration / range));
+            let current = start;
             
-            // Add glow effect
-            box.classList.add('profit-glow');
-            display.classList.add('update-flash');
-            
-            // Count up animation
-            let start = previousProfit;
-            const duration = 1000;
-            const startTime = performance.now();
-            
-            function animate(currentTime) {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                
-                // Easing function
-                const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-                
-                const current = start + (newAmount - start) * easeOutQuart;
-                updateProfitDisplay(current);
-                
-                if(progress < 1) {
-                    requestAnimationFrame(animate);
-                } else {
-                    updateProfitDisplay(newAmount);
-                    setTimeout(() => {
-                        box.classList.remove('profit-glow');
-                        display.classList.remove('update-flash');
-                    }, 500);
-                }
+            // If difference is too small, just set it
+            if (Math.abs(range) < 1) {
+                obj.innerText = Number.isInteger(end) ? end : end.toFixed(2);
+                return;
             }
             
-            requestAnimationFrame(animate);
+            const timer = setInterval(function() {
+                current += (range / 20); // Smooth steps
+                if ((range > 0 && current >= end) || (range < 0 && current <= end)) {
+                    current = end;
+                    clearInterval(timer);
+                }
+                obj.innerText = Number.isInteger(end) ? Math.floor(current) : current.toFixed(2);
+            }, 30);
         }
-
-        // Manual refresh on click
-        document.getElementById('profitBox').addEventListener('click', function() {
-            this.style.transform = 'scale(0.95)';
-            setTimeout(() => this.style.transform = 'scale(1)', 100);
-        });
     </script>
 </body>
 </html>
