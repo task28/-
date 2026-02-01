@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transaction History</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Transaction History - TASK28</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -28,109 +28,563 @@
     </script>
 
     <style>
-        body { background-color: #050505; color: #fff; font-family: 'Montserrat', sans-serif; padding: 20px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 15px; }
-        .page-title { color: #d4af37; font-weight: 800; font-size: 1.2rem; }
-        .back-btn { color: #fff; font-size: 1.2rem; cursor: pointer; }
+        body { 
+            background-color: #050505; 
+            color: #fff; 
+            font-family: 'Montserrat', sans-serif; 
+            padding: 20px;
+            min-height: 100vh;
+        }
 
-        .history-list { display: flex; flex-direction: column; gap: 10px; }
+        .header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            margin-bottom: 25px; 
+            border-bottom: 2px solid #222; 
+            padding-bottom: 15px; 
+        }
+        .page-title { 
+            color: #d4af37; 
+            font-weight: 800; 
+            font-size: 1.3rem; 
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .back-btn { 
+            color: #fff; 
+            font-size: 1.2rem; 
+            cursor: pointer; 
+            transition: 0.3s;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+        }
+        .back-btn:hover { 
+            background: #d4af37;
+            color: #000;
+        }
 
-        .h-card {
-            background: #111; border: 1px solid #333; border-radius: 10px;
-            padding: 15px; display: flex; justify-content: space-between; align-items: center;
-            border-left: 4px solid #444; transition: 0.3s;
+        /* SUMMARY CARDS */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
         }
         
-        /* Dynamic Colors based on Type */
-        .type-income { border-left-color: #2ecc71; } /* Green for Task/Commission/Gift */
-        .type-expense { border-left-color: #e74c3c; } /* Red for Withdraw */
+        .stat-card {
+            background: linear-gradient(145deg, #111, #1a1a1a);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 20px 15px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: 0.3s;
+        }
         
-        .h-left h4 { font-size: 0.9rem; margin-bottom: 3px; font-weight: bold; }
-        .h-left p { font-size: 0.7rem; color: #888; }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #444;
+        }
         
-        .h-right { text-align: right; }
-        .amount { font-weight: 800; font-size: 1rem; }
+        .stat-card.income { border-bottom: 3px solid #2ecc71; }
+        .stat-card.expense { border-bottom: 3px solid #e74c3c; }
+        .stat-card.net { border-bottom: 3px solid #d4af37; }
+        
+        .stat-icon {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+        .stat-card.income .stat-icon { color: #2ecc71; }
+        .stat-card.expense .stat-icon { color: #e74c3c; }
+        .stat-card.net .stat-icon { color: #d4af37; }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        
+        .stat-card.income .stat-value { color: #2ecc71; }
+        .stat-card.expense .stat-value { color: #e74c3c; }
+        .stat-card.net .stat-value { color: #d4af37; }
+
+        .limit-info {
+            text-align: center;
+            color: #666;
+            font-size: 0.75rem;
+            margin-bottom: 15px;
+            background: rgba(212, 175, 55, 0.1);
+            padding: 8px;
+            border-radius: 20px;
+            border: 1px solid #333;
+        }
+        .limit-info strong { color: #d4af37; }
+
+        /* FILTER TABS */
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+        
+        .filter-btn {
+            background: #111;
+            border: 1px solid #333;
+            color: #888;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: 0.3s;
+        }
+        
+        .filter-btn.active {
+            background: #d4af37;
+            color: #000;
+            border-color: #d4af37;
+        }
+        
+        .filter-btn:hover:not(.active) {
+            border-color: #d4af37;
+            color: #d4af37;
+        }
+
+        /* TRANSACTION LIST */
+        .history-list { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+        }
+
+        .h-card {
+            background: #111; 
+            border: 1px solid #222; 
+            border-radius: 12px;
+            padding: 18px 15px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            border-left: 4px solid #444; 
+            transition: 0.3s;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .h-card:hover {
+            background: #161616;
+            border-color: #333;
+            transform: translateX(5px);
+        }
+        
+        .h-card.type-income { border-left-color: #2ecc71; }
+        .h-card.type-expense { border-left-color: #e74c3c; }
+        .h-card.type-commission { border-left-color: #3498db; }
+        .h-card.type-gift { border-left-color: #9b59b6; }
+        
+        .h-left { flex: 1; }
+        .h-left h4 { 
+            font-size: 0.95rem; 
+            margin-bottom: 5px; 
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .h-left p { 
+            font-size: 0.75rem; 
+            color: #666; 
+        }
+        
+        .h-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+        .type-income .h-icon { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+        .type-expense .h-icon { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
+        .type-commission .h-icon { background: rgba(52, 152, 219, 0.2); color: #3498db; }
+        .type-gift .h-icon { background: rgba(155, 89, 182, 0.2); color: #9b59b6; }
+        
+        .h-right { 
+            text-align: right; 
+            min-width: 80px;
+        }
+        .amount { 
+            font-weight: 800; 
+            font-size: 1.1rem; 
+            font-family: 'Orbitron', sans-serif;
+        }
         .plus { color: #2ecc71; }
         .minus { color: #e74c3c; }
+        .type-badge {
+            font-size: 0.65rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            margin-top: 5px;
+            display: inline-block;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .badge-task { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
+        .badge-commission { background: rgba(52, 152, 219, 0.15); color: #3498db; }
+        .badge-withdraw { background: rgba(231, 76, 60, 0.15); color: #e74c3c; }
+        .badge-gift { background: rgba(155, 89, 182, 0.15); color: #9b59b6; }
 
-        .empty-msg { text-align: center; color: #666; margin-top: 50px; }
+        .empty-msg { 
+            text-align: center; 
+            color: #666; 
+            margin-top: 50px; 
+            padding: 40px;
+            border: 2px dashed #333;
+            border-radius: 15px;
+        }
+        .empty-msg i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .count-badge {
+            background: #d4af37;
+            color: #000;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-left: 5px;
+            font-weight: 700;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+            display: block;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .new-tag {
+            background: #e74c3c;
+            color: #fff;
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 5px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
     </style>
 </head>
 <body>
 
     <div class="header">
         <i class="fas fa-arrow-left back-btn" onclick="window.location.href='Home.html'"></i>
-        <div class="page-title">HISTORY (Last 10)</div>
-        <div style="width: 20px;"></div>
+        <div class="page-title">
+            <i class="fas fa-history"></i> 
+            HISTORY 
+            <span class="count-badge" id="totalCount">0/20</span>
+        </div>
+        <div style="width: 40px;"></div>
     </div>
 
+    <!-- SUMMARY -->
+    <div class="stats-container">
+        <div class="stat-card income">
+            <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
+            <div class="stat-label">Total Income</div>
+            <div class="stat-value" id="totalIncome">$0.00</div>
+        </div>
+        
+        <div class="stat-card expense">
+            <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+            <div class="stat-label">Total Expense</div>
+            <div class="stat-value" id="totalExpense">$0.00</div>
+        </div>
+        
+        <div class="stat-card net">
+            <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+            <div class="stat-label">Net Balance</div>
+            <div class="stat-value" id="netBalance">$0.00</div>
+        </div>
+    </div>
+
+    <div class="limit-info">
+        <i class="fas fa-info-circle"></i> 
+        Showing Last <strong>20</strong> Transactions (Auto-removes old)
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filter-tabs">
+        <button class="filter-btn active" onclick="filterHistory('all')">All</button>
+        <button class="filter-btn" onclick="filterHistory('income')">Income</button>
+        <button class="filter-btn" onclick="filterHistory('expense')">Expense</button>
+        <button class="filter-btn" onclick="filterHistory('commission')">Commission</button>
+        <button class="filter-btn" onclick="filterHistory('task')">Tasks</button>
+    </div>
+
+    <!-- LIST -->
     <div class="history-list" id="listArea">
-        <div class="empty-msg">Loading history...</div>
+        <div class="loading">
+            <i class="fas fa-circle-notch"></i>
+            Loading transactions...
+        </div>
     </div>
 
     <script>
+        let allTransactions = [];
+        let currentFilter = 'all';
+        const MAX_HISTORY = 20; // সর্বোচ্চ ২০টা রাখবে
+
         auth.onAuthStateChanged(user => {
             if(user) {
-                loadHistory(user.uid);
+                // প্রথমে পুরনো ডাটা পরিষ্কার করবে, তারপর দেখাবে
+                cleanupOldHistory(user.uid).then(() => {
+                    loadHistory(user.uid);
+                });
             } else {
                 window.location.href = "registration_login.html";
             }
         });
 
-        function loadHistory(uid) {
-            // limitToLast(10) ensures only the latest 10 entries are shown
-            db.ref('history/' + uid).limitToLast(10).on('value', snap => {
-                const list = document.getElementById('listArea');
-                list.innerHTML = "";
+        // পুরনো history ডিলিট করে শুধু ২০টা রাখবে
+        async function cleanupOldHistory(uid) {
+            const historyRef = db.ref('history/' + uid);
+            const snapshot = await historyRef.orderByChild('date').once('value');
+            
+            const count = snapshot.numChildren();
+            if(count > MAX_HISTORY) {
+                const toDelete = count - MAX_HISTORY;
+                let deleted = 0;
+                
+                // পুরনোগুলো ডিলিট (প্রথম যেগুলো পাবে)
+                snapshot.forEach(child => {
+                    if(deleted < toDelete) {
+                        historyRef.child(child.key).remove();
+                        deleted++;
+                    }
+                });
+                
+                console.log(`Cleaned up ${toDelete} old history entries`);
+            }
+        }
 
+        function loadHistory(uid) {
+            // শেষ ২০টা লোড করবে
+            db.ref('history/' + uid).limitToLast(MAX_HISTORY).on('value', snap => {
+                const list = document.getElementById('listArea');
+                
                 if(!snap.exists()) {
-                    list.innerHTML = "<div class='empty-msg'>No transactions found.</div>";
+                    list.innerHTML = `
+                        <div class="empty-msg">
+                            <i class="fas fa-receipt"></i>
+                            <p>No transactions found.<br>Start completing tasks!</p>
+                        </div>`;
+                    updateCounts([]);
                     return;
                 }
 
-                // Convert to array and reverse to show newest on top
-                let items = [];
-                snap.forEach(child => items.push(child.val()));
-                items.reverse(); 
-
-                items.forEach(item => {
-                    let isIncome = true;
-                    let icon = "fa-check-circle";
-                    let sign = "+";
-                    let colorClass = "plus";
-                    let borderClass = "type-income";
-
-                    // Logic for Withdraw or Expense
-                    if(item.type === 'withdraw') {
-                        isIncome = false;
-                        icon = "fa-arrow-up";
-                        sign = "-";
-                        colorClass = "minus";
-                        borderClass = "type-expense";
-                    } else if(item.type === 'gift') {
-                        icon = "fa-gift";
-                    } else if(item.type === 'commission') {
-                        icon = "fa-users";
-                    }
-
-                    const dateStr = new Date(item.date).toLocaleString();
-
-                    const html = `
-                        <div class="h-card ${borderClass}">
-                            <div class="h-left">
-                                <h4><i class="fas ${icon}"></i> ${item.desc}</h4>
-                                <p>${dateStr}</p>
-                            </div>
-                            <div class="h-right">
-                                <div class="amount ${colorClass}">${sign}$${parseFloat(item.amount).toFixed(2)}</div>
-                                <div style="font-size:0.6rem; color:#666;">${item.type.toUpperCase()}</div>
-                            </div>
-                        </div>
-                    `;
-                    list.innerHTML += html;
+                allTransactions = [];
+                snap.forEach(child => {
+                    allTransactions.push({
+                        key: child.key,
+                        ...child.val()
+                    });
                 });
+                
+                // নতুন থেকে পুরনো সাজাবে
+                allTransactions.reverse();
+                
+                // কাউন্ট আপডেট (২০/২০ দেখাবে)
+                document.getElementById('totalCount').innerText = `${allTransactions.length}/${MAX_HISTORY}`;
+                
+                updateCounts(allTransactions);
+                displayTransactions(allTransactions, currentFilter);
             });
+        }
+
+        function updateCounts(transactions) {
+            let income = 0;
+            let expense = 0;
+
+            transactions.forEach(item => {
+                const amount = parseFloat(item.amount || 0);
+                
+                if(item.type === 'withdraw') {
+                    expense += amount;
+                } else {
+                    income += amount;
+                }
+            });
+
+            const net = income - expense;
+
+            animateValue('totalIncome', income, '$');
+            animateValue('totalExpense', expense, '$');
+            animateValue('netBalance', net, '$');
+        }
+
+        function animateValue(elementId, value, prefix = '') {
+            const el = document.getElementById(elementId);
+            const start = parseFloat(el.innerText.replace(/[^0-9.-]+/g,"")) || 0;
+            const end = value;
+            const duration = 800;
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const ease = 1 - Math.pow(1 - progress, 3);
+                const current = start + (end - start) * ease;
+                
+                el.innerText = prefix + current.toFixed(2);
+                
+                if(progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
+
+        function filterHistory(type) {
+            currentFilter = type;
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.innerText.toLowerCase().includes(type) || (type === 'all' && btn.innerText === 'All')) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            displayTransactions(allTransactions, type);
+        }
+
+        function displayTransactions(items, filter) {
+            const list = document.getElementById('listArea');
+            list.innerHTML = '';
+
+            const filtered = filter === 'all' ? items : items.filter(item => {
+                if(filter === 'income') return item.type !== 'withdraw';
+                if(filter === 'expense') return item.type === 'withdraw';
+                return item.type === filter;
+            });
+
+            if(filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-msg">
+                        <i class="fas fa-search"></i>
+                        <p>No ${filter} transactions found.</p>
+                    </div>`;
+                return;
+            }
+
+            filtered.forEach((item, index) => {
+                const isIncome = item.type !== 'withdraw';
+                const icon = getIcon(item.type);
+                const sign = isIncome ? '+' : '-';
+                const colorClass = isIncome ? 'plus' : 'minus';
+                const cardClass = getCardClass(item.type);
+                const badgeClass = getBadgeClass(item.type);
+                
+                const dateObj = new Date(item.date);
+                const dateStr = dateObj.toLocaleDateString('en-US', { 
+                    month: 'short', day: 'numeric' 
+                });
+                const timeStr = dateObj.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', minute: '2-digit' 
+                });
+                
+                // সবচেয়ে নতুন (প্রথম) আইটেমে NEW ট্যাগ দেখাবে
+                const newTag = (index === 0 && filter === 'all') ? '<span class="new-tag">NEW</span>' : '';
+
+                const html = `
+                    <div class="h-card ${cardClass}" style="animation-delay: ${index * 0.05}s">
+                        <div class="h-left">
+                            <h4>
+                                <span class="h-icon"><i class="fas ${icon}"></i></span>
+                                ${item.desc || item.type}
+                                ${newTag}
+                            </h4>
+                            <p><i class="far fa-clock"></i> ${dateStr} • ${timeStr}</p>
+                        </div>
+                        <div class="h-right">
+                            <div class="amount ${colorClass}">${sign}$${parseFloat(item.amount).toFixed(2)}</div>
+                            <span class="type-badge ${badgeClass}">${item.type}</span>
+                        </div>
+                    </div>
+                `;
+                list.innerHTML += html;
+            });
+        }
+
+        function getIcon(type) {
+            const icons = {
+                'task': 'fa-check-circle',
+                'commission': 'fa-users',
+                'withdraw': 'fa-arrow-up',
+                'gift': 'fa-gift',
+                'deposit': 'fa-arrow-down'
+            };
+            return icons[type] || 'fa-circle';
+        }
+
+        function getCardClass(type) {
+            const classes = {
+                'task': 'type-income',
+                'commission': 'type-commission',
+                'withdraw': 'type-expense',
+                'gift': 'type-gift'
+            };
+            return classes[type] || 'type-income';
+        }
+
+        function getBadgeClass(type) {
+            const classes = {
+                'task': 'badge-task',
+                'commission': 'badge-commission',
+                'withdraw': 'badge-withdraw',
+                'gift': 'badge-gift'
+            };
+            return classes[type] || 'badge-task';
         }
     </script>
 </body>
