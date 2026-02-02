@@ -266,7 +266,9 @@
     <div class="toast" id="toastMsg"><i class="fas fa-check-circle"></i> Copied!</div>
 
     <script>
-        const BASE_URL = window.location.origin + "/registration_login.html";
+        // UPDATED LINK HERE
+        const BASE_URL = "https://task28.github.io/-/";
+        
         let currentUser = null;
         let previousCommission = 0;
         let teamMembers = [];
@@ -288,6 +290,7 @@
 
                 // Set Referral Info
                 const myCode = data.myRefCode || "N/A";
+                // Link will now be: https://task28.github.io/-/?ref=CODE
                 const fullLink = `${BASE_URL}?ref=${myCode}`;
                 
                 document.getElementById('refCode').innerText = myCode;
