@@ -266,8 +266,8 @@
     <div class="toast" id="toastMsg"><i class="fas fa-check-circle"></i> Copied!</div>
 
     <script>
-        // UPDATED LINK HERE
-        const BASE_URL = "https://task28.github.io/-/";
+        // UPDATED LINK HERE - এখানে লিঙ্কটি পরিবর্তন করা হয়েছে
+        const BASE_URL = "https://task28.github.io/-/registration_login.html";
         
         let currentUser = null;
         let previousCommission = 0;
@@ -290,7 +290,7 @@
 
                 // Set Referral Info
                 const myCode = data.myRefCode || "N/A";
-                // Link will now be: https://task28.github.io/-/?ref=CODE
+                // Link format: BASE_URL + ?ref= + CODE
                 const fullLink = `${BASE_URL}?ref=${myCode}`;
                 
                 document.getElementById('refCode').innerText = myCode;
