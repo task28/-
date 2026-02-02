@@ -672,7 +672,7 @@
         UID: <span id="u_uid">...</span> | Join: <span id="u_date">...</span>
     </div>
 
-    <!-- BOTTOM ACTIONS -->
+    <!-- BOTTOM ACTIONS (History Button Included Here) -->
     <div class="bottom-actions">
         <button class="history-btn-block" onclick="window.location.href='History.html'">
             <i class="fas fa-history"></i> View Transaction History
@@ -687,14 +687,23 @@
         let bannerImages = [];
         let currentIndex = 0;
         let slideInterval;
-        let previousProfit = 0;
 
+        // Banner Load Fix: Add empty check
         db.ref('adminSettings/banners').on('value', snap => {
             bannerImages = [];
             if(snap.exists()) {
-                snap.forEach(c => bannerImages.push(c.val()));
-                showBanner(0);
-                startAutoSlide();
+                const val = snap.val();
+                // Handle both array and object formats
+                if(Array.isArray(val)) {
+                    bannerImages = val.filter(item => item);
+                } else {
+                    bannerImages = Object.values(val);
+                }
+                
+                if(bannerImages.length > 0) {
+                    showBanner(0);
+                    startAutoSlide();
+                }
             }
         });
 
@@ -717,44 +726,61 @@
             slideInterval = setInterval(() => { showBanner(currentIndex + 1); }, 5000);
         }
 
-        // --- USER DATA LOGIC ---
+        // --- USER DATA LOGIC (ROBUST SYSTEM FIX) ---
         auth.onAuthStateChanged((user) => {
             if (user) {
                 const uid = user.uid;
                 
                 db.ref('users/' + uid).on('value', (snapshot) => {
                     const data = snapshot.val();
-                    if(data) {
-                        if(data.isBanned) { alert("ACCOUNT BANNED"); auth.signOut(); return; }
+                    
+                    // SYSTEM FIX: Even if data is missing/null, don't crash. Use defaults.
+                    const userData = data || {}; 
 
-                        // Basic Info
-                        document.getElementById('u_name').innerText = data.name || 'User';
-                        document.getElementById('u_plan').innerText = (data.plan || "Free").toUpperCase();
-                        document.getElementById('u_credits').innerText = data.credits || 0;
-                        document.getElementById('u_date').innerText = data.regDate || '--';
-                        document.getElementById('u_uid').innerText = uid.substring(0,8);
+                    if(userData.status === 'banned' || userData.isBanned) { 
+                        alert("ACCOUNT BANNED"); 
+                        auth.signOut(); 
+                        return; 
+                    }
 
-                        // Real Balance with animation
-                        animateValue('u_balance', parseFloat(document.getElementById('u_balance').innerText), parseFloat(data.balance || 0), 1000);
+                    // Basic Info with Defaults
+                    document.getElementById('u_name').innerText = userData.name || 'User';
+                    document.getElementById('u_plan').innerText = (userData.plan || "Free").toUpperCase();
+                    document.getElementById('u_credits').innerText = userData.credits || 0;
+                    document.getElementById('u_date').innerText = userData.regDate || '--';
+                    document.getElementById('u_uid').innerText = uid.substring(0,8);
 
-                        // Lifetime Earn
-                        animateValue('u_lifetime', parseFloat(document.getElementById('u_lifetime').innerText), parseFloat(data.totalEarnings || 0), 1000);
+                    // Get Current Values from DOM for Animation Start
+                    // Safe parsing to avoid NaN when text is "Loading..."
+                    const currentBal = parseFloat(document.getElementById('u_balance').innerText) || 0;
+                    const currentLife = parseFloat(document.getElementById('u_lifetime').innerText) || 0;
+                    const currentToday = parseFloat(document.getElementById('u_today').innerText) || 0;
+                    const currentTeam = parseInt(document.getElementById('u_team').innerText) || 0;
 
-                        // Today's Profit
-                        const todayStr = new Date().toLocaleDateString('en-CA');
-                        const todayProfit = (data.lastProfitDate === todayStr) ? parseFloat(data.todayProfit || 0) : 0;
-                        animateValue('u_today', parseFloat(document.getElementById('u_today').innerText), todayProfit, 1000);
+                    // Real Balance
+                    animateValue('u_balance', currentBal, parseFloat(userData.balance || 0), 1000);
 
-                        // Total Team
-                        animateValue('u_team', parseInt(document.getElementById('u_team').innerText), data.teamCount || 0, 1000);
+                    // Lifetime Earn
+                    animateValue('u_lifetime', currentLife, parseFloat(userData.totalEarnings || 0), 1000);
 
-                        // My Partners
-                        const myCode = data.myRefCode;
-                        if(myCode) {
-                            db.ref('users').orderByChild('referredBy').equalTo(myCode).on('value', (partnerSnap) => {
-                                animateValue('u_partner', parseInt(document.getElementById('u_partner').innerText), partnerSnap.numChildren(), 500);
-                            });
-                        }
+                    // Today's Profit Logic
+                    const todayStr = new Date().toLocaleDateString('en-CA');
+                    const todayProfit = (userData.lastProfitDate === todayStr) ? parseFloat(userData.todayProfit || 0) : 0;
+                    animateValue('u_today', currentToday, todayProfit, 1000);
+
+                    // Total Team
+                    animateValue('u_team', currentTeam, parseInt(userData.teamCount || 0), 1000);
+
+                    // My Partners
+                    const myCode = userData.myRefCode;
+                    if(myCode) {
+                        db.ref('users').orderByChild('referredBy').equalTo(myCode).on('value', (partnerSnap) => {
+                            const pCount = partnerSnap.exists() ? partnerSnap.numChildren() : 0;
+                            const currentPartner = parseInt(document.getElementById('u_partner').innerText) || 0;
+                            animateValue('u_partner', currentPartner, pCount, 500);
+                        });
+                    } else {
+                         document.getElementById('u_partner').innerText = 0;
                     }
                 });
             } else {
@@ -762,29 +788,44 @@
             }
         });
 
-        // Number animation function
+        // Number animation function (FIXED: Handles NaN/Loading text)
         function animateValue(id, start, end, duration) {
-            if (start === end) return;
+            // Fix: If start is not a number (e.g. "Loading..."), start from 0
+            if (isNaN(start)) start = 0;
+            if (isNaN(end)) end = 0;
+            
+            if (start === end) {
+                const obj = document.getElementById(id);
+                if(obj) obj.innerText = Number.isInteger(end) ? end : end.toFixed(2);
+                return;
+            }
+
             const range = end - start;
             const obj = document.getElementById(id);
-            const increment = end > start ? 1 : -1;
-            const stepTime = Math.abs(Math.floor(duration / range));
+            if(!obj) return;
+
             let current = start;
+            const stepTime = 30; // ms
+            const steps = duration / stepTime;
+            const increment = range / steps;
             
-            // If difference is too small, just set it
-            if (Math.abs(range) < 1) {
+            // If difference is very small, just set it immediately
+            if (Math.abs(range) < 0.01) {
                 obj.innerText = Number.isInteger(end) ? end : end.toFixed(2);
                 return;
             }
             
             const timer = setInterval(function() {
-                current += (range / 20); // Smooth steps
+                current += increment;
+                
+                // Check bounds
                 if ((range > 0 && current >= end) || (range < 0 && current <= end)) {
                     current = end;
                     clearInterval(timer);
                 }
+                
                 obj.innerText = Number.isInteger(end) ? Math.floor(current) : current.toFixed(2);
-            }, 30);
+            }, stepTime);
         }
     </script>
 </body>
