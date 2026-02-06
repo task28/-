@@ -726,7 +726,7 @@
             slideInterval = setInterval(() => { showBanner(currentIndex + 1); }, 5000);
         }
 
-        // --- USER DATA LOGIC (ROBUST SYSTEM FIX) ---
+        // --- USER DATA LOGIC (ROBUST SYSTEM FIX FOR ID/NAME) ---
         auth.onAuthStateChanged((user) => {
             if (user) {
                 const uid = user.uid;
@@ -743,11 +743,30 @@
                         return; 
                     }
 
-                    // Basic Info with Defaults
-                    document.getElementById('u_name').innerText = userData.name || 'User';
+                    // --- FIX: BETTER NAME FETCHING ---
+                    // Try DB Name, then Username, then Auth DisplayName, then Email
+                    let displayName = userData.name || userData.username || userData.fullName;
+                    if(!displayName && user.displayName) displayName = user.displayName;
+                    if(!displayName && user.email) displayName = user.email.split('@')[0];
+                    if(!displayName) displayName = "User";
+
+                    document.getElementById('u_name').innerText = displayName;
+                    
+                    // Basic Plan Info
                     document.getElementById('u_plan').innerText = (userData.plan || "Free").toUpperCase();
                     document.getElementById('u_credits').innerText = userData.credits || 0;
-                    document.getElementById('u_date').innerText = userData.regDate || '--';
+                    
+                    // --- FIX: BETTER JOIN DATE ---
+                    let joinDate = userData.regDate || userData.joinDate || userData.date;
+                    // If DB date is missing, use Auth Creation Time
+                    if(!joinDate && user.metadata && user.metadata.creationTime) {
+                         const d = new Date(user.metadata.creationTime);
+                         // Format: YYYY-MM-DD
+                         joinDate = d.toISOString().split('T')[0];
+                    }
+                    document.getElementById('u_date').innerText = joinDate || '--';
+
+                    // --- FIX: UID DISPLAY ---
                     document.getElementById('u_uid').innerText = uid.substring(0,8);
 
                     // Get Current Values from DOM for Animation Start
