@@ -205,6 +205,15 @@
         .buy-btn:active {
             transform: scale(0.98);
         }
+        
+        /* SOLD OUT STYLE */
+        .buy-btn:disabled {
+            background: #444;
+            color: #888;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
 
         .telegram-badge {
             display: inline-flex;
@@ -245,7 +254,6 @@
     </div>
 
     <script>
-        // TELEGRAM ID UPDATED HERE
         const ADMIN_TELEGRAM = "RAFSAN_ART_CREATOR"; 
         let userCredits = 0;
         let myData = {};
@@ -277,6 +285,27 @@
 
                 snap.forEach(child => {
                     const p = child.val();
+                    
+                    // CHECK LIMIT LOGIC
+                    const limit = p.limit || 1000;
+                    const sold = p.sold || 0;
+                    const isSoldOut = sold >= limit;
+
+                    let buttonHtml = '';
+                    if(isSoldOut) {
+                        buttonHtml = `
+                            <button class="buy-btn" disabled>
+                                <i class="fas fa-lock"></i> SOLD OUT
+                            </button>
+                        `;
+                    } else {
+                        buttonHtml = `
+                            <button class="buy-btn" onclick="buyPlan('${p.name}', ${p.cost}, ${p.reward}, ${p.targetRef}, ${p.targetTask})">
+                                <i class="fab fa-telegram"></i> UNLOCK FOR ${p.cost} CREDITS
+                            </button>
+                        `;
+                    }
+
                     const html = `
                         <div class="plan-card">
                             <div class="p-head">
@@ -288,9 +317,7 @@
                                 <i class="fas fa-tasks" style="color:#d4af37; margin-right:5px;"></i> Downline Tasks: <span class="hl">${p.targetTask}</span><br>
                                 <i class="fas fa-clock" style="color:#d4af37; margin-right:5px;"></i> Duration: <span class="hl">${p.duration} Days</span>
                             </div>
-                            <button class="buy-btn" onclick="buyPlan('${p.name}', ${p.cost}, ${p.reward}, ${p.targetRef}, ${p.targetTask})">
-                                <i class="fab fa-telegram"></i> UNLOCK FOR ${p.cost} CREDITS
-                            </button>
+                            ${buttonHtml}
                             <div class="telegram-badge">
                                 <i class="fas fa-check-circle"></i> Contact: @${ADMIN_TELEGRAM}
                             </div>
