@@ -295,6 +295,7 @@
                 
                 document.getElementById('refCode').innerText = myCode;
                 document.getElementById('refLink').innerText = fullLink;
+                // Team Count relies on DB, but can fallback
                 document.getElementById('teamSize').innerText = data.teamCount || 0;
 
                 // 2. Calculate TOTAL COMMISSION PROPERLY
@@ -395,14 +396,15 @@
                         return;
                     }
 
+                    // FIX: Use actual list length for Direct Partners
+                    const partnerCount = snap.numChildren();
+                    directCount.innerText = partnerCount;
+                    countBadge.innerText = partnerCount;
+
                     const members = [];
                     snap.forEach(child => {
                         members.push({ key: child.key, ...child.val() });
                     });
-
-                    // Update counts
-                    countBadge.innerText = members.length;
-                    directCount.innerText = members.length;
 
                     // Sort by registration date (newest first)
                     members.reverse();
