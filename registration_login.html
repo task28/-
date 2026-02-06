@@ -324,19 +324,23 @@
                 const today = new Date().toISOString().split('T')[0];
 
                 const userData = {
-                    name: name, email: email, uid: uid,
+                    name: name, email: email, uid: uid, // Explicitly saving UID
                     balance: 0.00, credits: 2, todayProfit: 0.00, 
                     totalEarnings: 0.00, teamCount: 0, partnerCount: 0, 
                     regDate: today, myRefCode: myCode, 
-                    referredBy: refCode, referredByUid: data.referrerUid,
+                    referredBy: refCode, referredByUid: data.referrerUid || 'admin',
                     plan: "free", status: "active",
                     createdAt: firebase.database.ServerValue.TIMESTAMP
                 };
 
-                return db.ref('users/' + uid).set(userData);
-            })
-            .then(() => {
-                if(refCode !== "ADMIN") return updateUplineCounts(refCode);
+                // Store User Data and Update Referrer Logic
+                return db.ref('users/' + uid).set(userData).then(() => {
+                     if(data.referrerUid && refCode !== "ADMIN") {
+                         // FIX: Update Immediate Referrer (Partner Count + 1)
+                         // And Update Total Team Logic
+                         return updateReferralStats(data.referrerUid);
+                     }
+                });
             })
             .then(() => {
                 showSuccess('regMsg', "Success! Redirecting...");
@@ -348,29 +352,52 @@
                 if(err.code === 'auth/email-already-in-use') msg = "Email already used.";
                 showError('regMsg', msg);
                 setLoading(btn, false, "Register");
+                
+                // Safety: Sign out if DB failed but Auth worked
+                if(auth.currentUser) auth.signOut();
             });
         }
 
-        // --- UPLINE UPDATE ---
-        async function updateUplineCounts(startRefCode) {
-            let currentCode = startRefCode;
-            let loopLimit = 20;
-            const updates = {};
+        // --- FIXED UPLINE UPDATE (Recursive) ---
+        async function updateReferralStats(directReferrerUid) {
+            try {
+                // 1. Update Immediate Referrer (Partner + Team)
+                await db.ref('users/' + directReferrerUid).transaction(data => {
+                    if (data) {
+                        data.partnerCount = (data.partnerCount || 0) + 1;
+                        data.teamCount = (data.teamCount || 0) + 1;
+                    }
+                    return data;
+                });
 
-            while (currentCode && currentCode !== "ADMIN" && loopLimit > 0) {
-                try {
-                    const snap = await db.ref('users').orderByChild('myRefCode').equalTo(currentCode).once('value');
-                    if (!snap.exists()) break;
-                    
-                    let uid = Object.keys(snap.val())[0];
-                    let data = snap.val()[uid];
-                    
-                    updates[`users/${uid}/teamCount`] = (data.teamCount || 0) + 1;
-                    currentCode = data.referredBy;
-                    loopLimit--;
-                } catch (e) { break; }
+                // 2. Get Referrer's Referrer Code to continue up the chain
+                const snap = await db.ref('users/' + directReferrerUid + '/referredBy').once('value');
+                const uplineCode = snap.val();
+
+                if(uplineCode && uplineCode !== 'ADMIN') {
+                    await updateTeamCountOnly(uplineCode, 20); // Limit to 20 levels
+                }
+            } catch (e) {
+                console.error("Referral Update Error:", e);
             }
-            if(Object.keys(updates).length > 0) await db.ref().update(updates);
+        }
+
+        async function updateTeamCountOnly(refCode, levelsLeft) {
+            if(levelsLeft <= 0 || refCode === 'ADMIN') return;
+
+            const snap = await db.ref('users').orderByChild('myRefCode').equalTo(refCode).once('value');
+            if(!snap.exists()) return;
+
+            let uid = Object.keys(snap.val())[0];
+            let nextRefCode = snap.val()[uid].referredBy;
+
+            // Increment Team Count Only
+            await db.ref('users/' + uid + '/teamCount').transaction(count => (count || 0) + 1);
+
+            // Continue Up
+            if(nextRefCode) {
+                await updateTeamCountOnly(nextRefCode, levelsLeft - 1);
+            }
         }
 
         // --- LOGIN LOGIC ---
