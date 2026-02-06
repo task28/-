@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TASK28 - Monthly Target</title>
+    <title>TASK28 - Weekly Target</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -28,7 +28,7 @@
 
     <style>
         body { 
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%); 
+            background: linear-gradient(135deg, #0a0a0a 0%, #0f2027 100%); 
             color: #fff; 
             font-family: 'Montserrat', sans-serif; 
             padding-bottom: 60px; 
@@ -41,7 +41,7 @@
             justify-content: space-between; 
             align-items: center;
             background: rgba(10,10,10,0.95); 
-            border-bottom: 2px solid rgba(212,175,55,0.5); 
+            border-bottom: 2px solid rgba(0,210,255,0.5); 
             position: sticky; 
             top: 0; 
             z-index: 100;
@@ -62,17 +62,17 @@
             transition: all 0.3s;
         }
         .back-btn:hover { 
-            background: #d4af37; 
+            background: #00d2ff; 
             color: #000; 
             transform: translateX(-3px);
         }
         
         .page-title { 
-            color: #d4af37; 
+            color: #00d2ff; 
             font-weight: 800; 
             font-size: 1.2rem;
             font-family: 'Orbitron', sans-serif;
-            text-shadow: 0 0 10px rgba(212,175,55,0.3);
+            text-shadow: 0 0 10px rgba(0,210,255,0.3);
         }
         
         .container { 
@@ -87,7 +87,7 @@
             background: linear-gradient(145deg, #1a1a1a, #111); 
             padding: 15px; 
             border-radius: 50px; 
-            border: 1px solid rgba(212,175,55,0.3);
+            border: 1px solid rgba(0,210,255,0.3);
             box-shadow: 0 5px 20px rgba(0,0,0,0.5);
             position: relative;
             overflow: hidden;
@@ -100,7 +100,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(212,175,55,0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(0,210,255,0.2), transparent);
             animation: shine 3s infinite;
         }
         
@@ -123,8 +123,8 @@
         
         .plan-card:hover {
             transform: translateY(-5px);
-            border-color: rgba(212,175,55,0.3);
-            box-shadow: 0 15px 40px rgba(212,175,55,0.1);
+            border-color: rgba(0,210,255,0.3);
+            box-shadow: 0 15px 40px rgba(0,210,255,0.1);
         }
         
         .plan-card::after {
@@ -134,7 +134,7 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, transparent, #d4af37, transparent);
+            background: linear-gradient(90deg, transparent, #00d2ff, transparent);
             opacity: 0.5;
         }
         
@@ -167,18 +167,18 @@
             background: rgba(0,0,0,0.3);
             padding: 15px;
             border-radius: 10px;
-            border-left: 3px solid #d4af37;
+            border-left: 3px solid #00d2ff;
         }
         
         .hl { 
-            color: #d4af37; 
+            color: #00d2ff; 
             font-weight: bold; 
         }
 
         .buy-btn { 
             width: 100%; 
             padding: 15px; 
-            background: linear-gradient(135deg, #d4af37, #b8860b); 
+            background: linear-gradient(135deg, #00d2ff, #3a7bd5); 
             color: #000; 
             border: none; 
             border-radius: 10px; 
@@ -192,14 +192,12 @@
             transition: all 0.3s;
             text-transform: uppercase;
             letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
         }
         
         .buy-btn:hover { 
-            background: linear-gradient(135deg, #f1c40f, #d4af37);
+            background: linear-gradient(135deg, #3a7bd5, #00d2ff);
             transform: scale(1.02);
-            box-shadow: 0 5px 20px rgba(212,175,55,0.4);
+            box-shadow: 0 5px 20px rgba(0,210,255,0.4);
         }
         
         .buy-btn:active {
@@ -235,19 +233,19 @@
         <button class="back-btn" onclick="window.location.href='Home.html'">
             <i class="fas fa-chevron-left"></i>
         </button>
-        <div class="page-title">MONTHLY TARGETS</div>
+        <div class="page-title">WEEKLY TARGETS</div>
         <div style="width:40px;"></div>
     </div>
 
     <div class="container">
         <div class="credit-bal">
-            <i class="fas fa-coins" style="color:#d4af37; margin-right:8px;"></i>
-            My Credits: <span id="myCredits" style="color:#d4af37; font-weight:bold;">Loading...</span>
+            <i class="fas fa-coins" style="color:#00d2ff; margin-right:8px;"></i>
+            My Credits: <span id="myCredits" style="color:#00d2ff; font-weight:bold;">Loading...</span>
         </div>
 
         <div id="planList">
             <div style="text-align:center; color:#666; padding:20px;">
-                <i class="fas fa-circle-notch fa-spin" style="font-size:2rem; margin-bottom:10px; color:#d4af37;"></i><br>
+                <i class="fas fa-circle-notch fa-spin" style="font-size:2rem; margin-bottom:10px; color:#00d2ff;"></i><br>
                 Loading Plans...
             </div>
         </div>
@@ -274,7 +272,7 @@
         });
 
         function loadPlans() {
-            db.ref('targets/monthly').on('value', snap => {
+            db.ref('targets/weekly').on('value', snap => {
                 const list = document.getElementById('planList');
                 list.innerHTML = "";
                 
@@ -309,13 +307,13 @@
                     const html = `
                         <div class="plan-card">
                             <div class="p-head">
-                                <div class="p-name"><i class="fas fa-crown" style="color:#d4af37; margin-right:8px;"></i>${p.name}</div>
+                                <div class="p-name"><i class="fas fa-bolt" style="color:#00d2ff; margin-right:8px;"></i>${p.name}</div>
                                 <div class="p-reward">$${p.reward}</div>
                             </div>
                             <div class="p-req">
-                                <i class="fas fa-users" style="color:#d4af37; margin-right:5px;"></i> Referrals Needed: <span class="hl">${p.targetRef}</span><br>
-                                <i class="fas fa-tasks" style="color:#d4af37; margin-right:5px;"></i> Downline Tasks: <span class="hl">${p.targetTask}</span><br>
-                                <i class="fas fa-clock" style="color:#d4af37; margin-right:5px;"></i> Duration: <span class="hl">${p.duration} Days</span>
+                                <i class="fas fa-users" style="color:#00d2ff; margin-right:5px;"></i> Referrals Needed: <span class="hl">${p.targetRef}</span><br>
+                                <i class="fas fa-tasks" style="color:#00d2ff; margin-right:5px;"></i> Downline Tasks: <span class="hl">${p.targetTask}</span><br>
+                                <i class="fas fa-clock" style="color:#00d2ff; margin-right:5px;"></i> Duration: <span class="hl">${p.duration} Days</span>
                             </div>
                             ${buttonHtml}
                             <div class="telegram-badge">
@@ -345,13 +343,13 @@
 
         function openTelegram(name, cost, reward, ref, task) {
             const text = `
-🎯 *MONTHLY TARGET REQUEST*
+🎯 *WEEKLY TARGET REQUEST*
 --------------------------
 👤 *User:* ${myData.name}
 📧 *Email:* ${myData.email}
 🆔 *UID:* ${myData.uid}
 --------------------------
-📦 *Plan:* ${name} (Monthly)
+📦 *Plan:* ${name} (Weekly)
 💰 *Reward:* $${reward}
 🎯 *Target:* ${ref} Refs & ${task} Tasks
 💸 *Paid:* ${cost} Credits
