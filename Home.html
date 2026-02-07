@@ -251,7 +251,7 @@
         .stats-grid {
             display: grid; 
             grid-template-columns: 1fr 1fr; 
-            gap: 16px;
+            gap: 16px; 
             padding: 0 20px; 
             margin-bottom: 28px;
         }
@@ -778,47 +778,46 @@
                          document.getElementById('u_partner').innerText = 0;
                     }
 
-                    // --- NEW LOGIC: REAL-TIME TODAY'S PROFIT ---
-                    // This calculates Task + Commission + Admin Payments (Everything in history with today's date)
-                    calculateTodayEarnings(uid);
+                    // --- REAL-TIME TODAY'S PROFIT FIX ---
+                    // This logic fetches the history and calculates earnings for TODAY
+                    
+                    const today = new Date();
+                    // Format 1: YYYY-MM-DD
+                    const dateISO = today.toISOString().split('T')[0]; 
+                    // Format 2: DD/MM/YYYY (Common in BD/India)
+                    // We construct it manually to match typical stored formats if needed, or use locale
+                    const d = String(today.getDate()).padStart(2, '0');
+                    const m = String(today.getMonth() + 1).padStart(2, '0');
+                    const y = today.getFullYear();
+                    const dateLocal = `${d}/${m}/${y}`; // e.g. 07/02/2026
+                    const dateLocalDash = `${d}-${m}-${y}`; // e.g. 07-02-2026
+
+                    db.ref('history/' + uid).on('value', snap => {
+                        let todaySum = 0;
+                        if (snap.exists()) {
+                            snap.forEach(child => {
+                                const txn = child.val();
+                                const tDate = txn.date;
+                                
+                                // Check if date matches ANY of the common formats
+                                if (tDate === dateISO || tDate === dateLocal || tDate === dateLocalDash) {
+                                    // Must be Income (Positive Amount) and NOT Withdraw
+                                    if (txn.type !== 'withdraw' && parseFloat(txn.amount) > 0) {
+                                        todaySum += parseFloat(txn.amount);
+                                    }
+                                }
+                            });
+                        }
+                        
+                        // Update UI directly
+                        document.getElementById('u_today').innerText = todaySum.toFixed(2);
+                    });
+
                 });
             } else {
                 window.location.href = 'registration_login.html';
             }
         });
-
-        // Function to Calculate Today's Profit from History
-        function calculateTodayEarnings(uid) {
-            // Get today's date in YYYY-MM-DD format
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const todayStr = `${year}-${month}-${day}`;
-
-            // Query history for today's transactions
-            db.ref('history/' + uid).orderByChild('date').equalTo(todayStr).on('value', (snapshot) => {
-                let totalToday = 0;
-                
-                if (snapshot.exists()) {
-                    snapshot.forEach((child) => {
-                        const txn = child.val();
-                        // Sum up everything that is Income (amount > 0)
-                        // This includes: Tasks, Referral Commissions, Salary, Admin Bonuses
-                        // We exclude withdrawals or deduction (amount < 0 or type='withdraw')
-                        if (txn.type !== 'withdraw' && parseFloat(txn.amount) > 0) {
-                            totalToday += parseFloat(txn.amount);
-                        }
-                    });
-                }
-
-                // Update the UI directly
-                const el = document.getElementById('u_today');
-                if (el) {
-                    el.innerText = totalToday.toFixed(2);
-                }
-            });
-        }
 
         // Number animation function
         function animateValue(id, start, end, duration) {
