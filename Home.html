@@ -688,12 +688,10 @@
         let currentIndex = 0;
         let slideInterval;
 
-        // Banner Load Fix: Add empty check
         db.ref('adminSettings/banners').on('value', snap => {
             bannerImages = [];
             if(snap.exists()) {
                 const val = snap.val();
-                // Handle both array and object formats
                 if(Array.isArray(val)) {
                     bannerImages = val.filter(item => item);
                 } else {
@@ -726,15 +724,13 @@
             slideInterval = setInterval(() => { showBanner(currentIndex + 1); }, 5000);
         }
 
-        // --- USER DATA LOGIC (ROBUST SYSTEM FIX FOR ID/NAME) ---
+        // --- USER DATA LOGIC ---
         auth.onAuthStateChanged((user) => {
             if (user) {
                 const uid = user.uid;
                 
                 db.ref('users/' + uid).on('value', (snapshot) => {
                     const data = snapshot.val();
-                    
-                    // SYSTEM FIX: Even if data is missing/null, don't crash. Use defaults.
                     const userData = data || {}; 
 
                     if(userData.status === 'banned' || userData.isBanned) { 
@@ -743,54 +739,34 @@
                         return; 
                     }
 
-                    // --- FIX: BETTER NAME FETCHING ---
-                    // Try DB Name, then Username, then Auth DisplayName, then Email
+                    // 1. Basic Info
                     let displayName = userData.name || userData.username || userData.fullName;
                     if(!displayName && user.displayName) displayName = user.displayName;
                     if(!displayName && user.email) displayName = user.email.split('@')[0];
                     if(!displayName) displayName = "User";
 
                     document.getElementById('u_name').innerText = displayName;
-                    
-                    // Basic Plan Info
                     document.getElementById('u_plan').innerText = (userData.plan || "Free").toUpperCase();
                     document.getElementById('u_credits').innerText = userData.credits || 0;
                     
-                    // --- FIX: BETTER JOIN DATE ---
                     let joinDate = userData.regDate || userData.joinDate || userData.date;
-                    // If DB date is missing, use Auth Creation Time
                     if(!joinDate && user.metadata && user.metadata.creationTime) {
                          const d = new Date(user.metadata.creationTime);
-                         // Format: YYYY-MM-DD
                          joinDate = d.toISOString().split('T')[0];
                     }
                     document.getElementById('u_date').innerText = joinDate || '--';
-
-                    // --- FIX: UID DISPLAY ---
                     document.getElementById('u_uid').innerText = uid.substring(0,8);
 
-                    // Get Current Values from DOM for Animation Start
-                    // Safe parsing to avoid NaN when text is "Loading..."
+                    // 2. Animations for Balance, Lifetime, Team (unchanged)
                     const currentBal = parseFloat(document.getElementById('u_balance').innerText) || 0;
                     const currentLife = parseFloat(document.getElementById('u_lifetime').innerText) || 0;
-                    const currentToday = parseFloat(document.getElementById('u_today').innerText) || 0;
                     const currentTeam = parseInt(document.getElementById('u_team').innerText) || 0;
 
-                    // Real Balance
                     animateValue('u_balance', currentBal, parseFloat(userData.balance || 0), 1000);
-
-                    // Lifetime Earn
                     animateValue('u_lifetime', currentLife, parseFloat(userData.totalEarnings || 0), 1000);
-
-                    // Today's Profit Logic
-                    const todayStr = new Date().toLocaleDateString('en-CA');
-                    const todayProfit = (userData.lastProfitDate === todayStr) ? parseFloat(userData.todayProfit || 0) : 0;
-                    animateValue('u_today', currentToday, todayProfit, 1000);
-
-                    // Total Team
                     animateValue('u_team', currentTeam, parseInt(userData.teamCount || 0), 1000);
 
-                    // My Partners
+                    // 3. My Partners
                     const myCode = userData.myRefCode;
                     if(myCode) {
                         db.ref('users').orderByChild('referredBy').equalTo(myCode).on('value', (partnerSnap) => {
@@ -801,15 +777,51 @@
                     } else {
                          document.getElementById('u_partner').innerText = 0;
                     }
+
+                    // --- NEW LOGIC: REAL-TIME TODAY'S PROFIT ---
+                    // This calculates Task + Commission + Admin Payments (Everything in history with today's date)
+                    calculateTodayEarnings(uid);
                 });
             } else {
                 window.location.href = 'registration_login.html';
             }
         });
 
-        // Number animation function (FIXED: Handles NaN/Loading text)
+        // Function to Calculate Today's Profit from History
+        function calculateTodayEarnings(uid) {
+            // Get today's date in YYYY-MM-DD format
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
+
+            // Query history for today's transactions
+            db.ref('history/' + uid).orderByChild('date').equalTo(todayStr).on('value', (snapshot) => {
+                let totalToday = 0;
+                
+                if (snapshot.exists()) {
+                    snapshot.forEach((child) => {
+                        const txn = child.val();
+                        // Sum up everything that is Income (amount > 0)
+                        // This includes: Tasks, Referral Commissions, Salary, Admin Bonuses
+                        // We exclude withdrawals or deduction (amount < 0 or type='withdraw')
+                        if (txn.type !== 'withdraw' && parseFloat(txn.amount) > 0) {
+                            totalToday += parseFloat(txn.amount);
+                        }
+                    });
+                }
+
+                // Update the UI directly
+                const el = document.getElementById('u_today');
+                if (el) {
+                    el.innerText = totalToday.toFixed(2);
+                }
+            });
+        }
+
+        // Number animation function
         function animateValue(id, start, end, duration) {
-            // Fix: If start is not a number (e.g. "Loading..."), start from 0
             if (isNaN(start)) start = 0;
             if (isNaN(end)) end = 0;
             
@@ -824,11 +836,10 @@
             if(!obj) return;
 
             let current = start;
-            const stepTime = 30; // ms
+            const stepTime = 30; 
             const steps = duration / stepTime;
             const increment = range / steps;
             
-            // If difference is very small, just set it immediately
             if (Math.abs(range) < 0.01) {
                 obj.innerText = Number.isInteger(end) ? end : end.toFixed(2);
                 return;
@@ -836,13 +847,10 @@
             
             const timer = setInterval(function() {
                 current += increment;
-                
-                // Check bounds
                 if ((range > 0 && current >= end) || (range < 0 && current <= end)) {
                     current = end;
                     clearInterval(timer);
                 }
-                
                 obj.innerText = Number.isInteger(end) ? Math.floor(current) : current.toFixed(2);
             }, stepTime);
         }
