@@ -205,7 +205,7 @@
         <div class="commission-card">
             <div class="comm-label"><i class="fas fa-wallet"></i> Total Commission Earned</div>
             <div class="comm-amount" id="totalComm">$0.00</div>
-            <div class="comm-rate"><i class="fas fa-percentage"></i> 20% Every Referral Task</div>
+            <div class="comm-rate"><i class="fas fa-percentage"></i> 20% of Partner's Income</div>
         </div>
 
         <!-- STATS -->
@@ -411,8 +411,17 @@
 
                     // Render list
                     members.forEach(member => {
-                        // Calculate how much this member earned you
-                        const memberEarned = (member.totalTasksDone || 0) * 0.20; // Assuming $0.20 per task commission
+                        // --- FIX STARTED HERE ---
+                        // Logic: 20% of Partner's Total Earnings
+                        // If Partner Earns $1.00 -> You get $0.20
+                        // If Partner Earns $10.00 -> You get $2.00
+                        
+                        // We fetch the partner's total balance or total earnings
+                        const partnerTotalEarned = parseFloat(member.totalEarnings || member.balance || 0);
+                        
+                        // Calculate 20%
+                        const memberEarned = partnerTotalEarned * 0.20; 
+                        // --- FIX ENDED HERE ---
                         
                         const div = document.createElement('div');
                         div.className = 'partner-item';
